@@ -1,6 +1,5 @@
-import '../../common';
 import { Inject, ApplicationLifecycle, LifecycleHook, LifecycleHookUnit } from '@artus/core';
-import { Program, CommandContext, Utils } from '@artus-cli/artus-cli';
+import { Program, CommandContext, Utils } from '../../';
 
 @LifecycleHookUnit()
 export default class UsageLifecycle implements ApplicationLifecycle {
