@@ -1,5 +1,5 @@
 {
-  "name": "simple-bin",
+  "name": "my-bin",
   "type": "commonjs",
   "bin": "./bin.js"
 }
