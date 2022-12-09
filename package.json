@@ -13,7 +13,7 @@
   "type": "commonjs",
   "scripts": {
     "lint": "eslint .",
-    "test": "ts-mocha test/**/*.test.ts --timeout 60000",
+    "test": "mocha",
     "cov": "c8 -n src/ npm test",
     "ci": "npm run lint && npm run cov",
     "tsc": "rm -rf dist && tsc -p tsconfig.release.json",
