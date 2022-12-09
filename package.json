@@ -1,13 +1,8 @@
 {
   "name": "@artus-cli/artus-cli",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "common-bin base on artus",
-  "keywords": [
-    "artus",
-    "command-line-app",
-    "cli",
-    "commander"
-  ],
+  "homepage": "https://github.com/artus-cli/artus-cli",
   "author": "TZ <atian25@qq.com>",
   "main": "index.js",
   "type": "commonjs",
@@ -15,23 +10,21 @@
     "lint": "eslint . --ext .ts",
     "test": "mocha",
     "cov": "c8 -n src/ npm test",
-    "ci": "npm run lint && npm run cov",
     "tsc": "rm -rf dist && tsc -p tsconfig.release.json",
     "prepublishOnly": "npm run tsc"
   },
   "dependencies": {
-    "@artus/core": "1.0.0",
+    "@artus/core": "^1.0.0",
     "@artus/injection": "^0.5.1",
     "@artus/pipeline": "^0.2.2",
     "debug": "^4.3.4",
-    "egg-ci": "^2.2.0",
     "koa-compose": "^4.1.0",
     "reflect-metadata": "^0.1.13",
     "type-fest": "^3.3.0",
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
-    "@artus/tsconfig": "1",
+    "@artus/tsconfig": "^1",
     "@types/inquirer": "^9.0.3",
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.7.14",
@@ -50,14 +43,16 @@
     "tslib": "^2.4.0",
     "typescript": "^4.8.2"
   },
-  "ci": {
-    "version": "14, 16, 18",
-    "os": "linux, macos"
-  },
-  "homepage": "https://github.com/artus-cli/artus-cli",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/artus-cli/artus-cli.git"
   },
+  "keywords": [
+    "artus",
+    "artus-cli",
+    "command-line-app",
+    "cli",
+    "commander"
+  ],
   "license": "MIT"
 }
