@@ -1,6 +1,7 @@
 import { ArtusApplication, ArtusInjectEnum, Inject, Injectable, ScopeEnum } from '@artus/core';
-import { Context, Input, Output } from '@artus/pipeline';
+import { Context } from '@artus/pipeline';
 import { ParsedCommands, MatchResult } from './ParsedCommands';
+const RAW_SYMBOL = Symbol('CommandContext#raw');
 
 export interface CommandInput {
   params: {
@@ -15,8 +16,6 @@ export interface CommandInput {
  */
 @Injectable({ scope: ScopeEnum.SINGLETON })
 export class CommandContext<T extends Record<string, any> = Record<string, any>> extends Context {
-  #raw: string[];
-
   @Inject(ArtusInjectEnum.Application)
   private readonly app: ArtusApplication;
 
@@ -45,11 +44,11 @@ export class CommandContext<T extends Record<string, any> = Record<string, any>>
    * using `raw` instead of `argv` to avoid feeling confusing between `argv` and `args`
    */
   get raw() {
-    return this.#raw;
+    return this[RAW_SYMBOL];
   }
 
   set raw(val: string[]) {
-    this.#raw = val;
+    this[RAW_SYMBOL] = val;
     this.parse();
   }
 
