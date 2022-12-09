@@ -3,5 +3,4 @@
 import '../common';
 import { start } from 'artus-cli';
 
-start({ baseDir: __dirname })
-  .catch(console.error);
+start({ baseDir: __dirname });
