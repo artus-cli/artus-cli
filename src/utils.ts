@@ -20,7 +20,7 @@ export function checkCommandCompatible(command: ParsedCommand, compareCommand: P
   }
 
   // check demanded/optional
-  const flattern = (pos: Positional[]) => pos.map(d => d.cmd.join('|')).join(' ');
+  const flattern = (pos: Positional[]) => pos.map(d => d.cmd).join(' ');
   if (flattern(command.demanded) !== flattern(compareCommand.demanded)) return false;
   if (flattern(command.optional) !== flattern(compareCommand.optional)) return false;
 

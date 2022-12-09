@@ -5,7 +5,7 @@ export * from '@artus/core';
 export { Context } from '@artus/pipeline';
 export * from './core/decorators';
 export * from './core/program';
-export * from './core/helper';
+export * from './core/utils';
 export * from './types';
 
 export * from './proto/Command';

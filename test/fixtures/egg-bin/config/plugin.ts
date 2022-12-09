@@ -1,11 +1,11 @@
 export default {
-  usagePlugin: {
+  help: {
     enable: true,
-    package: 'usage-plugin',
+    package: 'plugin-help',
   },
 
-  versionPlugin: {
+  version: {
     enable: true,
-    package: 'version-plugin',
+    package: 'plugin-version',
   },
 };

@@ -4,10 +4,10 @@
     "paths": {
       "@artus-cli/artus-cli": [ "./src" ],
       "egg-bin": [ "./test/fixtures/egg-bin" ],
-      "codegen-plugin": [ "./test/fixtures/plugins/codegen-plugin" ],
-      "codegen-extra": [ "./test/fixtures/plugins/codegen-extra" ],
-      "version-plugin": [ "./test/fixtures/plugins/version-plugin" ],
-      "usage-plugin": [ "./test/fixtures/plugins/usage-plugin" ]
+      "plugin-codegen": [ "./test/fixtures/plugins/plugin-codegen" ],
+      "plugin-codegen-extra": [ "./test/fixtures/plugins/plugin-codegen-extra" ],
+      "plugin-version": [ "./test/fixtures/plugins/plugin-version" ],
+      "plugin-help": [ "./test/fixtures/plugins/plugin-help" ]
     }
   },
   "include": [

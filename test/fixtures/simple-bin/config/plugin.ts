@@ -1,6 +1,6 @@
 export default {
-  usagePlugin: {
+  help: {
     enable: true,
-    package: 'usage-plugin',
+    package: 'plugin-help',
   },
 };

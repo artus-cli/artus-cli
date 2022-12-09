@@ -1,6 +1,6 @@
 import '../../common';
 import { Inject, ApplicationLifecycle, LifecycleHook, LifecycleHookUnit } from '@artus/core';
-import { Program, CommandContext, Helper } from '@artus-cli/artus-cli';
+import { Program, CommandContext, Utils } from '@artus-cli/artus-cli';
 
 @LifecycleHookUnit()
 export default class UsageLifecycle implements ApplicationLifecycle {
@@ -31,7 +31,7 @@ export default class UsageLifecycle implements ApplicationLifecycle {
       }
 
       // redirect to help command
-      const helper = ctx.container.get(Helper);
+      const helper = ctx.container.get(Utils);
       await helper.redirect([ 'help', fuzzyMatched.uid ]);
     });
   }

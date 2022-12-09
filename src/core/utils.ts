@@ -8,7 +8,7 @@ import assert from 'node:assert';
 import { format } from 'node:util';
 
 @Injectable({ scope: ScopeEnum.EXECUTION })
-export class Helper {
+export class Utils {
   @Inject()
   private readonly ctx: CommandContext;
 

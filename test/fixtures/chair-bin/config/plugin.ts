@@ -1,11 +1,11 @@
 export default {
   codegen: {
     enable: true,
-    package: 'codegen-plugin',
+    package: 'plugin-codegen',
   },
 
   codegenExtra: {
     enable: true,
-    package: 'codegen-extra',
+    package: 'plugin-codegen-extra',
   },
 };

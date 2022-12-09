@@ -33,10 +33,10 @@ $ npx ts-node test/fixtures/override/bin.ts -h
 
 ## 插件 demo
 
-- test/fixtures/usage-plugin: `-h, --help`
-- test/fixtures/version-plugin: `-v, --version`
-- test/fixtures/codegen-plugin `codegen 指令`
-- test/fixtures/codegen-extra `拓展 codegen 指令`
+- test/fixtures/plugin-help: `-h, --help`
+- test/fixtures/plugin-version: `-v, --version`
+- test/fixtures/plugin-codegen `codegen 指令`
+- test/fixtures/plugin-codegen-extra `拓展 codegen 指令`
 
 ## 单测
 
