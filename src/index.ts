@@ -1,16 +1,20 @@
 import 'reflect-metadata';
 import { ArtusApplication, Scanner } from '@artus/core';
+import { dirname } from 'dirname-filename-esm';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+const __dirname = dirname(import.meta);
 
 export * from '@artus/core';
 export { Context } from '@artus/pipeline';
-export * from './core/decorators';
-export * from './core/program';
-export * from './core/helper';
-export * from './types';
+export * from './core/decorators.js';
+export * from './core/program.js';
+export * from './core/helper.js';
+export * from './types.js';
 
-export * from './proto/Command';
-export * from './proto/CommandContext';
-export * from './proto/ParsedCommands';
+export * from './proto/Command.js';
+export * from './proto/CommandContext.js';
+export * from './proto/ParsedCommands.js';
 
 export interface ApplicationOptions {
   framework?: { package?: string; path?: string };
@@ -29,10 +33,12 @@ export async function start(options ?: ApplicationOptions) {
   }
 
   const baseDir = options.baseDir || process.cwd();
-  process.env.ARTUS_COMMON_BIN_NAME = require(`${baseDir}/package.json`).name || 'bin';
+  const pkgInfo = JSON.parse(await fs.readFile(path.resolve(baseDir, 'package.json'), 'utf-8').catch(() => '{}'));
+  process.env.ARTUS_COMMON_BIN_NAME = pkgInfo.name || 'bin';
   process.env.ARTUS_COMMON_BIN_SCANNING = 'true';
   process.env.ARTUS_COMMON_BIN_BASEDIR = baseDir;
 
+  console.info(import.meta.url);
   // scan app files
   const scanner = new Scanner({
     needWriteFile: false,

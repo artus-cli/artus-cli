@@ -1,6 +1,6 @@
 import { Inject, DefineCommand, DefineOption, Command, CommandContext, Middleware } from 'artus-cli';
-import { UserService } from '../service/user';
-import { AuthService } from '../service/auth';
+import { UserService } from '../service/user.js';
+import { AuthService } from '../service/auth.js';
 
 export interface UserOption {
   authCode: string;

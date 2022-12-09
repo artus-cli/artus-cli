@@ -1,4 +1,4 @@
-import { ParsedCommand, Positional } from './proto/ParsedCommands';
+import { ParsedCommand, Positional } from './proto/ParsedCommands.js';
 
 export function isInheritFrom(clz, maybeParent) {
   if (clz === maybeParent) return true;

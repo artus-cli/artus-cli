@@ -1,5 +1,5 @@
 import { Inject, ApplicationLifecycle, LifecycleHook, LifecycleHookUnit } from '@artus/core';
-import { CommandTrigger } from './trigger';
+import { CommandTrigger } from './trigger.js';
 
 @LifecycleHookUnit()
 export default class Lifecycle implements ApplicationLifecycle {

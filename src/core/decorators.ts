@@ -1,12 +1,12 @@
 import { addTag, Injectable, ScopeEnum, Inject } from '@artus/core';
-import { MetadataEnum, CONTEXT_SYMBOL, EXCUTION_SYMBOL } from '../constant';
-import { ParsedCommands } from '../proto/ParsedCommands';
-import { CommandContext } from '../proto/CommandContext';
-import compose from 'koa-compose';
-import { Command } from '../proto/Command';
-import { checkCommandCompatible } from '../utils';
 import { MiddlewareInput, Middlewares } from '@artus/pipeline';
-import { CommandProps, OptionProps, OptionMeta, CommandMeta } from '../types';
+import { MetadataEnum, CONTEXT_SYMBOL, EXCUTION_SYMBOL } from '../constant.js';
+import { ParsedCommands } from '../proto/ParsedCommands.js';
+import { CommandContext } from '../proto/CommandContext.js';
+import compose from 'koa-compose';
+import { Command } from '../proto/Command.js';
+import { checkCommandCompatible } from '../utils.js';
+import { CommandProps, OptionProps, OptionMeta, CommandMeta } from '../types.js';
 
 export interface CommonDecoratorOption {
   /** whether merge meta info of prototype */

@@ -1,8 +1,8 @@
 import { Trigger, Injectable, ScopeEnum } from '@artus/core';
 import { Context, Output } from '@artus/pipeline';
 import Debug from 'debug';
-import { EXCUTION_SYMBOL } from '../constant';
-import { CommandContext, CommandInput } from '../proto/CommandContext';
+import { EXCUTION_SYMBOL } from '../constant.js';
+import { CommandContext, CommandInput } from '../proto/CommandContext.js';
 const debug = Debug('artus-cli#trigger');
 
 @Injectable({ scope: ScopeEnum.SINGLETON })

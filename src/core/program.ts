@@ -4,11 +4,11 @@
 
 import { Inject, Injectable, ScopeEnum } from '@artus/core';
 import { MiddlewareInput } from '@artus/pipeline';
-import { CommandTrigger } from './trigger';
-import { OptionProps } from '../types';
-import { Command } from '../proto/Command';
-import { Middleware, MiddlewareDecoratorOption } from './decorators';
-import { ParsedCommand, ParsedCommands } from '../proto/ParsedCommands';
+import { CommandTrigger } from './trigger.js';
+import { OptionProps } from '../types.js';
+import { Command } from '../proto/Command.js';
+import { Middleware, MiddlewareDecoratorOption } from './decorators.js';
+import { ParsedCommand, ParsedCommands } from '../proto/ParsedCommands.js';
 
 type MaybeParsedCommand = (typeof Command) | ParsedCommand;
 

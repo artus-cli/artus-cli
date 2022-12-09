@@ -1,3 +1,4 @@
 {
-  "name": "artus-version-plugin"
+  "name": "artus-version-plugin",
+  "type": "module"
 }

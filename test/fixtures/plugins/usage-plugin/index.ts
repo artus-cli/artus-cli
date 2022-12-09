@@ -1,4 +1,3 @@
-import '../../common';
 import { Inject, ApplicationLifecycle, LifecycleHook, LifecycleHookUnit } from '@artus/core';
 import { Program, CommandContext, Helper } from 'artus-cli';
 

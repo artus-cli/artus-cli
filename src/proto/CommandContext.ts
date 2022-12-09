@@ -1,9 +1,9 @@
 import { ArtusApplication, ArtusInjectEnum, Inject, Injectable, ScopeEnum } from '@artus/core';
-import { Context } from '@artus/pipeline';
-import { ParsedCommands, MatchResult } from './ParsedCommands';
+import { Context, Input } from '@artus/pipeline';
+import { ParsedCommands, MatchResult } from './ParsedCommands.js';
 const RAW_SYMBOL = Symbol('CommandContext#raw');
 
-export interface CommandInput {
+export interface CommandInput extends Input {
   params: {
     argv: string[];
     env: Record<string, string>;

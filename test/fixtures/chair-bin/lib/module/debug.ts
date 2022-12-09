@@ -1,5 +1,5 @@
 import { DefineCommand, Command } from 'artus-cli';
-import { ModuleMainCommand } from './main';
+import { ModuleMainCommand } from './main.js';
 import { DebugCommand } from 'egg-bin';
 
 @DefineCommand({

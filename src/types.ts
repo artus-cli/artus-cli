@@ -1,4 +1,4 @@
-import { Command } from './proto/Command';
+import { Command } from './proto/Command.js';
 
 export interface CommandProps {
   command?: string;

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import '../common';
 import { start } from 'artus-cli';
+import { dirname } from 'dirname-filename-esm';
 
-start({ baseDir: __dirname })
-  .catch(console.error);
+start({ baseDir: dirname(import.meta) });
+

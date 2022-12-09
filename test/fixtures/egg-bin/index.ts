@@ -1,3 +1,3 @@
-export * from './lib/dev';
-export * from './lib/debug';
-export * from './lib/main';
+export * from './lib/dev.js';
+export * from './lib/debug.js';
+export * from './lib/main.js';

@@ -1,3 +1,4 @@
 {
-  "name": "artus-codegen-plugin"
+  "name": "artus-codegen-plugin",
+  "type": "module"
 }

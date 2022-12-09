@@ -1,10 +1,10 @@
-import { Command, EmptyCommand } from './Command';
-import { MetadataEnum } from '../constant';
-import { CommandMeta, OptionProps } from '../types';
+import { Command, EmptyCommand } from './Command.js';
+import { MetadataEnum } from '../constant.js';
+import { CommandMeta, OptionProps } from '../types.js';
 import parser from 'yargs-parser';
 import Debug from 'debug';
 import { format } from 'node:util';
-import { isInheritFrom, isNil } from '../utils';
+import { isInheritFrom, isNil } from '../utils.js';
 import { ArtusInjectEnum, Injectable, Container, Inject, ScopeEnum } from '@artus/core';
 const debug = Debug('artus-cli#ParsedCommands');
 const OPTION_SYMBOL = Symbol('ParsedCommand#Option');

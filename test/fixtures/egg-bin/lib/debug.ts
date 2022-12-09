@@ -1,5 +1,5 @@
 import { DefineCommand, DefineOption } from 'artus-cli';
-import { DevCommand, DevOption } from './dev';
+import { DevCommand, DevOption } from './dev.js';
 
 interface DebugOption extends DevOption {
   flags?: string;

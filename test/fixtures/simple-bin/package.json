@@ -1,4 +1,4 @@
 {
   "name": "simple-bin",
-  "type": "commonjs"
+  "type": "module"
 }

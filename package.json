@@ -1,5 +1,5 @@
 {
-  "name": "artus-cli",
+  "name": "@artus-cli/artus-cli",
   "version": "1.0.0",
   "description": "common-bin base on artus",
   "keywords": [
@@ -9,15 +9,27 @@
     "commander"
   ],
   "author": "TZ <atian25@qq.com>",
-  "main": "index.js",
-  "type": "commonjs",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "type": "module",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
   "scripts": {
     "lint": "eslint .",
     "test": "mocha",
+    "test-release": "RELEASE=true mocha",
     "cov": "c8 -n src/ npm test",
     "ci": "npm run lint && npm run cov",
-    "tsc": "rm -rf dist && tsc -p tsconfig.release.json",
-    "prepublishOnly": "npm run tsc"
+    "tsc:cjs": "tsc --module commonjs --target es2017 --outDir dist/cjs",
+    "tsc:esm": "tsc",
+    "tsc": "rm -rf dist && npm run tsc:esm && npm run tsc:cjs",
+    "prepublishOnly": "npm run tsc && npm run test-release"
   },
   "dependencies": {
     "@artus/core": "1.0.0",
@@ -30,9 +42,6 @@
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
-    "command-line-usage": "^6.1.3",
-    "inquirer": "^8.0.0",
-    "tsconfig-paths": "^4.1.1",
     "@artus/tsconfig": "1",
     "@types/inquirer": "^9.0.3",
     "@types/mocha": "^9.1.1",
@@ -40,12 +49,15 @@
     "@types/yargs-parser": "^21.0.0",
     "c8": "^7.12.0",
     "coffee": "^5.5.0",
+    "command-line-usage": "^6.1.3",
     "dirname-filename-esm": "^1.1.1",
     "eslint": "^8.28.0",
     "eslint-config-egg": "^12.1.0",
+    "inquirer": "^8.0.0",
     "mocha": "^10.0.0",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.1",
     "tslib": "^2.4.0",
     "typescript": "^4.8.2"
   },

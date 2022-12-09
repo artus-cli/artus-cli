@@ -1,9 +1,9 @@
 import { Inject, Injectable, ScopeEnum } from '@artus/core';
-import { ParsedCommands } from '../proto/ParsedCommands';
-import { Command } from '../proto/Command';
-import { CommandContext } from '../proto/CommandContext';
-import { CommandTrigger } from './trigger';
-import { EXCUTION_SYMBOL } from '../constant';
+import { ParsedCommands } from '../proto/ParsedCommands.js';
+import { Command } from '../proto/Command.js';
+import { CommandContext } from '../proto/CommandContext.js';
+import { CommandTrigger } from './trigger.js';
+import { EXCUTION_SYMBOL } from '../constant.js';
 import assert from 'node:assert';
 import { format } from 'node:util';
 

@@ -1,5 +1,5 @@
 import { DefineCommand, DefineOption, Command, Inject } from 'artus-cli';
-import { TestCommand, TestOption } from './test';
+import { TestCommand, TestOption } from './test.js';
 
 interface CovOption extends TestOption {
   c8?: boolean;

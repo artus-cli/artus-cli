@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "artus-cli": [ "./src/index.js" ],
+      "egg-bin": [ "./test/fixtures/egg-bin/index.js" ],
+      "codegen-plugin": [ "./test/fixtures/plugins/codegen-plugin/index.js" ],
+      "codegen-extra": [ "./test/fixtures/plugins/codegen-extra/index.js" ],
+      "version-plugin": [ "./test/fixtures/plugins/version-plugin/index.js" ],
+      "usage-plugin": [ "./test/fixtures/plugins/usage-plugin/index.js" ]
+    }
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}
