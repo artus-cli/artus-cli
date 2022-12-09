@@ -1,4 +1,4 @@
-import { DefineCommand, Command, DefineOption, Inject, CommandContext } from '@artus-cli/artus-cli';
+import { DefineCommand, Command, DefineOption, Inject, CommandContext } from '../../';
 import commandLineUsage from 'command-line-usage';
 
 interface Option {

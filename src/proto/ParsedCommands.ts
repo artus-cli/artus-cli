@@ -38,7 +38,7 @@ export interface ParsedCommandStruct {
 }
 
 export interface Positional {
-  cmd: string[];
+  cmd: string;
   variadic: boolean;
 }
 
@@ -82,16 +82,10 @@ export function parseCommand(cmd: string, binName: string) {
     if (result) {
       if (result[1] === '[') {
         // [options]
-        parsedCommand.optional.push({
-          cmd: cmd.replace(bregex, '').split('|'),
-          variadic,
-        });
+        parsedCommand.optional.push({ cmd: cmd.replace(bregex, ''), variadic });
       } else {
         // <options>
-        parsedCommand.demanded.push({
-          cmd: cmd.replace(bregex, '').split('|'),
-          variadic,
-        });
+        parsedCommand.demanded.push({ cmd: cmd.replace(bregex, ''), variadic });
       }
     } else {
       // command without [] or <>
@@ -283,7 +277,7 @@ export class ParsedCommands {
         r = args[index];
       }
 
-      positional.cmd.forEach(c => result[c] = r);
+      result[positional.cmd] = r;
       return !!r;
     });
 
