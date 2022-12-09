@@ -1,4 +1,4 @@
-import { DefineCommand, DefineOption, Command, Inject } from 'artus-cli';
+import { DefineCommand, DefineOption, Command, Inject } from '@artus-cli/artus-cli';
 import { TestCommand, TestOption } from './test';
 
 interface CovOption extends TestOption {

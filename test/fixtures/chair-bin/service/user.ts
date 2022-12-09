@@ -1,4 +1,4 @@
-import { Injectable, ScopeEnum } from 'artus-cli';
+import { Injectable, ScopeEnum } from '@artus-cli/artus-cli';
 import inquirer from 'inquirer';
 
 @Injectable({

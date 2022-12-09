@@ -1,4 +1,4 @@
-import { Inject, DefineCommand, DefineOption, Command, CommandContext, Middleware } from 'artus-cli';
+import { Inject, DefineCommand, DefineOption, Command, CommandContext, Middleware } from '@artus-cli/artus-cli';
 import { UserService } from '../service/user';
 import { AuthService } from '../service/auth';
 

@@ -1,6 +1,6 @@
 import '../../common';
 import { Inject, ArtusInjectEnum, ApplicationLifecycle, LifecycleHook, LifecycleHookUnit } from '@artus/core';
-import { Program, CommandContext, CommonBinConfig } from 'artus-cli';
+import { Program, CommandContext, CommonBinConfig } from '@artus-cli/artus-cli';
 import fs from 'fs/promises';
 import path from 'path';
 @LifecycleHookUnit()

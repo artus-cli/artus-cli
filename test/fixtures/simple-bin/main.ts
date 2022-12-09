@@ -1,5 +1,5 @@
 // index.ts
-import { DefineCommand, DefineOption, Command } from 'artus-cli';
+import { DefineCommand, DefineOption, Command } from '@artus-cli/artus-cli';
 
 interface Option {
   port: number;

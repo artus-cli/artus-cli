@@ -1,4 +1,4 @@
-import { DefineCommand, DefineOption } from 'artus-cli';
+import { DefineCommand, DefineOption } from '@artus-cli/artus-cli';
 import { DevCommand, DevOption } from './dev';
 
 interface DebugOption extends DevOption {

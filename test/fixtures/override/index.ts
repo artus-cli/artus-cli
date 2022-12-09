@@ -1,4 +1,4 @@
-import { DefineCommand, Command } from 'artus-cli';
+import { DefineCommand, Command } from '@artus-cli/artus-cli';
 
 @DefineCommand({
   command: 'dev',
