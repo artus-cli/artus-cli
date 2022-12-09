@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     concurrency:
-      group: ${{ github.head_ref || github.run_id }}
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ matrix.os }}-${{ matrix.node-version }}
       cancel-in-progress: true
 
     strategy:
