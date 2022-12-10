@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { ArtusApplication, Scanner } from '@artus/core';
 import { ApplicationOptions } from './types';
+import assert from 'node:assert';
 
 export * from '@artus/core';
 export { Context } from '@artus/pipeline';
@@ -40,6 +41,7 @@ export async function start(options: ApplicationOptions = {}) {
   // start app
   const env = options.env || process.env.ARTUS_CLI_ENV || 'default';
   const app = new ArtusApplication();
+  assert(manifest[env], `Unknown env "${env}"`);
   await app.load(manifest[env], baseDir);
   await app.run();
   return app;
