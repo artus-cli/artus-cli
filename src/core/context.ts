@@ -1,6 +1,6 @@
 import { Inject, Injectable, ScopeEnum } from '@artus/core';
 import { Context } from '@artus/pipeline';
-import { ParsedCommands, MatchResult } from './ParsedCommands';
+import { ParsedCommands, MatchResult } from './parsed_commands';
 const RAW_SYMBOL = Symbol('CommandContext#raw');
 
 export interface CommandInput {

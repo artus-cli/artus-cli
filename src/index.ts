@@ -9,9 +9,9 @@ export * from './core/program';
 export * from './core/utils';
 export * from './types';
 
-export * from './proto/Command';
-export * from './proto/CommandContext';
-export * from './proto/ParsedCommands';
+export * from './core/command';
+export * from './core/context';
+export * from './core/parsed_commands';
 
 export async function start(options ?: ApplicationOptions) {
   if (process.env.ARTUS_COMMON_BIN_SCANNING) {

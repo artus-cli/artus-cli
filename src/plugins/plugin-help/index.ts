@@ -31,8 +31,8 @@ export default class UsageLifecycle implements ApplicationLifecycle {
       }
 
       // redirect to help command
-      const helper = ctx.container.get(Utils);
-      await helper.redirect([ 'help', fuzzyMatched.uid ]);
+      const utils = ctx.container.get(Utils);
+      await utils.redirect([ 'help', fuzzyMatched.uid ]);
     });
   }
 }

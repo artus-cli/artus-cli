@@ -1,9 +1,9 @@
 import { addTag, Injectable, ScopeEnum, Inject } from '@artus/core';
 import { MetadataEnum, CONTEXT_SYMBOL, EXCUTION_SYMBOL } from '../constant';
-import { ParsedCommands } from '../proto/ParsedCommands';
-import { CommandContext } from '../proto/CommandContext';
+import { ParsedCommands } from '../core/parsed_commands';
+import { CommandContext } from './context';
 import compose from 'koa-compose';
-import { Command } from '../proto/Command';
+import { Command } from './command';
 import { checkCommandCompatible } from '../utils';
 import { MiddlewareInput, Middlewares } from '@artus/pipeline';
 import { CommandProps, OptionProps, OptionMeta, CommandMeta } from '../types';
