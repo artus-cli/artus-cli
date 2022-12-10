@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { ArtusApplication, Scanner } from '@artus/core';
 import { ApplicationOptions } from './types';
+import path from 'path';
 
 export * from '@artus/core';
 export { Context } from '@artus/pipeline';
@@ -20,7 +21,9 @@ export async function start(options?: ApplicationOptions) {
   }
 
   const baseDir = options.baseDir || process.cwd();
-  process.env.ARTUS_CLI_BIN = options.binName || require(`${baseDir}/package.json`).name || 'bin';
+
+  // bin canbe name or bin file path
+  process.env.ARTUS_CLI_BIN = options.bin || require(`${baseDir}/package.json`).name || 'bin';
   process.env.ARTUS_CLI_SCANNING = 'true';
   process.env.ARTUS_CLI_BASEDIR = baseDir;
 
