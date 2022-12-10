@@ -40,11 +40,11 @@ export interface CommonBinConfig {
 }
 
 export interface CommonBinInfo {
-  binName: string;
-  baseDir: string;
   name: string;
   version?: string;
+  binName: string;
+  baseDir: string;
   author?: string;
   description?: string;
-  homepage?: string;
+  pkgInfo?: Record<string, any>;
 }
