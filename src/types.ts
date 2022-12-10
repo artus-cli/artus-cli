@@ -24,3 +24,23 @@ export interface OptionMeta<T extends string = string> {
 export interface CommandMeta extends CommandProps {
   // nothing
 }
+
+export interface ApplicationOptions {
+  framework?: { package?: string; path?: string };
+  baseDir?: string;
+}
+
+export interface CommonBinConfig {
+  bin: string;
+  baseDir: string;
+}
+
+export interface CommonBinInfo {
+  bin: string;
+  baseDir: string;
+  name: string;
+  version?: string;
+  author?: string;
+  description?: string;
+  homepage?: string;
+}

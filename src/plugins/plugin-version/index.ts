@@ -21,15 +21,9 @@ export default class VersionLifecycle implements ApplicationLifecycle {
 
     // intercept root command and show version
     this.program.useInCommand(rootCommand, async (ctx: CommandContext, next) => {
-      const { args, bin } = ctx;
+      const { args } = ctx;
       if (args.version) {
-        // app config
-        const config: CommonBinConfig = ctx.container.get(ArtusInjectEnum.Config);
-
-        // read version from package.json
-        const pkgPath = path.resolve(config.baseDir, './package.json');
-        const pkgInfo = JSON.parse(await fs.readFile(pkgPath, 'utf-8'));
-        return console.info(bin, pkgInfo.version || '1.0.0');
+        return console.info(this.program.bin, this.program.version || '1.0.0');
       }
 
       await next();

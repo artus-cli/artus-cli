@@ -1,4 +1,4 @@
-import { DefineCommand, Command, DefineOption, Inject, CommandContext } from '../../';
+import { DefineCommand, Command, DefineOption, Inject, CommandContext, Program } from '../../';
 import commandLineUsage from 'command-line-usage';
 
 interface Option {
@@ -14,11 +14,15 @@ export class HelpCommand extends Command {
   @Inject()
   ctx: CommandContext;
 
+  @Inject()
+  program: Program;
+
   @DefineOption()
   option: Option;
 
   async run() {
     const ctx = this.ctx;
+    const { bin } = this.program;
     const { command } = this.option;
     const helpCommand = ctx.commands.get(command) || ctx.rootCommand;
 
@@ -28,7 +32,7 @@ export class HelpCommand extends Command {
     const optionKeys = helpCommand.options ? Object.keys(helpCommand.options) : [];
 
     // usage info in first line
-    displayTexts.push(`Usage: ${helpCommand.command.startsWith(ctx.bin) ? '' : `${ctx.bin} `}${helpCommand.command}`);
+    displayTexts.push(`Usage: ${helpCommand.command.startsWith(bin) ? '' : `${bin} `}${helpCommand.command}`);
     if (helpCommand.description) {
       displayTexts.push('', helpCommand.description);
     }
