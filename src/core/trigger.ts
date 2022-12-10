@@ -5,7 +5,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { EXCUTION_SYMBOL } from '../constant';
 import { CommonBinConfig, CommonBinInfo } from '../types';
-import { CommandContext, CommandInput } from '../proto/CommandContext';
+import { CommandContext, CommandInput } from './context';
 const BIN_INFO_SYMBOL = Symbol('Program#binInfoSymbol');
 const debug = Debug('artus-cli#trigger');
 

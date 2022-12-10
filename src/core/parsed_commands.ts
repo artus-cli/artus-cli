@@ -1,4 +1,4 @@
-import { Command, EmptyCommand } from './Command';
+import { Command, EmptyCommand } from './command';
 import { MetadataEnum } from '../constant';
 import { CommandMeta, OptionProps } from '../types';
 import parser from 'yargs-parser';

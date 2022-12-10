@@ -6,9 +6,9 @@ import { Inject, Injectable, ArtusInjectEnum, ArtusApplication, ScopeEnum } from
 import { MiddlewareInput } from '@artus/pipeline';
 import { CommandTrigger } from './trigger';
 import { OptionProps } from '../types';
-import { Command } from '../proto/Command';
+import { Command } from './command';
 import { Middleware, MiddlewareDecoratorOption } from './decorators';
-import { ParsedCommand, ParsedCommands } from '../proto/ParsedCommands';
+import { ParsedCommand, ParsedCommands } from './parsed_commands';
 
 type MaybeParsedCommand = (typeof Command) | ParsedCommand;
 
