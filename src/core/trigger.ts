@@ -53,9 +53,12 @@ export class CommandTrigger extends Trigger {
     }
 
     this.binInfo = {
-      ...pkgInfo,
+      name: pkgInfo.name,
+      version: pkgInfo.version,
+      description: pkgInfo.description,
       binName: config.binName,
       baseDir: config.baseDir,
+      pkgInfo,
     };
 
     this.use(async (ctx: CommandContext, next) => {
