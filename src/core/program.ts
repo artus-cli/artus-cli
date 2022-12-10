@@ -2,7 +2,7 @@
  * open api for user
  **/
 
-import { Inject, Injectable, ScopeEnum } from '@artus/core';
+import { Inject, Injectable, ArtusInjectEnum, ArtusApplication, ScopeEnum } from '@artus/core';
 import { MiddlewareInput } from '@artus/pipeline';
 import { CommandTrigger } from './trigger';
 import { OptionProps } from '../types';
@@ -30,7 +30,32 @@ export class Program {
     return this.parsedCommands.root;
   }
 
-  getParsedCommand(clz: MaybeParsedCommand) {
+  /** bin info, including pkgInfo and config */
+  get binInfo() {
+    return this.trigger.binInfo;
+  }
+
+  /** the bin name */
+  get bin() {
+    return this.binInfo.bin;
+  }
+
+  /** package name */
+  get name() {
+    return this.binInfo.name;
+  }
+
+  /** package version */
+  get version() {
+    return this.binInfo.version;
+  }
+
+  /** bin base dir */
+  get baseDir() {
+    return this.binInfo.baseDir;
+  }
+
+  private getParsedCommand(clz: MaybeParsedCommand) {
     return clz instanceof ParsedCommand ? clz : this.parsedCommands.getCommand(clz);
   }
 

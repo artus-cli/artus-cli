@@ -1,4 +1,4 @@
-import { ArtusApplication, ArtusInjectEnum, Inject, Injectable, ScopeEnum } from '@artus/core';
+import { Inject, Injectable, ScopeEnum } from '@artus/core';
 import { Context } from '@artus/pipeline';
 import { ParsedCommands, MatchResult } from './ParsedCommands';
 const RAW_SYMBOL = Symbol('CommandContext#raw');
@@ -16,23 +16,18 @@ export interface CommandInput {
  */
 @Injectable({ scope: ScopeEnum.SINGLETON })
 export class CommandContext<T extends Record<string, any> = Record<string, any>> extends Context {
-  @Inject(ArtusInjectEnum.Application)
-  private readonly app: ArtusApplication;
-
   @Inject()
   private readonly parsedCommands: ParsedCommands;
 
   /** matched result */
   private matchResult: MatchResult;
 
-  bin: string;
   env: Record<string, string>;
   cwd: string;
   input: CommandInput;
 
   init() {
     const params = this.input.params;
-    this.bin = this.app.config.bin;
     this.env = params.env;
     this.cwd = params.cwd;
     this.raw = params.argv;

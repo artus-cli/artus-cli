@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { ArtusApplication, Scanner } from '@artus/core';
+import { ApplicationOptions } from './types';
 
 export * from '@artus/core';
 export { Context } from '@artus/pipeline';
@@ -11,16 +12,6 @@ export * from './types';
 export * from './proto/Command';
 export * from './proto/CommandContext';
 export * from './proto/ParsedCommands';
-
-export interface ApplicationOptions {
-  framework?: { package?: string; path?: string };
-  baseDir?: string;
-}
-
-export interface CommonBinConfig {
-  bin: string;
-  baseDir: string;
-}
 
 export async function start(options ?: ApplicationOptions) {
   if (process.env.ARTUS_COMMON_BIN_SCANNING) {
