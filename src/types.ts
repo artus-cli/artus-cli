@@ -29,18 +29,18 @@ export interface ApplicationOptions {
   /** start env */
   env?: string;
   /** your bin name, default is name in package.json */
-  bin?: string;
+  binName?: string;
   framework?: { package?: string; path?: string };
   baseDir?: string;
 }
 
 export interface CommonBinConfig {
-  bin: string;
+  binName: string;
   baseDir: string;
 }
 
 export interface CommonBinInfo {
-  bin: string;
+  binName: string;
   baseDir: string;
   name: string;
   version?: string;

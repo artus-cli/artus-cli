@@ -22,7 +22,7 @@ export class HelpCommand extends Command {
 
   async run() {
     const ctx = this.ctx;
-    const { bin } = this.program;
+    const { binName: bin } = this.program;
     const { command } = this.option;
     const helpCommand = ctx.commands.get(command) || ctx.rootCommand;
 

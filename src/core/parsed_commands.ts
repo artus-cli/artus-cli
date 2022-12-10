@@ -190,7 +190,7 @@ export class ParsedCommands {
   ) {
     const commandList = container.getInjectableByTag(MetadataEnum.COMMAND);
     // bin name, default is pkg.name
-    this.binName = config.bin;
+    this.binName = config.binName;
     this.buildCommandTree(commandList);
   }
 

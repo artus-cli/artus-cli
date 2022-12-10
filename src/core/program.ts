@@ -36,8 +36,8 @@ export class Program {
   }
 
   /** the bin name */
-  get bin() {
-    return this.binInfo.bin;
+  get binName() {
+    return this.binInfo.binName;
   }
 
   /** package name */
