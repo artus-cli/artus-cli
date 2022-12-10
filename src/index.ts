@@ -22,8 +22,8 @@ export async function start(options: ApplicationOptions = {}) {
 
   const baseDir = options.baseDir || process.cwd();
 
-  // bin canbe name or bin file path
-  process.env.ARTUS_CLI_BIN = options.bin || require(`${baseDir}/package.json`).name || 'bin';
+  // bin can be options.bin or pkg.name
+  process.env.ARTUS_CLI_BIN = options.bin || require(`${baseDir}/package.json`).name;
   process.env.ARTUS_CLI_SCANNING = 'true';
   process.env.ARTUS_CLI_BASEDIR = baseDir;
 
