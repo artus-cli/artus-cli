@@ -14,7 +14,7 @@ export * from './core/command';
 export * from './core/context';
 export * from './core/parsed_commands';
 
-export async function start(options?: ApplicationOptions) {
+export async function start(options: ApplicationOptions = {}) {
   if (process.env.ARTUS_CLI_SCANNING) {
     // avoid scan bin file and start again
     return null;
