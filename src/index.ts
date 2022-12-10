@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import { ArtusApplication, Scanner } from '@artus/core';
 import { ApplicationOptions } from './types';
-import path from 'path';
 
 export * from '@artus/core';
 export { Context } from '@artus/pipeline';
