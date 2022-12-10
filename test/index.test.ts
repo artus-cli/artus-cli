@@ -59,6 +59,15 @@ describe('test', () => {
       .end();
   });
 
+  it('egg-bin should work with different env', async () => {
+    await coffee.fork(tsNode, [ eggBin, '--help' ], {
+      env: { ...process.env, ARTUS_CLI_ENV: 'prod' },
+    })
+      .debug()
+      .expect('stdout', /main/)
+      .end();
+  });
+
   it('chair-bin should work', async () => {
     await coffee.fork(tsNode, [ chairBin, '--help' ])
       .debug()

@@ -18,7 +18,7 @@ export default class UsageLifecycle implements ApplicationLifecycle {
     });
 
     this.program.use(async (ctx: CommandContext, next) => {
-      const { bin } = this.program;
+      const { binName: bin } = this.program;
       const { fuzzyMatched, matched, args, raw } = ctx;
       if (!fuzzyMatched || !args.help) {
         if (!matched) {

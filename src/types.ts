@@ -26,17 +26,21 @@ export interface CommandMeta extends CommandProps {
 }
 
 export interface ApplicationOptions {
+  /** start env */
+  env?: string;
+  /** your bin name, default is name in package.json */
+  binName?: string;
   framework?: { package?: string; path?: string };
   baseDir?: string;
 }
 
 export interface CommonBinConfig {
-  bin: string;
+  binName: string;
   baseDir: string;
 }
 
 export interface CommonBinInfo {
-  bin: string;
+  binName: string;
   baseDir: string;
   name: string;
   version?: string;
