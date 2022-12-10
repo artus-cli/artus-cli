@@ -44,8 +44,14 @@ export class CommandTrigger extends Trigger {
   async init() {
     // init binInfo
     const config: CommonBinConfig = this.config;
-    const pkgPath = path.resolve(config.baseDir, './package.json');
-    const pkgInfo = JSON.parse(await fs.readFile(pkgPath, 'utf-8'));
+    let pkgInfo;
+    try {
+      const pkgPath = path.resolve(config.baseDir, './package.json');
+      pkgInfo = JSON.parse(await fs.readFile(pkgPath, 'utf-8'));
+    } catch (e) {
+      // nothing
+    }
+
     this.binInfo = {
       ...pkgInfo,
       bin: config.bin,
