@@ -1,4 +1,4 @@
 export default {
-  bin: process.env.ARTUS_COMMON_BIN_NAME,
-  baseDir: process.env.ARTUS_COMMON_BIN_BASEDIR,
+  bin: process.env.ARTUS_CLI_BIN,
+  baseDir: process.env.ARTUS_CLI_BASEDIR,
 };

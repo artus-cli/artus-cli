@@ -26,6 +26,8 @@ export interface CommandMeta extends CommandProps {
 }
 
 export interface ApplicationOptions {
+  env?: string;
+  binName?: string;
   framework?: { package?: string; path?: string };
   baseDir?: string;
 }

@@ -13,16 +13,16 @@ export * from './core/command';
 export * from './core/context';
 export * from './core/parsed_commands';
 
-export async function start(options ?: ApplicationOptions) {
-  if (process.env.ARTUS_COMMON_BIN_SCANNING) {
+export async function start(options?: ApplicationOptions) {
+  if (process.env.ARTUS_CLI_SCANNING) {
     // avoid scan bin file and start again
     return null;
   }
 
   const baseDir = options.baseDir || process.cwd();
-  process.env.ARTUS_COMMON_BIN_NAME = require(`${baseDir}/package.json`).name || 'bin';
-  process.env.ARTUS_COMMON_BIN_SCANNING = 'true';
-  process.env.ARTUS_COMMON_BIN_BASEDIR = baseDir;
+  process.env.ARTUS_CLI_BIN = options.binName || require(`${baseDir}/package.json`).name || 'bin';
+  process.env.ARTUS_CLI_SCANNING = 'true';
+  process.env.ARTUS_CLI_BASEDIR = baseDir;
 
   // scan app files
   const scanner = new Scanner({
@@ -33,11 +33,12 @@ export async function start(options ?: ApplicationOptions) {
   });
 
   const manifest = await scanner.scan(baseDir);
-  delete process.env.ARTUS_COMMON_BIN_SCANNING;
+  delete process.env.ARTUS_CLI_SCANNING;
 
   // start app
+  const env = options.env || process.env.ARTUS_CLI_ENV || 'default';
   const app = new ArtusApplication();
-  await app.load(manifest.default, baseDir);
+  await app.load(manifest[env], baseDir);
   await app.run();
   return app;
 }
