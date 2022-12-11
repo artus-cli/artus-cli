@@ -1,4 +1,4 @@
-import { fork } from './utils';
+import { fork } from './test-utils';
 
 describe('test', () => {
   it('egg-bin should work', async () => {

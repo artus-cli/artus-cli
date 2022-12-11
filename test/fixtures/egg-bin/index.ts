@@ -1,3 +1,3 @@
-export * from './lib/dev';
-export * from './lib/debug';
-export * from './lib/main';
+export * from './cmd/dev';
+export * from './cmd/debug';
+export * from './cmd/main';
