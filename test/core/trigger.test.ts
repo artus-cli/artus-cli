@@ -5,7 +5,7 @@ import { createApp, createCtx } from '../test-utils';
 import assert, { deepEqual } from 'node:assert';
 import { DebugCommand } from 'egg-bin';
 
-describe('core/trigger.test.ts', () => {
+describe('test/core/trigger.test.ts', () => {
   let app: ArtusApplication;
   let trigger: CommandTrigger;
   before(async () => {

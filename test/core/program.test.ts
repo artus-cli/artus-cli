@@ -5,7 +5,7 @@ import { CommandTrigger } from '../../src/core/trigger';
 import { createApp } from '../test-utils';
 import assert from 'node:assert';
 
-describe('program.test.ts', () => {
+describe('test/core/program.test.ts', () => {
   let app: ArtusApplication;
   let program: Program;
   before(async () => {

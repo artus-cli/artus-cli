@@ -4,7 +4,7 @@ import { ParsedCommands, Program } from '@artus-cli/artus-cli';
 import { createApp } from '../test-utils';
 import assert from 'node:assert';
 
-describe('parsed_commands.test.ts', () => {
+describe('test/core/parsed_commands.test.ts', () => {
   let app: ArtusApplication;
   let parsedCommands: ParsedCommands;
   before(async () => {

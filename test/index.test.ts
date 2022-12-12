@@ -1,6 +1,6 @@
 import { fork } from './test-utils';
 
-describe('index.test.ts', () => {
+describe('test/index.test.ts', () => {
   it('egg-bin should work', async () => {
     await fork('egg-bin', [ '--help' ])
       .debug()

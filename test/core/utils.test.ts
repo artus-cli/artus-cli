@@ -1,12 +1,10 @@
 import { ArtusApplication } from '@artus/core';
-import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
-import { start, ParsedCommands, Utils, Program, CommandContext } from '@artus-cli/artus-cli';
-import { CommandTrigger } from '../../src/core/trigger';
-import path from 'node:path';
+import { DebugCommand } from 'egg-bin';
+import { Utils, Program } from '@artus-cli/artus-cli';
 import { createApp, createCtx } from '../test-utils';
-import assert, { deepEqual } from 'node:assert';
+import assert from 'node:assert';
 
-describe('core/utils.test.ts', () => {
+describe('test/core/utils.test.ts', () => {
   let app: ArtusApplication;
   let program: Program;
   let utils: Utils;

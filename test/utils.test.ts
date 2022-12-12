@@ -5,7 +5,7 @@ import { ParsedCommands, Command } from '@artus-cli/artus-cli';
 import { createApp } from './test-utils';
 import assert from 'node:assert';
 
-describe('utils.test.ts', () => {
+describe('test/utils.test.ts', () => {
   let app: ArtusApplication;
   before(async () => {
     app = await createApp('egg-bin');

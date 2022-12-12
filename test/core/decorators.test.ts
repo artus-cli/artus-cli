@@ -4,7 +4,7 @@ import { DefineCommand, DefineOption, Middleware } from '@artus-cli/artus-cli';
 import { MetadataEnum } from '../../src/constant';
 import assert from 'node:assert';
 
-describe('decorators.test.ts', () => {
+describe('test/core/decorators.test.ts', () => {
   let app: ArtusApplication;
 
   @DefineCommand({ command: 'dev', description: '666' })
