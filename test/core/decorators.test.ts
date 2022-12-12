@@ -32,6 +32,16 @@ describe('decorators.test.ts', () => {
     }
   }
 
+  @DefineCommand({ command: 'aa' }, { override: true })
+  class OverrideMyCommand extends MyCommand {
+    @DefineOption({}, { override: true })
+    argv: any;
+
+    async run() {
+      // nothing
+    }
+  }
+
   before(async () => {
     app = await createApp('egg-bin');
   });
@@ -47,8 +57,7 @@ describe('decorators.test.ts', () => {
     assert(metadata2.description);
 
     // override
-    DefineCommand({ command: 'aa' })(NewMyCommand);
-    const metadata3 = Reflect.getOwnMetadata(MetadataEnum.COMMAND, NewMyCommand);
+    const metadata3 = Reflect.getOwnMetadata(MetadataEnum.COMMAND, OverrideMyCommand);
     assert(metadata3.command === 'aa');
     assert(!metadata3.description);
   });
@@ -66,8 +75,7 @@ describe('decorators.test.ts', () => {
     assert('argv' in NewMyCommand.prototype);
 
     // override
-    DefineOption({})(new NewMyCommand(), 'argv');
-    const metadata3 = Reflect.getOwnMetadata(MetadataEnum.OPTION, NewMyCommand);
+    const metadata3 = Reflect.getOwnMetadata(MetadataEnum.OPTION, OverrideMyCommand);
     assert(!metadata3.meta.port);
   });
 
