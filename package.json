@@ -11,8 +11,11 @@
     "test": "cross-env TS_NODE_PROJECT=test/tsconfig.json mocha",
     "cov": "c8 -n src/ npm test",
     "tsc": "rm -rf dist && tsc",
-    "prepublishOnly": "npm run tsc"
+    "prepack": "npm run tsc"
   },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@artus/core": "^1.0.0",
     "@artus/injection": "^0.5.1",
