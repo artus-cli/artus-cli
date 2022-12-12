@@ -138,7 +138,7 @@ function wrapWithMiddleware(clz) {
       const ctx: CommandContext = this[CONTEXT_SYMBOL];
       // compose with middlewares in run method
       const middlewares = Reflect.getOwnMetadata(MetadataEnum.RUN_MIDDLEWARE, clz) || [];
-      return compose([
+      return await compose([
         ...middlewares,
         async (ctx: CommandContext) => {
           const result = await runMethod.apply(this, args);
@@ -155,7 +155,7 @@ function wrapWithMiddleware(clz) {
       const ctx: CommandContext = this[CONTEXT_SYMBOL];
       // compose with middlewares in Command Class
       const middlewares = Reflect.getMetadata(MetadataEnum.MIDDLEWARE, clz) || [];
-      return compose([
+      return await compose([
         ...middlewares,
         async () => this.run(...args),
       ])(ctx);

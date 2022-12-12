@@ -27,7 +27,7 @@ export default class UsageLifecycle implements ApplicationLifecycle {
           process.exit(1);
         }
 
-        return next();
+        return await next();
       }
 
       // redirect to help command
