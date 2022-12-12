@@ -95,7 +95,7 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
 
     // merge meta of prototype, only works in class
     if (!key && !option?.override && !existsFns) {
-      const protoMeta = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, Object.getPrototypeOf(ctor));
+      const protoMeta = Reflect.getMetadata(MetadataEnum.MIDDLEWARE, Object.getPrototypeOf(ctor));
       existsFns = protoMeta;
     }
 
@@ -136,9 +136,9 @@ function wrapWithMiddleware(clz) {
       const ctx: CommandContext = this[CONTEXT_SYMBOL];
       // compose with middlewares in run method
       const middlewares = Reflect.getOwnMetadata(MetadataEnum.RUN_MIDDLEWARE, clz) || [];
-      return await compose([
+      return compose([
         ...middlewares,
-        async () => await runMethod.apply(this, args),
+        async () => runMethod.apply(this, args),
       ])(ctx);
     },
   });
@@ -148,10 +148,10 @@ function wrapWithMiddleware(clz) {
     async value(...args: any[]) {
       const ctx: CommandContext = this[CONTEXT_SYMBOL];
       // compose with middlewares in Command Class
-      const middlewares = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, clz) || [];
-      return await compose([
+      const middlewares = Reflect.getMetadata(MetadataEnum.MIDDLEWARE, clz) || [];
+      return compose([
         ...middlewares,
-        async () => await this.run(...args),
+        async () => this.run(...args),
       ])(ctx);
     },
   });

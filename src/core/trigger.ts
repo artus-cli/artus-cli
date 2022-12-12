@@ -54,7 +54,7 @@ export class CommandTrigger extends Trigger {
 
     this.binInfo = {
       name: pkgInfo.name,
-      version: pkgInfo.version,
+      version: pkgInfo.version || '1.0.0',
       description: pkgInfo.description,
       binName: config.binName,
       baseDir: config.baseDir,

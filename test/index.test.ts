@@ -1,6 +1,6 @@
 import { fork } from './test-utils';
 
-describe('test', () => {
+describe('index.test.ts', () => {
   it('egg-bin should work', async () => {
     await fork('egg-bin', [ '--help' ])
       .debug()
@@ -107,7 +107,7 @@ describe('test', () => {
 
     await fork('chair-bin', [ 'module', 'dev', './' ])
       .debug()
-      .notExpect('stdout', /chair-bin dev command prerun/)
+      .expect('stdout', /chair-bin dev command prerun/)
       .expect('stdout', /module is dev in .\//)
       .end();
 
