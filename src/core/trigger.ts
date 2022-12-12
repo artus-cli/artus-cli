@@ -61,13 +61,13 @@ export class CommandTrigger extends Trigger {
 
     this.use(async (ctx: CommandContext, next) => {
       // parse argv and match command
-      await ctx.init();
+      ctx.init();
       await next();
     });
   }
 
   /** override artus context */
-  async initContext(input?: CommandInput, output?: Output): Promise<Context> {
+  async initContext(input?: CommandInput, output?: Output): Promise<CommandContext> {
     const baseCtx = await super.initContext(input, output);
     const cmdCtx = baseCtx.container.get(CommandContext);
     cmdCtx.container = baseCtx.container;
