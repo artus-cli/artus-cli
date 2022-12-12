@@ -10,7 +10,7 @@ interface Option {
   command: 'simple-bin [baseDir]',
   description: 'My Simple Bin',
 })
-export class MyCommand extends Command {
+export class MainCommand extends Command {
   @DefineOption<Option>({
     port: {
       type: 'number',

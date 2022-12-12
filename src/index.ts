@@ -33,6 +33,7 @@ export async function start(options: ApplicationOptions = {}) {
     configDir: 'config',
     extensions: [ '.ts' ],
     framework: options.framework || { path: __dirname },
+    // exclude: [ 'bin/' ],
   });
 
   const manifest = await scanner.scan(baseDir);
