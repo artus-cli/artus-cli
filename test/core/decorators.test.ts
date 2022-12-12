@@ -7,7 +7,7 @@ import assert from 'node:assert';
 describe('decorators.test.ts', () => {
   let app: ArtusApplication;
 
-  @DefineCommand({ command: 'dev' })
+  @DefineCommand({ command: 'dev', description: '666' })
   @Middleware(async () => {})
   class MyCommand {
     @DefineOption({
@@ -44,6 +44,13 @@ describe('decorators.test.ts', () => {
 
     const metadata2 = Reflect.getOwnMetadata(MetadataEnum.COMMAND, NewMyCommand);
     assert(metadata2.command === 'dev');
+    assert(metadata2.description);
+
+    // override
+    DefineCommand({ command: 'aa' })(NewMyCommand);
+    const metadata3 = Reflect.getOwnMetadata(MetadataEnum.COMMAND, NewMyCommand);
+    assert(metadata3.command === 'aa');
+    assert(!metadata3.description);
   });
 
   it('DefineOption', async () => {
@@ -57,6 +64,11 @@ describe('decorators.test.ts', () => {
     assert(metadata2.key === 'argv');
     assert(metadata2.meta.port);
     assert('argv' in NewMyCommand.prototype);
+
+    // override
+    DefineOption({})(new NewMyCommand(), 'argv');
+    const metadata3 = Reflect.getOwnMetadata(MetadataEnum.OPTION, NewMyCommand);
+    assert(!metadata3.meta.port);
   });
 
   it('Middlware', async () => {
