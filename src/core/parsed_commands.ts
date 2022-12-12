@@ -289,7 +289,7 @@ export class ParsedCommands {
   }
 
   /** match command by argv */
-  private _matchCommand(argv: string[]) {
+  private _matchCommand(argv: string | string[]) {
     const result: MatchResult = {
       fuzzyMatched: this.root,
       args: this.parseArgs(argv),
@@ -360,7 +360,7 @@ export class ParsedCommands {
   }
 
   /** parse argv with yargs-parser */
-  parseArgs(argv: string[], parseCommand?: ParsedCommand) {
+  parseArgs(argv: string | string[], parseCommand?: ParsedCommand) {
     const requiredOptions: string[] = [];
     const parserOption: parser.Options = {};
     if (parseCommand) {
@@ -394,7 +394,7 @@ export class ParsedCommands {
   }
 
   /** match command by argv */
-  matchCommand(argv: string[]) {
+  matchCommand(argv: string | string[]) {
     const result = this._matchCommand(argv);
     if (result.matched) {
       try {

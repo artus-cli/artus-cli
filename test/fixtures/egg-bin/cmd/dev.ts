@@ -43,5 +43,9 @@ export class DevCommand extends Command {
     console.info('inspect', this.options.inspect);
     console.info('nodeFlags', this.options.nodeFlags);
     console.info('baseDir', this.options.baseDir);
+    return {
+      command: 'dev',
+      args: this.options,
+    };
   }
 }

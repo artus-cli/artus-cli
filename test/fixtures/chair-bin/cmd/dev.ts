@@ -29,8 +29,9 @@ export class ChairDevCommand extends BaseDevCommand {
   options: DevOption;
 
   async run() {
-    super.run();
+    const r = await super.run();
     console.info('other', this.options.other);
     console.info('daemon', this.options.daemon);
+    return r;
   }
 }

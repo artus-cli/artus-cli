@@ -9,5 +9,6 @@ import { DebugCommand } from 'egg-bin';
 export class ModuleDebugCommand extends DebugCommand {
   async run() {
     console.info('module is debug in', this.args.baseDir);
+    return {} as any;
   }
 }

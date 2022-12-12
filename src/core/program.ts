@@ -2,7 +2,7 @@
  * open api for user
  **/
 
-import { Inject, Injectable, ArtusInjectEnum, ArtusApplication, ScopeEnum } from '@artus/core';
+import { Inject, Injectable, ScopeEnum, Container } from '@artus/core';
 import { MiddlewareInput } from '@artus/pipeline';
 import { CommandTrigger } from './trigger';
 import { OptionProps } from '../types';
@@ -14,6 +14,9 @@ type MaybeParsedCommand = (typeof Command) | ParsedCommand;
 
 @Injectable({ scope: ScopeEnum.SINGLETON })
 export class Program {
+  @Inject()
+  private readonly container: Container;
+
   @Inject()
   private readonly trigger: CommandTrigger;
 
@@ -77,6 +80,7 @@ export class Program {
 
   /** register middleware in command.run */
   useInExecution(clz: MaybeParsedCommand, fn: MiddlewareInput, opt?: MiddlewareDecoratorOption) {
-    Middleware(fn, opt)(this.getParsedCommand(clz).clz, 'run');
+    clz = this.getParsedCommand(clz).clz;
+    Middleware(fn, opt)(this.container.get(clz), 'run');
   }
 }

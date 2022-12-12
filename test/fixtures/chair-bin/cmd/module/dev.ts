@@ -9,5 +9,6 @@ import { ChairDevCommand } from '../dev';
 export class ModuleDevCommand extends ChairDevCommand {
   async run() {
     console.info('module is dev in', this.options.baseDir);
+    return {} as any;
   }
 }

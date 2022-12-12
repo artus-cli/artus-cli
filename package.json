@@ -8,11 +8,14 @@
   "type": "commonjs",
   "scripts": {
     "lint": "eslint . --ext .ts",
-    "test": "mocha",
+    "test": "cross-env TS_NODE_PROJECT=test/tsconfig.json mocha",
     "cov": "c8 -n src/ npm test",
-    "tsc": "rm -rf dist && tsc -p tsconfig.release.json",
-    "prepublishOnly": "npm run tsc"
+    "tsc": "rm -rf dist && tsc",
+    "prepack": "npm run tsc"
   },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@artus/core": "^1.0.0",
     "@artus/injection": "^0.5.1",
@@ -24,6 +27,7 @@
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
+    "@artus/eslint-config-artus": "^0.0.1",
     "@artus/tsconfig": "^1",
     "@types/inquirer": "^9.0.3",
     "@types/mocha": "^9.1.1",
@@ -32,9 +36,9 @@
     "c8": "^7.12.0",
     "coffee": "^5.5.0",
     "command-line-usage": "^6.1.3",
+    "cross-env": "^7.0.3",
     "dirname-filename-esm": "^1.1.1",
     "eslint": "^8.28.0",
-    "eslint-config-egg": "^12.1.0",
     "inquirer": "^8.0.0",
     "mocha": "^10.0.0",
     "ts-mocha": "^10.0.0",

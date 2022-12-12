@@ -1,4 +1,6 @@
 spec: test/**/*.test.ts
 extension: ts
-require: ts-node/register
+require:
+  - ts-node/register
+  - test/fixtures/common.ts
 timeout: 120000

@@ -1,7 +1,7 @@
 import { addTag, Injectable, ScopeEnum, Inject } from '@artus/core';
 import { MetadataEnum, CONTEXT_SYMBOL, EXCUTION_SYMBOL } from '../constant';
 import { ParsedCommands } from '../core/parsed_commands';
-import { CommandContext } from './context';
+import { CommandContext, CommandOutput } from './context';
 import compose from 'koa-compose';
 import { Command } from './command';
 import { checkCommandCompatible } from '../utils';
@@ -61,6 +61,8 @@ export function DefineOption<T extends object = object>(
       get() {
         if (this[keySymbol]) return this[keySymbol];
         const ctx: CommandContext = this[CONTEXT_SYMBOL];
+        if (!ctx) return;
+
         const { matched, args, raw: argv } = ctx;
         const parsedCommands = ctx.container.get(ParsedCommands);
         const targetCommand = parsedCommands.getCommand(ctor);
@@ -94,12 +96,12 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
     let existsFns: Middlewares = Reflect.getOwnMetadata(metaKey, ctor);
 
     // merge meta of prototype, only works in class
-    if (!key && !option?.override && !existsFns) {
-      const protoMeta = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, Object.getPrototypeOf(ctor));
+    if (!key && !existsFns) {
+      const protoMeta = Reflect.getMetadata(MetadataEnum.MIDDLEWARE, Object.getPrototypeOf(ctor));
       existsFns = protoMeta;
     }
 
-    existsFns = existsFns || [];
+    existsFns = option?.override ? [] : (existsFns || []);
 
     // Default orders:
     //
@@ -138,7 +140,11 @@ function wrapWithMiddleware(clz) {
       const middlewares = Reflect.getOwnMetadata(MetadataEnum.RUN_MIDDLEWARE, clz) || [];
       return await compose([
         ...middlewares,
-        async () => await runMethod.apply(this, args),
+        async (ctx: CommandContext) => {
+          const result = await runMethod.apply(this, args);
+          ctx.output.data = { result } satisfies CommandOutput['data'];
+          return result;
+        },
       ])(ctx);
     },
   });
@@ -148,10 +154,10 @@ function wrapWithMiddleware(clz) {
     async value(...args: any[]) {
       const ctx: CommandContext = this[CONTEXT_SYMBOL];
       // compose with middlewares in Command Class
-      const middlewares = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, clz) || [];
+      const middlewares = Reflect.getMetadata(MetadataEnum.MIDDLEWARE, clz) || [];
       return await compose([
         ...middlewares,
-        async () => await this.run(...args),
+        async () => this.run(...args),
       ])(ctx);
     },
   });

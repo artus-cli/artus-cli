@@ -5,7 +5,8 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { EXCUTION_SYMBOL } from '../constant';
 import { CommonBinConfig, CommonBinInfo } from '../types';
-import { CommandContext, CommandInput } from './context';
+import { CommandContext, CommandInput, CommandOutput } from './context';
+import { ParsedCommand } from './parsed_commands';
 const BIN_INFO_SYMBOL = Symbol('Program#binInfoSymbol');
 const debug = Debug('artus-cli#trigger');
 
@@ -18,7 +19,7 @@ export class CommandTrigger extends Trigger {
 
   async start() {
     // core middleware
-    this.use(async (ctx: Context, next) => {
+    this.use(async (ctx: CommandContext, next) => {
       await next();
 
       const { matched, error } = ctx.container.get(CommandContext);
@@ -30,15 +31,12 @@ export class CommandTrigger extends Trigger {
         return;
       }
 
-      const commandInstance = ctx.container.get(matched.clz);
-      debug('Run command %s', matched.clz.name);
-
       // execute command
-      const result = await commandInstance[EXCUTION_SYMBOL]();
-      ctx.output.data = { result };
+      debug('Run command %s', matched.clz.name);
+      await this.executeCommand(ctx, matched);
     });
 
-    await this.execute();
+    await this.executePipeline();
   }
 
   async init() {
@@ -54,7 +52,7 @@ export class CommandTrigger extends Trigger {
 
     this.binInfo = {
       name: pkgInfo.name,
-      version: pkgInfo.version,
+      version: pkgInfo.version || '1.0.0',
       description: pkgInfo.description,
       binName: config.binName,
       baseDir: config.baseDir,
@@ -63,24 +61,24 @@ export class CommandTrigger extends Trigger {
 
     this.use(async (ctx: CommandContext, next) => {
       // parse argv and match command
-      await ctx.init();
+      ctx.init();
       await next();
     });
   }
 
   /** override artus context */
-  async initContext(input?: CommandInput, output?: Output): Promise<Context> {
+  async initContext(input?: CommandInput, output?: Output): Promise<CommandContext> {
     const baseCtx = await super.initContext(input, output);
     const cmdCtx = baseCtx.container.get(CommandContext);
     cmdCtx.container = baseCtx.container;
     cmdCtx.container.set({ id: CommandContext, value: cmdCtx });
     cmdCtx.input = baseCtx.input as CommandInput;
-    cmdCtx.output = baseCtx.output;
+    cmdCtx.output = baseCtx.output as CommandOutput;
     return cmdCtx;
   }
 
   /** start a pipeline and execute */
-  async execute(input?: Partial<CommandInput['params']>) {
+  async executePipeline(input?: Partial<CommandInput['params']>) {
     try {
       const ctx = await this.initContext({
         params: {
@@ -98,5 +96,12 @@ export class CommandTrigger extends Trigger {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  /** execute command in pipeline */
+  async executeCommand(ctx: CommandContext, cmd: ParsedCommand) {
+    const instance = ctx.container.get(cmd.clz);
+    await instance[EXCUTION_SYMBOL]();
+    return ctx.output.data;
   }
 }
