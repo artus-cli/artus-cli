@@ -96,12 +96,12 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
     let existsFns: Middlewares = Reflect.getOwnMetadata(metaKey, ctor);
 
     // merge meta of prototype, only works in class
-    if (!key && !option?.override && !existsFns) {
+    if (!key && !existsFns) {
       const protoMeta = Reflect.getMetadata(MetadataEnum.MIDDLEWARE, Object.getPrototypeOf(ctor));
       existsFns = protoMeta;
     }
 
-    existsFns = existsFns || [];
+    existsFns = option?.override ? [] : (existsFns || []);
 
     // Default orders:
     //
