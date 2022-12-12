@@ -1,15 +1,14 @@
 import { ArtusApplication } from '@artus/core';
 import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
-import { start, ParsedCommands, Program } from '@artus-cli/artus-cli';
-import { CommandTrigger } from '../../src/core/trigger';
-import path from 'node:path';
-import assert, { deepEqual } from 'node:assert';
+import { ParsedCommands, Program } from '@artus-cli/artus-cli';
+import { createApp } from '../test-utils';
+import assert from 'node:assert';
 
 describe('parsed_commands.test.ts', () => {
   let app: ArtusApplication;
   let parsedCommands: ParsedCommands;
   before(async () => {
-    app = await start({ baseDir: path.dirname(require.resolve('egg-bin')) });
+    app = await createApp('egg-bin');
     parsedCommands = app.container.get(ParsedCommands);
   });
 

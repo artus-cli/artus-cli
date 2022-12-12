@@ -11,11 +11,20 @@ export interface CommandInput {
   };
 }
 
+export interface CommandOutput<T = any> {
+  data: {
+    result: T;
+  };
+}
+
 /**
  * Command Context, store `argv`/`env`/`cwd`/`match result` ...
  */
 @Injectable({ scope: ScopeEnum.SINGLETON })
-export class CommandContext<T extends Record<string, any> = Record<string, any>> extends Context {
+export class CommandContext<
+  InputArgs extends Record<string, any> = Record<string, any>,
+  OutputResult = any,
+> extends Context {
   @Inject()
   private readonly parsedCommands: ParsedCommands;
 
@@ -25,6 +34,7 @@ export class CommandContext<T extends Record<string, any> = Record<string, any>>
   env: Record<string, string>;
   cwd: string;
   input: CommandInput;
+  output: CommandOutput<OutputResult>;
 
   init() {
     const params = this.input.params;
@@ -56,7 +66,7 @@ export class CommandContext<T extends Record<string, any> = Record<string, any>>
   }
 
   get args() {
-    return this.matchResult.args as T;
+    return this.matchResult.args as InputArgs;
   }
 
   get fuzzyMatched() {

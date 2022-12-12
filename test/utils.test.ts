@@ -1,14 +1,14 @@
 import { ArtusApplication } from '@artus/core';
 import { checkCommandCompatible, isInheritFrom, isNil } from '../src/utils';
 import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
-import { start, ParsedCommands, Command } from '@artus-cli/artus-cli';
-import path from 'node:path';
+import { ParsedCommands, Command } from '@artus-cli/artus-cli';
+import { createApp } from './test-utils';
 import assert from 'node:assert';
 
 describe('utils.test.ts', () => {
   let app: ArtusApplication;
   before(async () => {
-    app = await start({ baseDir: path.dirname(require.resolve('egg-bin')) });
+    app = await createApp('egg-bin');
   });
 
   after(() => app.close());

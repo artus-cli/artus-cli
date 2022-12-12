@@ -24,5 +24,9 @@ export class DebugCommand extends DevCommand {
     console.info('inspect', this.args.inspect);
     console.info('flags', this.args.flags);
     console.info('baseDir', this.args.baseDir);
+    return {
+      command: 'debug',
+      args: this.args,
+    };
   }
 }

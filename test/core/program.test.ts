@@ -1,15 +1,15 @@
 import { ArtusApplication } from '@artus/core';
-import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
-import { start, Program } from '@artus-cli/artus-cli';
+import { DevCommand, MainCommand } from 'egg-bin';
+import { Program } from '@artus-cli/artus-cli';
 import { CommandTrigger } from '../../src/core/trigger';
-import path from 'node:path';
+import { createApp } from '../test-utils';
 import assert from 'node:assert';
 
 describe('program.test.ts', () => {
   let app: ArtusApplication;
   let program: Program;
   before(async () => {
-    app = await start({ baseDir: path.dirname(require.resolve('egg-bin')) });
+    app = await createApp('egg-bin');
     program = app.container.get(Program);
   });
 
@@ -42,15 +42,15 @@ describe('program.test.ts', () => {
     });
 
     const trigger = app.container.get(CommandTrigger);
-    await trigger.execute({ argv: [ 'dev' ] });
+    await trigger.executePipeline({ argv: [ 'dev' ] });
     assert.deepEqual(callStack, [ 'pipeline', 'command', 'execution' ]);
 
     callStack.length = 0;
-    await trigger.execute({ argv: [ 'debug' ] });
+    await trigger.executePipeline({ argv: [ 'debug' ] });
     assert.deepEqual(callStack, [ 'pipeline', 'command' ]);
 
     callStack.length = 0;
-    await trigger.execute({ argv: [] });
+    await trigger.executePipeline({ argv: [] });
     assert.deepEqual(callStack, [ 'pipeline' ]);
   });
 });

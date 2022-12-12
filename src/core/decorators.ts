@@ -1,7 +1,7 @@
 import { addTag, Injectable, ScopeEnum, Inject } from '@artus/core';
 import { MetadataEnum, CONTEXT_SYMBOL, EXCUTION_SYMBOL } from '../constant';
 import { ParsedCommands } from '../core/parsed_commands';
-import { CommandContext } from './context';
+import { CommandContext, CommandOutput } from './context';
 import compose from 'koa-compose';
 import { Command } from './command';
 import { checkCommandCompatible } from '../utils';
@@ -61,6 +61,8 @@ export function DefineOption<T extends object = object>(
       get() {
         if (this[keySymbol]) return this[keySymbol];
         const ctx: CommandContext = this[CONTEXT_SYMBOL];
+        if (!ctx) return;
+
         const { matched, args, raw: argv } = ctx;
         const parsedCommands = ctx.container.get(ParsedCommands);
         const targetCommand = parsedCommands.getCommand(ctor);
@@ -138,7 +140,11 @@ function wrapWithMiddleware(clz) {
       const middlewares = Reflect.getOwnMetadata(MetadataEnum.RUN_MIDDLEWARE, clz) || [];
       return compose([
         ...middlewares,
-        async () => runMethod.apply(this, args),
+        async (ctx: CommandContext) => {
+          const result = await runMethod.apply(this, args);
+          ctx.output.data = { result } satisfies CommandOutput['data'];
+          return result;
+        },
       ])(ctx);
     },
   });
