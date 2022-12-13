@@ -1,5 +1,6 @@
 import { ArtusApplication } from '@artus/core';
 import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
+import { ArgumentMainComand } from 'argument-bin';
 import { ParsedCommands, Program } from '@artus-cli/artus-cli';
 import { createApp } from '../test-utils';
 import assert from 'node:assert';
@@ -7,12 +8,13 @@ import assert from 'node:assert';
 describe('test/core/parsed_commands.test.ts', () => {
   let app: ArtusApplication;
   let parsedCommands: ParsedCommands;
+ 
   before(async () => {
     app = await createApp('egg-bin');
     parsedCommands = app.container.get(ParsedCommands);
   });
 
-  after(() => app.close());
+  after(() => app && app.close());
 
   it('base usage', async () => {
     assert(parsedCommands.commands.size);
@@ -82,5 +84,28 @@ describe('test/core/parsed_commands.test.ts', () => {
 
     const result7 = parsedCommands.matchCommand('dev ./ --required-info=123');
     assert(!result7.error);
+  });
+
+  it('should parse argument options and match without error', async () => {
+    await app.close();
+    app = await createApp('argument-bin');
+    parsedCommands = app.container.get(ParsedCommands);
+    const cmd = parsedCommands.getCommand(ArgumentMainComand);
+
+    assert(cmd.argumentOptions.port);
+    assert(!cmd.flagOptions.port);
+    assert(!cmd.options.port);
+
+    // test match
+    const result = parsedCommands.matchCommand('666 --inspect');
+    assert(result.matched === cmd);
+    assert(result.args.port === 666);
+    assert(result.args.inspect === true);
+
+    // test override
+    const result2 = parsedCommands.matchCommand('666 --port=888 --inspect');
+    assert(result2.matched === cmd);
+    assert(result2.args.port === 666);
+    assert(result2.args.inspect === true);
   });
 });

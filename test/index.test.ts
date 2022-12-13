@@ -142,4 +142,18 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /extractly override/)
       .end();
   });
+
+  it('argument-bin should work', async () => {
+    await fork('argument-bin', [ '666', '--inspect' ])
+      .debug()
+      .expect('stdout', /serv in port 666/)
+      .expect('stdout', /serv is inspecting.../)
+      .end();
+
+    await fork('argument-bin', [ '-h' ])
+      .debug()
+      .expect('stdout', /--inspect        Inspect/)
+      .notExpect('stdout', /--port/)
+      .end();
+  });
 });

@@ -4,11 +4,10 @@
     "inlineSourceMap": true,
     "paths": {
       "@artus-cli/artus-cli": [ "./src" ],
-      "egg-bin": [ "./test/fixtures/egg-bin" ],
-      "plugin-codegen": [ "./test/fixtures/plugins/plugin-codegen" ],
-      "plugin-codegen-extra": [ "./test/fixtures/plugins/plugin-codegen-extra" ],
-      "plugin-version": [ "./test/fixtures/plugins/plugin-version" ],
-      "plugin-help": [ "./test/fixtures/plugins/plugin-help" ]
+      "*": [
+        "./test/fixtures/*",
+        "./test/fixtures/plugins/*"
+      ]
     }
   },
   "ts-node": { "require": [ "./fixtures/common.ts" ] },

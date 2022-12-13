@@ -17,7 +17,7 @@ export function fork(target: string, args: string[] = [], options: ForkOptions =
 }
 
 export async function createApp(fixtureName: string, opt?: ApplicationOptions) {
-  return start({ ...opt, baseDir: path.dirname(require.resolve(fixtureName)) });
+  return await start({ ...opt, baseDir: path.dirname(require.resolve(fixtureName)) });
 }
 
 export async function createCtx(app: ArtusApplication, argv: string[]) {
