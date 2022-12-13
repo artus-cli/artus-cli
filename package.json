@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .ts",
     "test": "cross-env TS_NODE_PROJECT=test/tsconfig.json mocha",
     "cov": "c8 -n src/ npm test",
+    "ci": "npm run cov",
     "tsc": "rm -rf dist && tsc",
     "prepack": "npm run tsc"
   },
