@@ -1,0 +1,5 @@
+{
+  "name": "argument-bin",
+  "type": "commonjs",
+  "bin": "./index.js"
+}

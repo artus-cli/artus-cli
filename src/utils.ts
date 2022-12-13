@@ -30,3 +30,12 @@ export function checkCommandCompatible(command: ParsedCommand, compareCommand: P
 export function isNil(v) {
   return v === undefined || v === null;
 }
+
+export function convertValue<T extends string | string[]>(val: T, type: string) {
+  if (Array.isArray(val)) return val.map(v => convertValue(v, type));
+  switch(type) {
+    case 'number': return +val;
+    case 'boolean': return val === 'false' ? false : !!val;
+    default: return val;
+  }
+}

@@ -21,11 +21,13 @@
     "@artus/core": "^1.0.0",
     "@artus/injection": "^0.5.1",
     "@artus/pipeline": "^0.2.2",
+    "command-line-usage": "^6.1.3",
     "debug": "^4.3.4",
     "koa-compose": "^4.1.0",
+    "lodash.omit": "^4.5.0",
+    "lodash.pick": "^4.4.0",
     "reflect-metadata": "^0.1.13",
     "type-fest": "^3.3.0",
-    "command-line-usage": "^6.1.3",
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {

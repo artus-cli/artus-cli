@@ -11,14 +11,13 @@ export function fork(target: string, args: string[] = [], options: ForkOptions =
   const bin = path.join(__dirname, 'fixtures', target, 'bin/cli.ts');
   return coffee.fork(bin, args, {
     cwd: path.resolve(__dirname, '../'), // make sure TS_NODE_PROJECT is right
-    execArgv: [ '-r', 'ts-node/register', '-r', path.resolve(__dirname, './fixtures/common.ts') ]
-      .concat(options.execArgv || []),
+    execArgv: [ '-r', 'ts-node/register' ].concat(options.execArgv || []),
     ...options,
   });
 }
 
 export async function createApp(fixtureName: string, opt?: ApplicationOptions) {
-  return start({ ...opt, baseDir: path.dirname(require.resolve(fixtureName)) });
+  return await start({ ...opt, baseDir: path.dirname(require.resolve(fixtureName)) });
 }
 
 export async function createCtx(app: ArtusApplication, argv: string[]) {
