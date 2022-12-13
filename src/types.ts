@@ -1,6 +1,6 @@
 import { Command } from './core/command';
 
-export interface CommandProps {
+export interface CommandProps extends Record<string, any> {
   command?: string;
   description?: string;
   alias?: string | string[];
@@ -8,8 +8,9 @@ export interface CommandProps {
   parent?: typeof Command;
 }
 
-export interface OptionProps {
-  type?: string;
+export type BasicType = 'string' | 'number' | 'boolean';
+export interface OptionProps extends Record<string, any> {
+  type?: BasicType;
   alias?: string | string[];
   default?: any;
   required?: boolean;

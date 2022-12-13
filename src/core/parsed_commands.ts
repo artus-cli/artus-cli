@@ -3,8 +3,10 @@ import { MetadataEnum } from '../constant';
 import { CommandMeta, OptionProps } from '../types';
 import parser from 'yargs-parser';
 import Debug from 'debug';
+import pick from 'lodash.pick';
+import omit from 'lodash.omit';
 import { format } from 'node:util';
-import { isInheritFrom, isNil } from '../utils';
+import { isInheritFrom, isNil, convertValue } from '../utils';
 import { ArtusInjectEnum, Injectable, Container, Inject, ScopeEnum } from '@artus/core';
 const debug = Debug('artus-cli#ParsedCommands');
 const OPTION_SYMBOL = Symbol('ParsedCommand#Option');
@@ -115,7 +117,8 @@ export class ParsedCommand implements ParsedCommandStruct {
   optional: Positional[];
   description: string;
   globalOptions?: Record<string, OptionProps>;
-  baseOptions: Record<string, OptionProps>;
+  flagOptions: Record<string, OptionProps>;
+  argumentOptions: Record<string, OptionProps>;
   optionsKey: string;
   childs: ParsedCommand[];
   parent: ParsedCommand;
@@ -129,7 +132,9 @@ export class ParsedCommand implements ParsedCommandStruct {
     this.optional = opt.optional;
     this.override = opt.override;
     const { key, meta } = Reflect.getMetadata(MetadataEnum.OPTION, clz) || {};
-    this.baseOptions = meta;
+    const argumentKeys = this.demanded.concat(this.optional).map(p => p.cmd);
+    this.flagOptions = omit(meta, argumentKeys);
+    this.argumentOptions = pick(meta, argumentKeys);
     this.optionsKey = key;
     this.childs = [];
     this.parent = null;
@@ -143,7 +148,7 @@ export class ParsedCommand implements ParsedCommandStruct {
 
   get options() {
     if (!this[OPTION_SYMBOL]) {
-      this[OPTION_SYMBOL] = { ...this.globalOptions, ...this.baseOptions };
+      this[OPTION_SYMBOL] = { ...this.globalOptions, ...this.flagOptions };
     }
     return this[OPTION_SYMBOL];
   }
@@ -158,11 +163,6 @@ export class ParsedCommand implements ParsedCommandStruct {
 
   get depth() {
     return this.cmds.length;
-  }
-
-  updateOptions(opt: Record<string, OptionProps>) {
-    this.baseOptions = { ...this.options, ...opt };
-    this[OPTION_SYMBOL] = null;
   }
 
   updateGlobalOptions(opt: Record<string, OptionProps>) {
@@ -263,7 +263,7 @@ export class ParsedCommands {
   }
 
   /** check `<options>` or `[option]` and collect args */
-  private checkPositional(args: string[], pos: Positional[]) {
+  private checkPositional(args: string[], pos: Positional[], options: Record<string, OptionProps>) {
     let nextIndex = pos.length;
     const result: Record<string, any> = {};
     const pass = pos.every((positional, index) => {
@@ -275,6 +275,13 @@ export class ParsedCommands {
         nextIndex = args.length; // variadic means the last
       } else {
         r = args[index];
+      }
+
+      // check arguments option
+      const argOpt = options[positional.cmd];
+      if (argOpt) {
+        r = isNil(r) ? argOpt.default : r;
+        if (argOpt.type) r = convertValue(r, argOpt.type);
       }
 
       result[positional.cmd] = r;
@@ -290,9 +297,12 @@ export class ParsedCommands {
 
   /** match command by argv */
   private _matchCommand(argv: string | string[]) {
-    const result: MatchResult = {
+    const result: MatchResult & { positionalArgs: Record<string, any> } = {
       fuzzyMatched: this.root,
       args: this.parseArgs(argv),
+
+      // parsed positional result;
+      positionalArgs: {},
     };
 
     // argv without options/demanded/optional info
@@ -322,7 +332,7 @@ export class ParsedCommands {
     if (result.fuzzyMatched) {
       const fuzzyMatched = result.fuzzyMatched;
       if (fuzzyMatched.demanded.length) {
-        const checkDemanded = this.checkPositional(extraArgs, fuzzyMatched.demanded);
+        const checkDemanded = this.checkPositional(extraArgs, fuzzyMatched.demanded, fuzzyMatched.argumentOptions);
         if (!checkDemanded.pass) {
           // demanded not match
           debug('Demaned is not match with %s', extraArgs);
@@ -331,13 +341,13 @@ export class ParsedCommands {
         }
 
         // pick args from demanded info
-        Object.assign(result.args, checkDemanded.result);
+        Object.assign(result.positionalArgs, checkDemanded.result);
         extraArgs = checkDemanded.args;
       }
 
       if (fuzzyMatched.optional.length) {
-        const checkOptional = this.checkPositional(extraArgs, fuzzyMatched.optional);
-        Object.assign(result.args, checkOptional.result);
+        const checkOptional = this.checkPositional(extraArgs, fuzzyMatched.optional, fuzzyMatched.argumentOptions);
+        Object.assign(result.positionalArgs, checkOptional.result);
         extraArgs = checkOptional.args;
       }
 
@@ -394,17 +404,21 @@ export class ParsedCommands {
   }
 
   /** match command by argv */
-  matchCommand(argv: string | string[]) {
+  matchCommand(argv: string | string[]): MatchResult {
+    let newArgs;
+
     const result = this._matchCommand(argv);
     if (result.matched) {
       try {
         // parse again with parserOption
-        Object.assign(result.args, this.parseArgs(argv, result.matched));
+        newArgs = this.parseArgs(argv, result.matched);
       } catch (e) {
         result.error = e;
       }
     }
 
+    // merge args and positional args
+    result.args = Object.assign(newArgs || result.args, result.positionalArgs);
     return result;
   }
 

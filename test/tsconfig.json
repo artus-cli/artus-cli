@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "inlineSourceMap": true,
     "paths": {
       "@artus-cli/artus-cli": [ "./src" ],
       "egg-bin": [ "./test/fixtures/egg-bin" ],
@@ -10,6 +11,7 @@
       "plugin-help": [ "./test/fixtures/plugins/plugin-help" ]
     }
   },
+  "ts-node": { "require": [ "./fixtures/common.ts" ] },
   "include": [
     "**/*.ts"
   ]

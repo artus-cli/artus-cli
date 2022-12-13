@@ -11,8 +11,7 @@ export function fork(target: string, args: string[] = [], options: ForkOptions =
   const bin = path.join(__dirname, 'fixtures', target, 'bin/cli.ts');
   return coffee.fork(bin, args, {
     cwd: path.resolve(__dirname, '../'), // make sure TS_NODE_PROJECT is right
-    execArgv: [ '-r', 'ts-node/register', '-r', path.resolve(__dirname, './fixtures/common.ts') ]
-      .concat(options.execArgv || []),
+    execArgv: [ '-r', 'ts-node/register' ].concat(options.execArgv || []),
     ...options,
   });
 }
