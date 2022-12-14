@@ -10,7 +10,10 @@
       ]
     }
   },
-  "ts-node": { "require": [ "./fixtures/common.ts" ] },
+  "ts-node": {
+    "transpileOnly": true,
+    "require": [ "./fixtures/common.ts" ]
+  },
   "include": [
     "**/*.ts"
   ]
