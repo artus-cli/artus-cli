@@ -358,17 +358,15 @@ export class ParsedCommands {
         return result;
       }
 
-      if (!fuzzyMatched.isRunable) {
-        debug('Command is not implements');
-        result.error = new Error(format('Command is not implements'));
+      if (fuzzyMatched.isRunable) {
+        // all pass
+        result.matched = result.fuzzyMatched;
+
+        debug('Final match result is %s', result.matched.clz.name);
         return result;
+      } else {
+        debug('Command is not implement');
       }
-
-      // all pass
-      result.matched = result.fuzzyMatched;
-
-      debug('Final match result is %s', result.matched.clz.name);
-      return result;
     }
 
     result.error = new Error('Command not found');

@@ -92,7 +92,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     parsedCommands = app.container.get(ParsedCommands);
 
     const result = parsedCommands.matchCommand('oneapi');
-    assert(result.error.message === 'Command is not implements');
+    assert(result.error.message === 'Command not found');
   });
 
   it('should parse argument options and match without error', async () => {
