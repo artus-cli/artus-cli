@@ -358,6 +358,12 @@ export class ParsedCommands {
         return result;
       }
 
+      if (!fuzzyMatched.isRunable) {
+        debug('Command is not implements');
+        result.error = new Error(format('Command is not implements'));
+        return result;
+      }
+
       // all pass
       result.matched = result.fuzzyMatched;
 

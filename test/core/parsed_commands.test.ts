@@ -86,6 +86,15 @@ describe('test/core/parsed_commands.test.ts', () => {
     assert(!result7.error);
   });
 
+  it('should not match empty command', async () => {
+    await app.close();
+    app = await createApp('chair-bin');
+    parsedCommands = app.container.get(ParsedCommands);
+
+    const result = parsedCommands.matchCommand('oneapi');
+    assert(result.error.message === 'Command is not implements');
+  });
+
   it('should parse argument options and match without error', async () => {
     await app.close();
     app = await createApp('argument-bin');
