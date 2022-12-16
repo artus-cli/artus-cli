@@ -116,6 +116,11 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /oneapi client app/)
       .end();
 
+    await fork('chair-bin', [ 'oneapi' ])
+      .debug()
+      .expect('stderr', /Command not found: 'chair-bin oneapi'/)
+      .end();
+
     await fork('chair-bin', [ 'user', '-u=123' ])
       .debug()
       .expect('stdout', /user is foo/)
