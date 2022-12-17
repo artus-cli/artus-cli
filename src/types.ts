@@ -1,11 +1,32 @@
 import { Command } from './core/command';
+import { Middleware, Middlewares } from '@artus/pipeline';
 
-export interface CommandProps extends Record<string, any> {
+export interface CommandConfig extends Record<string, any> {
   command?: string;
   description?: string;
   alias?: string | string[];
   override?: boolean;
   parent?: typeof Command;
+}
+
+/** Base Option Interface */
+export interface Option {
+  /** Non-option arguments */
+  _: Array<string | number>;
+  /** Arguments after the end-of-options flag `--` */
+  '--'?: Array<string | number>;
+}
+
+export interface MiddlewareConfig {
+  mergeType?: 'before' | 'after',
+  middleware: MiddlewareInput;
+}
+
+export type MiddlewareInput = Middleware | Middlewares;
+
+export interface MiddlewareMeta {
+  override?: boolean;
+  configList: MiddlewareConfig[];
 }
 
 export type BasicType = 'string' | 'number' | 'boolean';
@@ -17,13 +38,18 @@ export interface OptionProps extends Record<string, any> {
   description?: string;
 }
 
+export type OptionConfig<T extends string = string> = Record<T, OptionProps>;
+
 export interface OptionMeta<T extends string = string> {
   key: string;
-  meta: Record<T, OptionProps>;
+  config: OptionConfig<T>;
+  override?: boolean;
 }
 
-export interface CommandMeta extends CommandProps {
+export interface CommandMeta {
   // nothing
+  config: CommandConfig;
+  override?: boolean;
 }
 
 export interface ApplicationOptions {

@@ -6,7 +6,7 @@ const RAW_SYMBOL = Symbol('CommandContext#raw');
 export interface CommandInput {
   params: {
     argv: string[];
-    env: Record<string, string>;
+    env: Record<string, string | undefined>;
     cwd: string;
   };
 }
@@ -31,7 +31,7 @@ export class CommandContext<
   /** matched result */
   private matchResult: MatchResult;
 
-  env: Record<string, string>;
+  env: Record<string, string | undefined>;
   cwd: string;
   input: CommandInput;
   output: CommandOutput<OutputResult>;

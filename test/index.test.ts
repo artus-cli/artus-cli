@@ -160,5 +160,10 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /--inspect        Inspect/)
       .notExpect('stdout', /--port/)
       .end();
+
+    await fork('argument-bin', [ 'debug', '-h' ])
+      .debug()
+      .notExpect('stdout', /--base-dir/)
+      .end();
   });
 });

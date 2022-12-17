@@ -1,7 +1,7 @@
-import { DefineCommand, Command, DefineOption, Inject, CommandContext, Program } from '../../';
+import { Option, DefineCommand, Command, DefineOption, Inject, CommandContext, Program } from '../../';
 import commandLineUsage from 'command-line-usage';
 
-interface Option {
+interface HelpOption extends Option {
   command: string;
 }
 
@@ -18,7 +18,7 @@ export class HelpCommand extends Command {
   program: Program;
 
   @DefineOption()
-  option: Option;
+  option: HelpOption;
 
   async run() {
     const ctx = this.ctx;
@@ -27,8 +27,8 @@ export class HelpCommand extends Command {
     const helpCommand = ctx.commands.get(command) || ctx.rootCommand;
 
     // display help informations
-    const displayTexts = [];
-    const commandLineUsageList = [];
+    const displayTexts: string[] = [];
+    const commandLineUsageList: any[] = [];
     const optionKeys = helpCommand.options ? Object.keys(helpCommand.options) : [];
 
     // usage info in first line

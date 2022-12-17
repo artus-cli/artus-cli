@@ -2,6 +2,7 @@
   "extends": "@artus/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
+    "strictNullChecks": true,
     "noUnusedParameters": false,
     "noUnusedLocals":false,
     "resolveJsonModule": true,

@@ -1,7 +1,8 @@
 import { ArtusApplication } from '@artus/core';
 import { createApp } from '../test-utils';
-import { DefineCommand, DefineOption, Middleware } from '@artus-cli/artus-cli';
+import { CommandMeta, DefineCommand, DefineOption, Middleware, MiddlewareConfig, MiddlewareMeta, OptionMeta } from '@artus-cli/artus-cli';
 import { MetadataEnum } from '../../src/constant';
+import { ParsedCommandTree } from '../../src/core/parsed_commands';
 import assert from 'node:assert';
 
 describe('test/core/decorators.test.ts', () => {
@@ -16,13 +17,15 @@ describe('test/core/decorators.test.ts', () => {
     options: any;
 
     @Middleware(async () => {})
+    @Middleware(async () => {})
+    @Middleware(async () => {})
     async run() {
       // nothing
     }
   }
 
   @DefineCommand()
-  @Middleware(async () => {})
+  @Middleware([ async () => {}, async () => {} ])
   class NewMyCommand extends MyCommand {
     @DefineOption()
     argv: any;
@@ -49,68 +52,58 @@ describe('test/core/decorators.test.ts', () => {
   after(() => app.close());
 
   it('DefineCommand', async () => {
-    const metadata = Reflect.getOwnMetadata(MetadataEnum.COMMAND, MyCommand);
-    assert(metadata.command === 'dev');
+    const metadata: CommandMeta = Reflect.getOwnMetadata(MetadataEnum.COMMAND, MyCommand);
+    assert(metadata.config.command === 'dev');
 
-    const metadata2 = Reflect.getOwnMetadata(MetadataEnum.COMMAND, NewMyCommand);
-    assert(metadata2.command === 'dev');
-    assert(metadata2.description);
+    const metadata2: CommandMeta = Reflect.getOwnMetadata(MetadataEnum.COMMAND, NewMyCommand);
+    assert(!metadata2.config.command);
+    assert(!metadata2.config.description);
 
     // override
-    const metadata3 = Reflect.getOwnMetadata(MetadataEnum.COMMAND, OverrideMyCommand);
-    assert(metadata3.command === 'aa');
-    assert(!metadata3.description);
+    const metadata3: CommandMeta = Reflect.getOwnMetadata(MetadataEnum.COMMAND, OverrideMyCommand);
+    assert(metadata3.config.command === 'aa');
+    assert(metadata3.override);
   });
 
   it('DefineOption', async () => {
-    const metadata = Reflect.getOwnMetadata(MetadataEnum.OPTION, MyCommand);
+    const metadata: OptionMeta = Reflect.getOwnMetadata(MetadataEnum.OPTION, MyCommand);
     assert(metadata.key === 'options');
-    assert(metadata.meta.port);
+    assert(metadata.config.port);
     assert('options' in MyCommand.prototype);
 
     // extend
-    const metadata2 = Reflect.getOwnMetadata(MetadataEnum.OPTION, NewMyCommand);
+    const metadata2: OptionMeta = Reflect.getOwnMetadata(MetadataEnum.OPTION, NewMyCommand);
     assert(metadata2.key === 'argv');
-    assert(metadata2.meta.port);
     assert('argv' in NewMyCommand.prototype);
 
     // override
-    const metadata3 = Reflect.getOwnMetadata(MetadataEnum.OPTION, OverrideMyCommand);
-    assert(!metadata3.meta.port);
+    const metadata3: OptionMeta = Reflect.getOwnMetadata(MetadataEnum.OPTION, OverrideMyCommand);
+    assert(metadata3.override);
   });
 
   it('Middlware', async () => {
-    const commandMiddleware = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, MyCommand);
-    assert(commandMiddleware.length === 1);
+    const commandMiddleware: MiddlewareMeta = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, MyCommand);
+    assert(commandMiddleware.configList.length === 1);
+    assert(typeof commandMiddleware.configList[0].middleware === 'function');
 
-    const executionMiddleware = Reflect.getOwnMetadata(MetadataEnum.RUN_MIDDLEWARE, MyCommand);
-    assert(executionMiddleware.length === 1);
+    const executionMiddleware: MiddlewareMeta = Reflect.getOwnMetadata(MetadataEnum.RUN_MIDDLEWARE, MyCommand);
+    assert(executionMiddleware.configList.length === 3);
+    assert(executionMiddleware.configList.every(m => typeof m.middleware === 'function'));
 
-    // extend command middlewares
-    const commandMiddleware2 = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, NewMyCommand);
-    assert(commandMiddleware2.length === 2);
-
-    // run method should not extend
-    const executionMiddleware2 = Reflect.getOwnMetadata(MetadataEnum.RUN_MIDDLEWARE, NewMyCommand);
-    assert(!executionMiddleware2);
+    const commandMiddleware2: MiddlewareMeta = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, NewMyCommand);
+    assert(commandMiddleware2.configList.length === 1);
+    assert(Array.isArray(commandMiddleware2.configList[0].middleware));
+    assert(commandMiddleware2.configList[0].middleware.length === 2);
 
     // should throw with other method
     assert.throws(() => {
       Middleware(async () => {})(new NewMyCommand(), 'other' as any);
     }, /Middleware can only be used in Command Class or run method/);
 
-    // should works with merge type
-    const beforeMiddlewareFn = async () => {};
-    Middleware(beforeMiddlewareFn, { mergeType: 'before' })(NewMyCommand);
-    const commandMiddleware3 = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, NewMyCommand);
-    assert(commandMiddleware3.length === 3);
-    assert(commandMiddleware3[0] === beforeMiddlewareFn);
-
-    // should override
-    const overrideMiddlewareFn = async () => {};
-    Middleware(overrideMiddlewareFn, { override: true })(NewMyCommand);
-    const commandMiddleware4 = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, NewMyCommand);
-    assert(commandMiddleware4.length === 1);
-    assert(commandMiddleware4[0] === overrideMiddlewareFn);
+    // should throw with multiple override
+    assert.throws(() => {
+      Middleware(async () => {}, { override: true })(NewMyCommand);
+      Middleware(async () => {}, { override: false })(NewMyCommand);
+    }, /Can\'t use override in multiple @Middleware/);
   });
 });
