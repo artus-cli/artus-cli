@@ -49,7 +49,7 @@ export class Program {
 
   /** package version */
   get version() {
-    return this.binInfo?.version || '1.0.0';
+    return this.binInfo?.version || '';
   }
 
   /** bin base dir */
