@@ -271,11 +271,11 @@ export class ParsedCommandTree {
     // split options with argument key and merge option info with inherit command
     const optionMeta: OptionMeta | undefined = Reflect.getOwnMetadata(MetadataEnum.OPTION, clz);
     const argumentsKey = parsedCommandInfo.demanded.concat(parsedCommandInfo.optional).map(pos => pos.cmd);
-    const flagOptions: OptionConfig = omit(optionMeta?.config || {}, argumentsKey);
-    const argumentOptions: OptionConfig = pick(optionMeta?.config || {}, argumentsKey);
+    let flagOptions: OptionConfig = omit(optionMeta?.config || {}, argumentsKey);
+    let argumentOptions: OptionConfig = pick(optionMeta?.config || {}, argumentsKey);
     if (inheritCommand && !optionMeta?.override) {
-      Object.assign(flagOptions, inheritCommand.flagOptions);
-      Object.assign(argumentOptions, inheritCommand.argumentOptions);
+      flagOptions = Object.assign({}, inheritCommand.flagOptions, flagOptions);
+      argumentOptions = Object.assign({}, inheritCommand.argumentOptions, argumentOptions);
     }
 
     const parsedCommand = new ParsedCommand(clz, {
