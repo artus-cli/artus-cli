@@ -35,7 +35,7 @@ export function DefineCommand(
 }
 
 export function DefineOption<T extends object = object>(
-  meta?: { [P in keyof T]?: OptionProps; },
+  meta?: { [P in keyof Omit<T, '_' | '--'>]?: OptionProps; },
   option?: CommonDecoratorOption,
 ) {
   return <G extends Command>(target: G, key: string) => {

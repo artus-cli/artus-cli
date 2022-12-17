@@ -1,7 +1,7 @@
-import { DefineCommand, Command, DefineOption, Inject, CommandContext, Program } from '../../';
+import { Option, DefineCommand, Command, DefineOption, Inject, CommandContext, Program } from '../../';
 import commandLineUsage from 'command-line-usage';
 
-interface Option {
+interface HelpOption extends Option {
   command: string;
 }
 
@@ -18,7 +18,7 @@ export class HelpCommand extends Command {
   program: Program;
 
   @DefineOption()
-  option: Option;
+  option: HelpOption;
 
   async run() {
     const ctx = this.ctx;

@@ -9,6 +9,14 @@ export interface CommandConfig extends Record<string, any> {
   parent?: typeof Command;
 }
 
+/** Base Option Interface */
+export interface Option {
+  /** Non-option arguments */
+  _: Array<string | number>;
+  /** Arguments after the end-of-options flag `--` */
+  '--'?: Array<string | number>;
+}
+
 export interface MiddlewareConfig {
   mergeType?: 'before' | 'after',
   middleware: MiddlewareInput;
