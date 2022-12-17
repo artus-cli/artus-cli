@@ -1,5 +1,5 @@
 import { ArtusApplication } from '@artus/core';
-import { DevCommand, MainCommand } from 'egg-bin';
+import { DebugCommand, DevCommand, MainCommand } from 'egg-bin';
 import { Program } from '@artus-cli/artus-cli';
 import { CommandTrigger } from '../../src/core/trigger';
 import { createApp } from '../test-utils';
@@ -36,6 +36,16 @@ describe('test/core/program.test.ts', () => {
       await next();
     });
 
+    program.useInCommand(DevCommand, async (_ctx, next) => {
+      callStack.push('dev');
+      await next();
+    });
+
+    program.useInCommand(DebugCommand, async (_ctx, next) => {
+      callStack.push('debug');
+      await next();
+    });
+
     program.useInExecution(DevCommand, async (_ctx, next) => {
       callStack.push('execution');
       await next();
@@ -43,11 +53,11 @@ describe('test/core/program.test.ts', () => {
 
     const trigger = app.container.get(CommandTrigger);
     await trigger.executePipeline({ argv: [ 'dev' ] });
-    assert.deepEqual(callStack, [ 'pipeline', 'command', 'execution' ]);
+    assert.deepEqual(callStack, [ 'pipeline', 'command', 'dev', 'execution' ]);
 
     callStack.length = 0;
     await trigger.executePipeline({ argv: [ 'debug' ] });
-    assert.deepEqual(callStack, [ 'pipeline', 'command' ]);
+    assert.deepEqual(callStack, [ 'pipeline', 'debug' ]);
 
     callStack.length = 0;
     await trigger.executePipeline({ argv: [] });

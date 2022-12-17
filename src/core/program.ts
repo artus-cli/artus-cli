@@ -3,9 +3,8 @@
  **/
 
 import { Inject, Injectable, ScopeEnum, Container } from '@artus/core';
-import { MiddlewareInput } from '@artus/pipeline';
 import { CommandTrigger } from './trigger';
-import { OptionProps } from '../types';
+import { OptionProps, MiddlewareInput, MiddlewareConfig } from '../types';
 import { Command } from './command';
 import { Middleware, MiddlewareDecoratorOption } from './decorators';
 import { ParsedCommand, ParsedCommands } from './parsed_commands';
@@ -40,22 +39,22 @@ export class Program {
 
   /** the bin name */
   get binName() {
-    return this.binInfo.binName;
+    return this.binInfo?.binName || '';
   }
 
   /** package name */
   get name() {
-    return this.binInfo.name;
+    return this.binInfo?.name || '';
   }
 
   /** package version */
   get version() {
-    return this.binInfo.version;
+    return this.binInfo?.version || '1.0.0';
   }
 
   /** bin base dir */
   get baseDir() {
-    return this.binInfo.baseDir;
+    return this.binInfo?.baseDir || '';
   }
 
   private getParsedCommand(clz: MaybeParsedCommand) {
@@ -65,7 +64,7 @@ export class Program {
   /** add options, works in all command by default */
   option(opt: Record<string, OptionProps>, effectCommands?: MaybeParsedCommand[]) {
     effectCommands = effectCommands || Array.from(this.commands.values());
-    effectCommands.forEach(c => this.getParsedCommand(c).updateGlobalOptions(opt));
+    effectCommands.forEach(c => this.getParsedCommand(c)?.updateGlobalOptions(opt));
   }
 
   /** register pipeline middleware */
@@ -74,13 +73,14 @@ export class Program {
   }
 
   /** register middleware in command */
-  useInCommand(clz: MaybeParsedCommand, fn: MiddlewareInput, opt?: MiddlewareDecoratorOption) {
-    Middleware(fn, opt)(this.getParsedCommand(clz).clz);
+  useInCommand(clz: MaybeParsedCommand, fn: MiddlewareInput, opt?: Pick<MiddlewareConfig, 'mergeType'>) {
+    const parsedCommand = this.getParsedCommand(clz);
+    if (parsedCommand) parsedCommand.addMiddlewares('command', { ...opt, middleware: fn });
   }
 
   /** register middleware in command.run */
-  useInExecution(clz: MaybeParsedCommand, fn: MiddlewareInput, opt?: MiddlewareDecoratorOption) {
-    clz = this.getParsedCommand(clz).clz;
-    Middleware(fn, opt)(this.container.get(clz), 'run');
+  useInExecution(clz: MaybeParsedCommand, fn: MiddlewareInput, opt?: Pick<MiddlewareConfig, 'mergeType'>) {
+    const parsedCommand = this.getParsedCommand(clz);
+    if (parsedCommand) parsedCommand.addMiddlewares('execution', { ...opt, middleware: fn });
   }
 }

@@ -27,8 +27,8 @@ export class HelpCommand extends Command {
     const helpCommand = ctx.commands.get(command) || ctx.rootCommand;
 
     // display help informations
-    const displayTexts = [];
-    const commandLineUsageList = [];
+    const displayTexts: string[] = [];
+    const commandLineUsageList: any[] = [];
     const optionKeys = helpCommand.options ? Object.keys(helpCommand.options) : [];
 
     // usage info in first line

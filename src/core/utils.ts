@@ -21,9 +21,9 @@ export class Utils {
   /** executing other command in same pipeline */
   async forward<T extends Record<string, any> = Record<string, any>>(clz: typeof Command | ParsedCommand, args?: T) {
     const cmd = clz instanceof ParsedCommand ? clz : this.commands.getCommand(clz);
-    assert(cmd, format('Can not forward to command %s', cmd.clz.name));
+    assert(cmd, format('Can not forward to command %s', cmd?.clz.name));
     const instance = this.ctx.container.get(cmd.clz);
-    if (args) instance[cmd.optionsKey] = args;
+    if (args && cmd.optionsKey) instance[cmd.optionsKey] = args;
     return this.trigger.executeCommand(this.ctx, cmd);
   }
 

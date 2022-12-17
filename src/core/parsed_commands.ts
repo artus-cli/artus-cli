@@ -1,6 +1,6 @@
 import { Command, EmptyCommand } from './command';
 import { MetadataEnum } from '../constant';
-import { CommandMeta, OptionProps } from '../types';
+import { CommandMeta, CommandConfig, OptionMeta, OptionConfig, MiddlewareConfig, MiddlewareMeta } from '../types';
 import parser from 'yargs-parser';
 import Debug from 'debug';
 import pick from 'lodash.pick';
@@ -8,6 +8,8 @@ import omit from 'lodash.omit';
 import { format } from 'node:util';
 import { isInheritFrom, isNil, convertValue } from '../utils';
 import { ArtusInjectEnum, Injectable, Container, Inject, ScopeEnum } from '@artus/core';
+import { Middlewares } from '@artus/pipeline';
+import { assert } from 'node:console';
 const debug = Debug('artus-cli#ParsedCommands');
 const OPTION_SYMBOL = Symbol('ParsedCommand#Option');
 
@@ -19,7 +21,7 @@ export interface MatchResult {
   /**
    * fuzzy matched command
    */
-  fuzzyMatched?: ParsedCommand;
+  fuzzyMatched: ParsedCommand;
   /**
    * match error
    */
@@ -42,6 +44,16 @@ export interface ParsedCommandStruct {
 export interface Positional {
   cmd: string;
   variadic: boolean;
+}
+
+export interface ParsedCommandOption {
+  commandConfig: CommandConfig,
+  parsedCommandInfo: ParsedCommandStruct;
+  optionConfig?: {
+    optionsKey?: string;
+    flagOptions: OptionConfig;
+    argumentOptions: OptionConfig;
+  };
 }
 
 export function parseCommand(cmd: string, binName: string) {
@@ -116,34 +128,48 @@ export class ParsedCommand implements ParsedCommandStruct {
   demanded: Positional[];
   optional: Positional[];
   description: string;
-  globalOptions?: Record<string, OptionProps>;
-  flagOptions: Record<string, OptionProps>;
-  argumentOptions: Record<string, OptionProps>;
-  optionsKey: string;
+  globalOptions?: OptionConfig;
+  flagOptions: OptionConfig;
+  argumentOptions: OptionConfig;
+  optionsKey?: string;
   childs: ParsedCommand[];
-  parent: ParsedCommand;
+  parent: ParsedCommand | null;
 
-  constructor(public clz: typeof Command, opt: ParsedCommandStruct & CommandMeta) {
-    this.uid = opt.uid;
-    this.command = opt.command;
-    this.cmd = opt.cmd;
-    this.cmds = opt.cmds;
-    this.demanded = opt.demanded;
-    this.optional = opt.optional;
-    this.override = opt.override;
-    const { key, meta } = Reflect.getMetadata(MetadataEnum.OPTION, clz) || {};
-    const argumentKeys = this.demanded.concat(this.optional).map(p => p.cmd);
-    this.flagOptions = omit(meta, argumentKeys);
-    this.argumentOptions = pick(meta, argumentKeys);
-    this.optionsKey = key;
+  commandConfig: CommandConfig;
+  commandMiddlewares: Middlewares;
+  executionMiddlewares: Middlewares;
+
+  constructor(public clz: typeof Command, option: ParsedCommandOption) {
+    const { commandConfig, parsedCommandInfo, optionConfig } = option;
+
+    // read from parsed_command
+    this.uid = parsedCommandInfo.uid;
+    this.command = parsedCommandInfo.command;
+    this.cmd = parsedCommandInfo.cmd;
+    this.cmds = parsedCommandInfo.cmds;
+    this.demanded = parsedCommandInfo.demanded;
+    this.optional = parsedCommandInfo.optional;
+
+    // read from option config
+    this.flagOptions = optionConfig?.flagOptions || {};
+    this.argumentOptions = optionConfig?.argumentOptions || {};
+    this.optionsKey = optionConfig?.optionsKey;
     this.childs = [];
     this.parent = null;
-    this.description = opt.description || '';
-    this.alias = opt.alias
-      ? Array.isArray(opt.alias)
-        ? opt.alias
-        : [ opt.alias ]
+
+    // read from command config
+    this.commandConfig = commandConfig;
+    this.override = commandConfig.override;
+    this.description = commandConfig.description || '';
+    this.alias = commandConfig.alias
+      ? Array.isArray(commandConfig.alias)
+        ? commandConfig.alias
+        : [ commandConfig.alias ]
       : [];
+
+    // middleware config
+    this.commandMiddlewares = [];
+    this.executionMiddlewares = [];
   }
 
   get options() {
@@ -165,73 +191,149 @@ export class ParsedCommand implements ParsedCommandStruct {
     return this.cmds.length;
   }
 
-  updateGlobalOptions(opt: Record<string, OptionProps>) {
+  addMiddlewares(type: 'command' | 'execution', config: MiddlewareConfig) {
+    const { middleware, mergeType } = config;
+    const middlewares = type === 'command' ? this.commandMiddlewares : this.executionMiddlewares;
+    const extraMiddlewares = Array.isArray(middleware) ? middleware : [ middleware ];
+    // mergeType default is after
+    if (!mergeType || mergeType === 'after') {
+      middlewares.push(...extraMiddlewares);
+    } else {
+      middlewares.unshift(...extraMiddlewares);
+    }
+  }
+
+  updateGlobalOptions(opt: OptionConfig) {
     this.globalOptions = { ...this.globalOptions, ...opt };
     this[OPTION_SYMBOL] = null;
   }
 }
 
-@Injectable({ scope: ScopeEnum.SINGLETON })
-export class ParsedCommands {
-  private binName: string;
-
-  /** cache the instance of parsedCommand */
-  private parsedCommandMap: Map<typeof Command, ParsedCommand>;
-
+/** Parsed Command Tree */
+export class ParsedCommandTree {
   /** root of command tree */
   root: ParsedCommand;
 
   /** command list, the key is command string used to match argv */
   commands: Map<string, ParsedCommand>;
 
+  /** cache the instance of parsedCommand */
+  parsedCommandMap: Map<typeof Command, ParsedCommand>;
+
   constructor(
-    @Inject() container: Container,
-    @Inject(ArtusInjectEnum.Config) config: any,
+    private binName: string,
+    private commandList: (typeof Command)[],
   ) {
-    const commandList = container.getInjectableByTag(MetadataEnum.COMMAND);
-    // bin name, default is pkg.name
-    this.binName = config.binName;
-    this.buildCommandTree(commandList);
+    this.build();
   }
 
-  /** build command class to tree */
-  private buildCommandTree(commandList: Array<typeof Command>) {
+  /** convert Command class to ParsedCommand instance */
+  private initParsedCommand(clz: typeof Command) {
+    const metadata = Reflect.getOwnMetadata(MetadataEnum.COMMAND, clz) as CommandMeta;
+    if (!metadata) return null;
+
+    const commandMeta = metadata;
+    const inheritClass = Object.getPrototypeOf(clz);
+    const inheritCommand = this.initParsedCommand(inheritClass);
+
+    let commandConfig = { ...commandMeta.config };
+
+    // mege command config with inherit command
+    if (inheritCommand && !commandMeta?.override) {
+      const inheritCommandConfig = inheritCommand.commandConfig;
+      commandConfig = Object.assign({}, {
+        alias: inheritCommandConfig.alias,
+        command: inheritCommandConfig.command,
+        description: inheritCommandConfig.description,
+        parent: inheritCommandConfig.parent,
+      } satisfies CommandConfig, commandConfig);
+    }
+
+    // default command is main command
+    commandConfig.command = commandConfig.command || '$0';
+
+    // init parent
+    let command = commandConfig.command!;
+    if (commandConfig.parent) {
+      const parentParsedCommand = this.initParsedCommand(commandConfig.parent);
+      assert(parentParsedCommand, `parent ${commandConfig.parent?.name} is not a valid Command`);
+      command = parentParsedCommand!.cmds.concat(command).join(' ');
+    }
+
+    // avoid creating parsedCommand again.
+    if (this.parsedCommandMap.has(clz)) {
+      return this.parsedCommandMap.get(clz);
+    }
+
+    // parse command usage
+    const parsedCommandInfo = parseCommand(command, this.binName);
+
+    // split options with argument key and merge option info with inherit command
+    const optionMeta: OptionMeta | undefined = Reflect.getOwnMetadata(MetadataEnum.OPTION, clz);
+    const argumentsKey = parsedCommandInfo.demanded.concat(parsedCommandInfo.optional).map(pos => pos.cmd);
+    const flagOptions: OptionConfig = omit(optionMeta?.config || {}, argumentsKey);
+    const argumentOptions: OptionConfig = pick(optionMeta?.config || {}, argumentsKey);
+    if (inheritCommand && !optionMeta?.override) {
+      Object.assign(flagOptions, inheritCommand.flagOptions);
+      Object.assign(argumentOptions, inheritCommand.argumentOptions);
+    }
+
+    const parsedCommand = new ParsedCommand(clz, {
+      commandConfig,
+      parsedCommandInfo,
+      optionConfig: { flagOptions, argumentOptions, optionsKey: optionMeta?.key },
+    });
+
+    if (this.commands.has(parsedCommandInfo.uid)) {
+      const existsParsedCommand = this.commands.get(parsedCommandInfo.uid)!;
+
+      // override only allow in class inheritance or options.override=true
+      const errorInfo = format('Command \'%s\' provide by %s is overrided by %s', existsParsedCommand.command, existsParsedCommand.clz.name, parsedCommand.clz.name);
+      if (!parsedCommand.override && !isInheritFrom(parsedCommand.clz, existsParsedCommand.clz)) {
+        throw new Error(errorInfo);
+      }
+
+      debug(errorInfo);
+    }
+
+    // handle middlewares
+    // Default orders:
+    //
+    // In class inheritance:
+    //              command1  <-extend-  command2
+    // trigger --> middleware1   -->   middleware2 --> middleware3  --> run
+    //
+    // ------------
+    //
+    // In run method:
+    //                      command2                               command1
+    // trigger --> middleware2 --> middleware3 --> run --> middleware1 --> super.run
+
+    // merge command middlewares with inherit command
+    const middlewareConfig = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, clz) as (MiddlewareMeta | undefined);
+    const commandMiddlewareConfigList = middlewareConfig?.configList || [];
+    if (inheritCommand && !optionMeta?.override) {
+      parsedCommand.addMiddlewares('command', { middleware: inheritCommand.commandMiddlewares });
+    }
+    commandMiddlewareConfigList.forEach(config => parsedCommand.addMiddlewares('command', config));
+
+    // add run middlewares, no need to merge with inherit command
+    const executionMiddlewareConfig = Reflect.getOwnMetadata(MetadataEnum.RUN_MIDDLEWARE, clz) as (MiddlewareMeta | undefined);
+    const executionMiddlewareConfigList = executionMiddlewareConfig?.configList || [];
+    executionMiddlewareConfigList.forEach(config => parsedCommand.addMiddlewares('execution', config));
+
+    // cache the instance
+    this.commands.set(parsedCommandInfo.uid, parsedCommand);
+    this.parsedCommandMap.set(clz, parsedCommand);
+    return parsedCommand;
+  }
+
+  private build() {
     this.commands = new Map();
     this.parsedCommandMap = new Map();
-    const initCommandClz = clz => {
-      const props: CommandMeta = Reflect.getMetadata(MetadataEnum.COMMAND, clz);
-
-      let command = props.command;
-      if (props.parent) {
-        const parentParsedCommand = initCommandClz(props.parent);
-        command = parentParsedCommand.cmds.concat(command).join(' ');
-      }
-
-      const info = parseCommand(command, this.binName);
-      if (this.parsedCommandMap.has(clz)) {
-        // avoid creating parsedCommand again.
-        return this.parsedCommandMap.get(clz);
-      }
-
-      const parsedCommand = new ParsedCommand(clz, { ...props, ...info });
-      if (this.commands.has(info.uid)) {
-        const existsParsedCommand = this.commands.get(info.uid);
-
-        // override only allow in class inheritance or options.override=true
-        const errorInfo = format('Command \'%s\' provide by %s is overrided by %s', existsParsedCommand.command, existsParsedCommand.clz.name, parsedCommand.clz.name);
-        if (!parsedCommand.override && !isInheritFrom(parsedCommand.clz, existsParsedCommand.clz)) {
-          throw new Error(errorInfo);
-        }
-
-        debug(errorInfo);
-      }
-
-      this.commands.set(info.uid, parsedCommand);
-      this.parsedCommandMap.set(clz, parsedCommand);
-      return parsedCommand;
-    };
-
-    const parsedCommands = commandList.map(initCommandClz);
+    const parsedCommands = this.commandList
+      .map(clz => this.initParsedCommand(clz))
+      .filter(c => !!c) as ParsedCommand[];
 
     // handle parent and childs
     parsedCommands
@@ -246,7 +348,10 @@ export class ParsedCommands {
           if (!cacheParsedCommand) {
             // create empty node
             debug('Create empty command for \'%s\'', fullCmd);
-            cacheParsedCommand = new ParsedCommand(EmptyCommand, parseCommand(fullCmd, this.binName));
+            cacheParsedCommand = new ParsedCommand(EmptyCommand, {
+              commandConfig: {},
+              parsedCommandInfo: parseCommand(fullCmd, this.binName),
+            });
             this.commands.set(fullCmd, cacheParsedCommand);
           }
 
@@ -262,8 +367,36 @@ export class ParsedCommands {
       });
   }
 
+  get(clz: typeof Command) {
+    return this.parsedCommandMap.get(clz);
+  }
+}
+
+@Injectable({ scope: ScopeEnum.SINGLETON })
+export class ParsedCommands {
+  private binName: string;
+  private tree: ParsedCommandTree;
+
+  constructor(
+    @Inject() container: Container,
+    @Inject(ArtusInjectEnum.Config) config: any,
+  ) {
+    const commandList = container.getInjectableByTag(MetadataEnum.COMMAND);
+    // bin name, default is pkg.name
+    this.binName = config.binName;
+    this.tree = new ParsedCommandTree(this.binName, commandList);
+  }
+
+  get root() {
+    return this.tree.root;
+  }
+
+  get commands() {
+    return this.tree.commands;
+  }
+
   /** check `<options>` or `[option]` and collect args */
-  private checkPositional(args: string[], pos: Positional[], options: Record<string, OptionProps>) {
+  private checkPositional(args: string[], pos: Positional[], options: OptionConfig) {
     let nextIndex = pos.length;
     const result: Record<string, any> = {};
     const pass = pos.every((positional, index) => {
@@ -428,6 +561,6 @@ export class ParsedCommands {
 
   /** get parsed command by command */
   getCommand(clz: typeof Command) {
-    return this.parsedCommandMap.get(clz);
+    return this.tree.get(clz);
   }
 }

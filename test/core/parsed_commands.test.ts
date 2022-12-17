@@ -1,7 +1,7 @@
 import { ArtusApplication } from '@artus/core';
 import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
 import { ArgumentMainComand } from 'argument-bin';
-import { ParsedCommands, Program } from '@artus-cli/artus-cli';
+import { ParsedCommandTree, DefineCommand, DefineOption, Middleware, ParsedCommands, Program } from '@artus-cli/artus-cli';
 import { createApp } from '../test-utils';
 import assert from 'node:assert';
 
@@ -92,7 +92,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     parsedCommands = app.container.get(ParsedCommands);
 
     const result = parsedCommands.matchCommand('oneapi');
-    assert(result.error.message === 'Command not found');
+    assert(result.error!.message === 'Command not found');
   });
 
   it('should parse argument options and match without error', async () => {
@@ -101,9 +101,9 @@ describe('test/core/parsed_commands.test.ts', () => {
     parsedCommands = app.container.get(ParsedCommands);
     const cmd = parsedCommands.getCommand(ArgumentMainComand);
 
-    assert(cmd.argumentOptions.port);
-    assert(!cmd.flagOptions.port);
-    assert(!cmd.options.port);
+    assert(cmd!.argumentOptions.port);
+    assert(!cmd!.flagOptions.port);
+    assert(!cmd!.options.port);
 
     // test match
     const result = parsedCommands.matchCommand('666 --inspect');
@@ -116,5 +116,80 @@ describe('test/core/parsed_commands.test.ts', () => {
     assert(result2.matched === cmd);
     assert(result2.args.port === 666);
     assert(result2.args.inspect === true);
+  });
+
+  it('should parsed tree works without error', async () => {
+    const beforeFn = async () => {};
+    const afterFn = async () => {};
+
+    @DefineCommand({ command: 'dev [baseDir]', description: '666' })
+    @Middleware(async () => {})
+    class MyCommand {
+      @DefineOption({
+        port: {},
+        baseDir: {},
+      })
+      options: any;
+    
+      @Middleware(async () => {})
+      @Middleware(async () => {})
+      @Middleware(async () => {})
+      async run() {
+        // nothing
+      }
+    }
+    
+    @DefineCommand()
+    @Middleware([ async () => {}, afterFn ])
+    @Middleware([ beforeFn ], { mergeType: 'before' })
+    class NewMyCommand extends MyCommand {
+      @DefineOption()
+      argv: any;
+    
+      async run() {
+        // nothing
+      }
+    }
+    
+    @DefineCommand({ command: 'aa' }, { override: true })
+    @Middleware([ async () => {}, async () => {} ], { override: true })
+    class OverrideMyCommand extends MyCommand {
+      @DefineOption({}, { override: true })
+      argv: any;
+    
+      async run() {
+        // nothing
+      }
+    }
+  
+    const tree = new ParsedCommandTree('my-bin', [ MyCommand, NewMyCommand, OverrideMyCommand ]);
+    const parsedMyCommand = tree.get(MyCommand)!;
+    assert(parsedMyCommand.uid === 'my-bin dev');
+    assert(parsedMyCommand.clz === MyCommand);
+    assert(parsedMyCommand.cmd === 'dev');
+    assert(parsedMyCommand.flagOptions.port);
+    assert(!parsedMyCommand.flagOptions.baseDir);
+    assert(parsedMyCommand.argumentOptions.baseDir);
+    assert(parsedMyCommand.description === '666');
+    assert(parsedMyCommand.commandMiddlewares.length === 1);
+    assert(parsedMyCommand.executionMiddlewares.length === 3);
+
+    const parsedNewMyCommand = tree.get(NewMyCommand)!;
+    assert(parsedNewMyCommand.clz === NewMyCommand);
+    assert(parsedNewMyCommand.uid === 'my-bin dev');
+    assert(parsedNewMyCommand.description === '666');
+    assert(parsedNewMyCommand.flagOptions.port);
+    assert(parsedNewMyCommand.argumentOptions.baseDir);
+    assert(parsedNewMyCommand.commandMiddlewares.length === 4);
+    assert(parsedNewMyCommand.commandMiddlewares[0] === beforeFn);
+    assert(parsedNewMyCommand.commandMiddlewares[3] === afterFn);
+    assert(!parsedNewMyCommand.executionMiddlewares.length);
+
+    const parsedOverrideMyCommand = tree.get(OverrideMyCommand)!;
+    assert(parsedOverrideMyCommand.clz === OverrideMyCommand);
+    assert(parsedOverrideMyCommand.uid === 'my-bin aa');
+    assert(!parsedOverrideMyCommand.description);
+    assert(parsedOverrideMyCommand.commandMiddlewares.length === 2);
+    assert(!parsedOverrideMyCommand.executionMiddlewares.length);
   });
 });
