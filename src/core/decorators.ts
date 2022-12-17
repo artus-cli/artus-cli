@@ -91,7 +91,7 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
       throw new Error(`Can\'t use override in multiple @Middleware`);
     }
 
-    existsMeta.override = !!option?.override;
+    existsMeta.override = option?.override;
     Reflect.defineMetadata(metaKey, existsMeta, ctor);
   };
 }
