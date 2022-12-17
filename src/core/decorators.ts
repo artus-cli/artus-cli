@@ -89,7 +89,7 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
 
     if (typeof option?.override === 'boolean') {
       if (typeof existsMeta.override === 'boolean' && existsMeta.override !== option.override) {
-        throw new Error(`Cannot config override in multiple @Middleware`);
+        throw new Error(`Can\'t use override in multiple @Middleware`);
       }
 
       existsMeta.override = true;

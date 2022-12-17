@@ -104,6 +104,6 @@ describe('test/core/decorators.test.ts', () => {
     assert.throws(() => {
       Middleware(async () => {}, { override: true })(NewMyCommand);
       Middleware(async () => {}, { override: false })(NewMyCommand);
-    }, /Cannot config override in multiple @Middleware/);
+    }, /Can\'t use override in multiple @Middleware/);
   });
 });
