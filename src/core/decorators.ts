@@ -87,16 +87,11 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
       mergeType: option?.mergeType || 'after',
     });
 
-    if (typeof option?.override === 'boolean') {
-      if (typeof existsMeta.override === 'boolean' && existsMeta.override !== option.override) {
-        throw new Error(`Can\'t use override in multiple @Middleware`);
-      }
-
-      existsMeta.override = true;
-    } else {
-      existsMeta.override = false;
+    if (typeof option?.override === 'boolean' && typeof existsMeta.override === 'boolean' && existsMeta.override !== option.override) {
+      throw new Error(`Can\'t use override in multiple @Middleware`);
     }
 
+    existsMeta.override = !!option?.override;
     Reflect.defineMetadata(metaKey, existsMeta, ctor);
   };
 }
