@@ -1,6 +1,6 @@
-import { DefineCommand, DefineOption, Command, Middleware } from '@artus-cli/artus-cli';
+import { DefineCommand, DefineOption, Command, Middleware, Option } from '@artus-cli/artus-cli';
 
-export interface DevOption {
+export interface DevOption extends Option {
   port?: number;
   inspect?: string;
   nodeFlags?: string;
