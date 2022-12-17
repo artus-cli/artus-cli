@@ -127,6 +127,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     class MyCommand {
       @DefineOption({
         port: {},
+        inspectPort: { default: 8080 },
         baseDir: {},
       })
       options: any;
@@ -143,7 +144,9 @@ describe('test/core/parsed_commands.test.ts', () => {
     @Middleware([ async () => {}, afterFn ])
     @Middleware([ beforeFn ], { mergeType: 'before' })
     class NewMyCommand extends MyCommand {
-      @DefineOption()
+      @DefineOption({
+        inspectPort: { default: 6666 },
+      })
       argv: any;
     
       async run() {
@@ -168,6 +171,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     assert(parsedMyCommand.clz === MyCommand);
     assert(parsedMyCommand.cmd === 'dev');
     assert(parsedMyCommand.flagOptions.port);
+    assert(parsedMyCommand.flagOptions.inspectPort.default === 8080);
     assert(!parsedMyCommand.flagOptions.baseDir);
     assert(parsedMyCommand.argumentOptions.baseDir);
     assert(parsedMyCommand.description === '666');
@@ -179,6 +183,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     assert(parsedNewMyCommand.uid === 'my-bin dev');
     assert(parsedNewMyCommand.description === '666');
     assert(parsedNewMyCommand.flagOptions.port);
+    assert(parsedNewMyCommand.flagOptions.inspectPort.default === 6666);
     assert(parsedNewMyCommand.argumentOptions.baseDir);
     assert(parsedNewMyCommand.commandMiddlewares.length === 4);
     assert(parsedNewMyCommand.commandMiddlewares[0] === beforeFn);
