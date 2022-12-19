@@ -19,7 +19,7 @@ export class BinInfo {
   env: string;
   binName: string;
   baseDir: string;
-  author: string;
+  author: any;
   description: string;
   pkgInfo: Record<string, any>;
   strict: boolean;
