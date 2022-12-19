@@ -57,7 +57,7 @@ describe('test/index.test.ts', () => {
       env: { ...process.env, ARTUS_CLI_ENV: 'prod' },
     })
       .debug()
-      .expect('stdout', /main/)
+      .expect('stderr', /Unknown options: --help/)
       .end();
   });
 

@@ -6,6 +6,7 @@ import { Inject, Injectable, ScopeEnum, Container } from '@artus/core';
 import { CommandTrigger } from './trigger';
 import { OptionProps, MiddlewareInput, MiddlewareConfig } from '../types';
 import { Command } from './command';
+import { BinInfo } from './bin_info';
 import { ParsedCommand, ParsedCommands } from './parsed_commands';
 
 type MaybeParsedCommand = (typeof Command) | ParsedCommand;
@@ -18,6 +19,10 @@ export class Program {
   @Inject()
   private readonly parsedCommands: ParsedCommands;
 
+  /** bin info, including pkgInfo and config */
+  @Inject()
+  binInfo: BinInfo;
+
   /** all commands map */
   get commands() {
     return this.parsedCommands.commands;
@@ -28,29 +33,24 @@ export class Program {
     return this.parsedCommands.root;
   }
 
-  /** bin info, including pkgInfo and config */
-  get binInfo() {
-    return this.trigger.binInfo;
-  }
-
   /** the bin name */
   get binName() {
-    return this.binInfo?.binName || '';
+    return this.binInfo.binName;
   }
 
   /** package name */
   get name() {
-    return this.binInfo?.name || '';
+    return this.binInfo.name;
   }
 
   /** package version */
   get version() {
-    return this.binInfo?.version || '';
+    return this.binInfo.version;
   }
 
   /** bin base dir */
   get baseDir() {
-    return this.binInfo?.baseDir || '';
+    return this.binInfo.baseDir;
   }
 
   private getParsedCommand(clz: MaybeParsedCommand) {
