@@ -73,8 +73,8 @@ export interface CommandMeta {
 }
 
 export interface ArtusCliOptions extends Partial<ArtusCliConfig> {
-  /** start env */
-  env?: string;
+  /** artus start env */
+  artusEnv?: string;
 
   /** bin base dir, default is the same directory with package.json */
   baseDir?: string;

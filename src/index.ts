@@ -48,13 +48,13 @@ export async function start(options: ArtusCliOptions = {}) {
   delete process.env.ARTUS_CLI_SCANNING;
 
   // start app
-  const env = options.env || process.env.ARTUS_CLI_ENV || 'default';
+  const artusEnv = options.artusEnv || process.env.ARTUS_CLI_ENV || 'default';
   const app = new ArtusApplication();
-  assert(manifest[env], `Unknown env "${env}"`);
+  assert(manifest[artusEnv], `Unknown env "${artusEnv}"`);
 
   // bin opt store in app
-  app[BIN_OPTION_SYMBOL] = { ...options, pkgInfo, env, baseDir } satisfies BinInfoOption;
-  await app.load(manifest[env], baseDir);
+  app[BIN_OPTION_SYMBOL] = { ...options, pkgInfo, artusEnv, baseDir } satisfies BinInfoOption;
+  await app.load(manifest[artusEnv], baseDir);
   await app.run();
   return app;
 }
