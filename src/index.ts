@@ -4,7 +4,7 @@ import { ArtusCliOptions } from './types';
 import assert from 'node:assert';
 import { BIN_OPTION_SYMBOL } from './constant';
 import { readPkg, getCalleeDir } from './utils';
-import { BinInfo, BinInfoOption } from './core/bin_info';
+import { BinInfoOption } from './core/bin_info';
 import path from 'node:path';
 
 export * from '@artus/core';

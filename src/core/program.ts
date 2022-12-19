@@ -2,7 +2,7 @@
  * open api for user
  **/
 
-import { Inject, Injectable, ScopeEnum, Container } from '@artus/core';
+import { Inject, Injectable, ScopeEnum } from '@artus/core';
 import { CommandTrigger } from './trigger';
 import { OptionProps, MiddlewareInput, MiddlewareConfig } from '../types';
 import { Command } from './command';

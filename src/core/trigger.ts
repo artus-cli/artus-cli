@@ -1,10 +1,13 @@
-import { Trigger, Injectable, ScopeEnum, Inject, ArtusInjectEnum } from '@artus/core';
+import { debuglog } from 'node:util';
+
+import { Trigger, Injectable, ScopeEnum } from '@artus/core';
+
 import { Context, Output } from '@artus/pipeline';
-import Debug from 'debug';
 import { EXCUTION_SYMBOL } from '../constant';
 import { CommandContext, CommandInput, CommandOutput } from './context';
 import { ParsedCommand } from './parsed_commands';
-const debug = Debug('artus-cli#trigger');
+
+const debug = debuglog('artus-cli#trigger');
 
 @Injectable({ scope: ScopeEnum.SINGLETON })
 export class CommandTrigger extends Trigger {
