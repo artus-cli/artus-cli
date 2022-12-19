@@ -3,15 +3,17 @@ import { MetadataEnum } from '../constant';
 import { CommandMeta, CommandConfig, OptionMeta, OptionConfig, MiddlewareConfig, MiddlewareMeta } from '../types';
 import parser from 'yargs-parser';
 import Debug from 'debug';
-import pick from 'lodash.pick';
-import omit from 'lodash.omit';
+import { pick, omit, flatten } from 'lodash';
 import { format } from 'node:util';
+import { BinInfo } from './bin_info';
 import { isInheritFrom, isNil, convertValue } from '../utils';
-import { ArtusInjectEnum, Injectable, Container, Inject, ScopeEnum } from '@artus/core';
+import { parseArgvToArgs, parseArgvWithPositional, parseCommand, ParsedCommandStruct, Positional } from './parser';
+import { Injectable, Container, Inject, ScopeEnum } from '@artus/core';
 import { Middlewares } from '@artus/pipeline';
 import { assert } from 'node:console';
 const debug = Debug('artus-cli#ParsedCommands');
 const OPTION_SYMBOL = Symbol('ParsedCommand#Option');
+const TREE_SYMBOL = Symbol('ParsedCommand#Tree');
 
 export interface MatchResult {
   /**
@@ -32,20 +34,6 @@ export interface MatchResult {
   args: Record<string, any>;
 }
 
-export interface ParsedCommandStruct {
-  uid: string;
-  cmd: string;
-  cmds: string[];
-  command: string;
-  demanded: Positional[];
-  optional: Positional[];
-}
-
-export interface Positional {
-  cmd: string;
-  variadic: boolean;
-}
-
 export interface ParsedCommandOption {
   commandConfig: CommandConfig,
   parsedCommandInfo: ParsedCommandStruct;
@@ -54,63 +42,6 @@ export interface ParsedCommandOption {
     flagOptions: OptionConfig;
     argumentOptions: OptionConfig;
   };
-}
-
-export function parseCommand(cmd: string, binName: string) {
-  const extraSpacesStrippedCommand = cmd.replace(/\s{2,}/g, ' ');
-  const splitCommand = extraSpacesStrippedCommand.split(/\s+(?![^[]*]|[^<]*>)/);
-  const bregex = /\.*[\][<>]/g;
-  if (!splitCommand.length) throw new Error(`No command found in: ${cmd}`);
-
-  // first cmd is binName or $0, remove it anyway
-  if ([ binName, '$0' ].includes(splitCommand[0])) {
-    splitCommand.shift();
-  }
-
-  let command: string;
-  let root = false;
-  if (!splitCommand[0] || splitCommand[0].match(bregex)) {
-    root = true;
-    command = [ binName, ...splitCommand ].join(' ');
-  } else {
-    command = splitCommand.join(' ');
-  }
-
-  const parsedCommand: ParsedCommandStruct = {
-    uid: '',
-    cmd: '',
-    cmds: [ binName ],
-    command,
-    demanded: [],
-    optional: [],
-  };
-
-  splitCommand.forEach((cmd, i) => {
-    let variadic = false;
-    cmd = cmd.replace(/\s/g, '');
-
-    // <file...> or [file...]
-    if (/\.+[\]>]/.test(cmd) && i === splitCommand.length - 1) variadic = true;
-
-    const result = cmd.match(/^(\[|\<)/);
-    if (result) {
-      if (result[1] === '[') {
-        // [options]
-        parsedCommand.optional.push({ cmd: cmd.replace(bregex, ''), variadic });
-      } else {
-        // <options>
-        parsedCommand.demanded.push({ cmd: cmd.replace(bregex, ''), variadic });
-      }
-    } else {
-      // command without [] or <>
-      parsedCommand.cmds.push(cmd);
-    }
-  });
-
-  // last cmd is the command
-  parsedCommand.cmd = parsedCommand.cmds[parsedCommand.cmds.length - 1];
-  parsedCommand.uid = parsedCommand.cmds.join(' ');
-  return parsedCommand;
 }
 
 /** Wrapper of command */
@@ -172,7 +103,7 @@ export class ParsedCommand implements ParsedCommandStruct {
     this.executionMiddlewares = [];
   }
 
-  get options() {
+  get options(): OptionConfig {
     if (!this[OPTION_SYMBOL]) {
       this[OPTION_SYMBOL] = { ...this.globalOptions, ...this.flagOptions };
     }
@@ -374,17 +305,19 @@ export class ParsedCommandTree {
 
 @Injectable({ scope: ScopeEnum.SINGLETON })
 export class ParsedCommands {
-  private binName: string;
-  private tree: ParsedCommandTree;
+  @Inject()
+  private readonly container: Container;
 
-  constructor(
-    @Inject() container: Container,
-    @Inject(ArtusInjectEnum.Config) config: any,
-  ) {
-    const commandList = container.getInjectableByTag(MetadataEnum.COMMAND);
-    // bin name, default is pkg.name
-    this.binName = config.binName;
-    this.tree = new ParsedCommandTree(this.binName, commandList);
+  @Inject()
+  private readonly binInfo: BinInfo;
+
+  // parse command tree lazily
+  get tree(): ParsedCommandTree {
+    if (!this[TREE_SYMBOL]) {
+      const commandList = this.container.getInjectableByTag(MetadataEnum.COMMAND);
+      this[TREE_SYMBOL] = new ParsedCommandTree(this.binInfo.binName, commandList);
+    }
+    return this[TREE_SYMBOL];
   }
 
   get root() {
@@ -465,8 +398,8 @@ export class ParsedCommands {
     if (result.fuzzyMatched) {
       const fuzzyMatched = result.fuzzyMatched;
       if (fuzzyMatched.demanded.length) {
-        const checkDemanded = this.checkPositional(extraArgs, fuzzyMatched.demanded, fuzzyMatched.argumentOptions);
-        if (!checkDemanded.pass) {
+        const parsedDemanded = parseArgvWithPositional(extraArgs, fuzzyMatched.demanded, fuzzyMatched.argumentOptions);
+        if (!parsedDemanded.matchAll) {
           // demanded not match
           debug('Demaned is not match with %s', extraArgs);
           result.error = new Error('Not enough arguments');
@@ -474,20 +407,20 @@ export class ParsedCommands {
         }
 
         // pick args from demanded info
-        Object.assign(result.positionalArgs, checkDemanded.result);
-        extraArgs = checkDemanded.args;
+        Object.assign(result.positionalArgs, parsedDemanded.result);
+        extraArgs = parsedDemanded.unknownArgv;
       }
 
       if (fuzzyMatched.optional.length) {
-        const checkOptional = this.checkPositional(extraArgs, fuzzyMatched.optional, fuzzyMatched.argumentOptions);
-        Object.assign(result.positionalArgs, checkOptional.result);
-        extraArgs = checkOptional.args;
+        const parsedOptional = parseArgvWithPositional(extraArgs, fuzzyMatched.optional, fuzzyMatched.argumentOptions);
+        Object.assign(result.positionalArgs, parsedOptional.result);
+        extraArgs = parsedOptional.unknownArgv;
       }
 
-      // unknown args
-      if (extraArgs.length) {
-        debug('Unknown arguments %s', extraArgs);
-        result.error = new Error(format('Unknown arguments %s', extraArgs));
+      // unknown commands, checking in strict mode
+      if (extraArgs.length && this.binInfo.strictCommands) {
+        debug('Unknown commands %s', extraArgs);
+        result.error = new Error(format('Unknown commands %s', extraArgs));
         return result;
       }
 
@@ -508,36 +441,12 @@ export class ParsedCommands {
 
   /** parse argv with yargs-parser */
   parseArgs(argv: string | string[], parseCommand?: ParsedCommand) {
-    const requiredOptions: string[] = [];
-    const parserOption: parser.Options = {};
-    if (parseCommand) {
-      for (const key in parseCommand.options) {
-        const opt = parseCommand.options[key];
-        if (opt.required) requiredOptions.push(key);
-        if (opt.alias !== undefined) {
-          parserOption.alias = parserOption.alias || {};
-          parserOption.alias[key] = opt.alias;
-        }
+    const result = parseArgvToArgs(argv, {
+      optionConfig: parseCommand?.options,
+      strictOptions: this.binInfo.strictOptions,
+    });
 
-        if (opt.type !== undefined) {
-          parserOption[opt.type] = parserOption[opt.type] || [];
-          parserOption[opt.type].push(key);
-        }
-
-        if (opt.default !== undefined) {
-          parserOption.default = parserOption.default || {};
-          parserOption.default[key] = opt.default;
-        }
-      }
-    }
-
-    const result = parser(argv, parserOption);
-    const requiredNilOptions = requiredOptions.filter(k => isNil(result[k]));
-    if (requiredNilOptions.length) {
-      throw new Error(format('Required options: %s', requiredNilOptions.join(', ')));
-    }
-
-    return result;
+    return result.argv;
   }
 
   /** match command by argv */

@@ -1,23 +1,13 @@
 import { Trigger, Injectable, ScopeEnum, Inject, ArtusInjectEnum } from '@artus/core';
 import { Context, Output } from '@artus/pipeline';
 import Debug from 'debug';
-import path from 'node:path';
-import fs from 'node:fs/promises';
 import { EXCUTION_SYMBOL } from '../constant';
-import { CommonBinConfig, CommonBinInfo } from '../types';
 import { CommandContext, CommandInput, CommandOutput } from './context';
 import { ParsedCommand } from './parsed_commands';
-import { readPkg } from '../utils';
-const BIN_INFO_SYMBOL = Symbol('Program#binInfoSymbol');
 const debug = Debug('artus-cli#trigger');
 
 @Injectable({ scope: ScopeEnum.SINGLETON })
 export class CommandTrigger extends Trigger {
-  binInfo?: CommonBinInfo;
-
-  @Inject(ArtusInjectEnum.Config)
-  config: CommonBinConfig;
-
   async start() {
     // core middleware
     this.use(async (ctx: CommandContext, next) => {
@@ -41,24 +31,6 @@ export class CommandTrigger extends Trigger {
   }
 
   async init() {
-    // init binInfo
-    const config: CommonBinConfig = this.config;
-    let pkgInfo;
-    try {
-      pkgInfo = (await readPkg(config.baseDir)).pkgInfo;
-    } catch (e) {
-      // nothing
-    }
-
-    this.binInfo = {
-      name: pkgInfo.name,
-      version: pkgInfo.version || '1.0.0',
-      description: pkgInfo.description,
-      binName: config.binName,
-      baseDir: config.baseDir,
-      pkgInfo,
-    };
-
     this.use(async (ctx: CommandContext, next) => {
       // parse argv and match command
       ctx.init();

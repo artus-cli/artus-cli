@@ -1,4 +1,5 @@
-import { ParsedCommand, Positional } from './core/parsed_commands';
+import { ParsedCommand } from './core/parsed_commands';
+import { Positional } from './core/parser';
 import pkgUp from 'pkg-up';
 import path from 'node:path';
 import assert from 'node:assert';
@@ -30,7 +31,7 @@ export function checkCommandCompatible(command: ParsedCommand, compareCommand: P
   return true;
 }
 
-export function isNil(v) {
+export function isNil(v): v is undefined | null {
   return v === undefined || v === null;
 }
 

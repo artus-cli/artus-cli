@@ -7,3 +7,4 @@ export enum MetadataEnum {
 
 export const CONTEXT_SYMBOL = Symbol('Command#Context');
 export const EXCUTION_SYMBOL = Symbol('Command#Excution');
+export const BIN_OPTION_SYMBOL = Symbol('BinInfo#Option');

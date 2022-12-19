@@ -1,31 +1,28 @@
 import { ArtusApplication } from '@artus/core';
 import { ParsedCommands } from '@artus-cli/artus-cli';
 import { CommandTrigger } from '../../src/core/trigger';
-import { createApp, createCtx } from '../test-utils';
-import assert, { deepEqual } from 'node:assert';
+import { BinInfo } from '../../src';
+import { createApp } from '../test-utils';
+import assert from 'node:assert';
 import { DebugCommand } from 'egg-bin';
 
 describe('test/core/trigger.test.ts', () => {
   let app: ArtusApplication;
   let trigger: CommandTrigger;
+  let binInfo: BinInfo;
   before(async () => {
     app = await createApp('egg-bin');
     trigger = app.container.get(CommandTrigger);
+    binInfo = app.container.get(BinInfo);
   });
 
   after(() => app.close());
-
-  it('baseInfo', async () => {
-    assert(trigger.binInfo);
-    assert(trigger.binInfo.binName === 'egg-bin');
-    assert(trigger.binInfo.version === '1.0.0');
-  });
 
   it('initContext', async () => {
     const ctx = await trigger.initContext({
       params: {
         argv: [ 'dev' ],
-        cwd: trigger.binInfo?.baseDir,
+        cwd: binInfo.baseDir,
         env: process.env,
       },
     });
@@ -46,7 +43,7 @@ describe('test/core/trigger.test.ts', () => {
 
     await trigger.executePipeline({
       argv: [ 'dev' ],
-      cwd: trigger.binInfo?.baseDir,
+      cwd: binInfo.baseDir,
       env: process.env,
     });
 
@@ -57,14 +54,14 @@ describe('test/core/trigger.test.ts', () => {
     const ctx = await trigger.initContext({
       params: {
         argv: [ 'dev' ],
-        cwd: trigger.binInfo?.baseDir,
+        cwd: binInfo.baseDir,
         env: process.env,
       },
     });
 
     ctx.init();
     const parsedCommands = ctx.container.get(ParsedCommands);
-    const { result } = await trigger.executeCommand(ctx, parsedCommands.getCommand(DebugCommand));
+    const { result } = await trigger.executeCommand(ctx, parsedCommands.getCommand(DebugCommand)!);
     assert(result);
     assert(result.command === 'debug');
   });

@@ -52,27 +52,30 @@ export interface CommandMeta {
   override?: boolean;
 }
 
-export interface ApplicationOptions {
+export interface ArtusCliOptions extends Partial<ArtusCliConfig> {
   /** start env */
   env?: string;
-  /** your bin name, default is name in package.json */
-  binName?: string;
-  framework?: { package?: string; path?: string };
+
+  /** bin base dir, default is the same directory with package.json */
   baseDir?: string;
+
+  /** framework option, default is artus-cli */
+  framework?: { package?: string; path?: string };
+
+  /** exclude scan dir */
   exclude?: string[];
 }
 
-export interface CommonBinConfig {
-  binName: string;
-  baseDir: string;
-}
+export interface ArtusCliConfig {
+  /** your bin name, default is name in package.json */
+  binName?: string;
 
-export interface CommonBinInfo {
-  name: string;
-  version?: string;
-  binName: string;
-  baseDir: string;
-  author?: string;
-  description?: string;
-  pkgInfo?: Record<string, any>;
+  /** strict mode in checking arguments and options, default is true */
+  strict?: boolean;
+
+  /** strict mode in checking options, default is `options.strict` */
+  strictOptions?: boolean;
+
+  /** strict mode in checking arguments, default is `options.strict` */
+  strictCommands?: boolean;
 }

@@ -1,4 +1,8 @@
+import { ArtusCliConfig } from '../types';
+
 export default {
-  binName: process.env.ARTUS_CLI_BIN,
-  baseDir: process.env.ARTUS_CLI_BASEDIR,
-};
+  // binName: 'xxx',
+  strict: true,
+  // strictOptions: true,
+  // strictCommands: true,
+} satisfies ArtusCliConfig;

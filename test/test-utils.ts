@@ -3,7 +3,7 @@ import coffee from 'coffee';
 import fs from 'fs';
 import assert from 'node:assert';
 import { ArtusApplication } from '@artus/core';
-import { start, ApplicationOptions } from '@artus-cli/artus-cli';
+import { start, ArtusCliOptions } from '@artus-cli/artus-cli';
 import { CommandTrigger } from '../src/core/trigger';
 import { ForkOptions } from 'child_process';
 
@@ -26,7 +26,8 @@ export function fork(target: string, args: string[] = [], options: ForkOptions =
   });
 }
 
-export async function createApp(fixtureName: string, opt?: ApplicationOptions) {
+export async function createApp(fixtureName: string, opt?: ArtusCliOptions) {
+  process.argv = [];
   return (await start({ ...opt, baseDir: path.dirname(require.resolve(`${fixtureName}/package.json`)) }))!;
 }
 
