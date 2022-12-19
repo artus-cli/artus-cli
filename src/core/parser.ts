@@ -147,9 +147,7 @@ export function parseCommand(cmd: string, binName: string) {
   }
 
   let command: string;
-  let root = false;
   if (!splitCommand[0] || splitCommand[0].match(bregex)) {
-    root = true;
     command = [ binName, ...splitCommand ].join(' ');
   } else {
     command = splitCommand.join(' ');

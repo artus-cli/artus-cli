@@ -5,7 +5,7 @@ import { CommandContext, CommandOutput } from './context';
 import compose from 'koa-compose';
 import { Command } from './command';
 import { checkCommandCompatible } from '../utils';
-import { MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, CommandMeta, OptionConfig, BasicType, ConvertTypeToBasicType } from '../types';
+import { MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, OptionConfig, ConvertTypeToBasicType } from '../types';
 
 export interface CommonDecoratorOption {
   /** whether merge meta info of prototype */

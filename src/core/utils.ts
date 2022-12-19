@@ -3,7 +3,6 @@ import { ParsedCommand, ParsedCommands } from './parsed_commands';
 import { Command } from './command';
 import { CommandContext } from './context';
 import { CommandTrigger } from './trigger';
-import { EXCUTION_SYMBOL } from '../constant';
 import assert from 'node:assert';
 import { format } from 'node:util';
 

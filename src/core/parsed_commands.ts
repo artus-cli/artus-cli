@@ -1,19 +1,20 @@
-import { Command, EmptyCommand } from './command';
-import { MetadataEnum } from '../constant';
-import { CommandMeta, CommandConfig, OptionMeta, OptionConfig, MiddlewareConfig, MiddlewareMeta } from '../types';
-import parser from 'yargs-parser';
-import Debug from 'debug';
-import { pick, omit, flatten } from 'lodash';
-import { format } from 'node:util';
-import { BinInfo } from './bin_info';
-import { isInheritFrom, isNil, convertValue } from '../utils';
-import { parseArgvToArgs, parseArgvWithPositional, parseCommand, ParsedCommandStruct, Positional } from './parser';
+import { debuglog, format } from 'node:util';
+import { assert } from 'node:console';
+
+import { pick, omit } from 'lodash';
 import { Injectable, Container, Inject, ScopeEnum } from '@artus/core';
 import { Middlewares } from '@artus/pipeline';
-import { assert } from 'node:console';
-const debug = Debug('artus-cli#ParsedCommands');
+
+import { CommandMeta, CommandConfig, OptionMeta, OptionConfig, MiddlewareConfig, MiddlewareMeta } from '../types';
+import { parseArgvToArgs, parseArgvWithPositional, parseCommand, ParsedCommandStruct, Positional } from './parser';
+import { Command, EmptyCommand } from './command';
+import { MetadataEnum } from '../constant';
+import { BinInfo } from './bin_info';
+import { isInheritFrom } from '../utils';
+
 const OPTION_SYMBOL = Symbol('ParsedCommand#Option');
 const TREE_SYMBOL = Symbol('ParsedCommand#Tree');
+const debug = debuglog('artus-cli#ParsedCommands');
 
 export interface MatchResult {
   /**
@@ -326,39 +327,6 @@ export class ParsedCommands {
 
   get commands() {
     return this.tree.commands;
-  }
-
-  /** check `<options>` or `[option]` and collect args */
-  private checkPositional(args: string[], pos: Positional[], options: OptionConfig) {
-    let nextIndex = pos.length;
-    const result: Record<string, any> = {};
-    const pass = pos.every((positional, index) => {
-      // `bin <files..>` match `bin file1 file2 file3` => { files: [ "file1", "file2", "file3" ] }
-      // `bin <file> [baseDir]` match `bin file1 ./` => { file: "file1", baseDir: "./" }
-      let r;
-      if (positional.variadic) {
-        r = args.slice(index);
-        nextIndex = args.length; // variadic means the last
-      } else {
-        r = args[index];
-      }
-
-      // check arguments option
-      const argOpt = options[positional.cmd];
-      if (argOpt) {
-        r = isNil(r) ? argOpt.default : r;
-        if (argOpt.type) r = convertValue(r, argOpt.type);
-      }
-
-      result[positional.cmd] = r;
-      return !!r;
-    });
-
-    return {
-      result,
-      pass,
-      args: args.slice(nextIndex),
-    };
   }
 
   /** match command by argv */
