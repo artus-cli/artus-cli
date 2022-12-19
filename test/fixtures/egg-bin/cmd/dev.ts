@@ -36,16 +36,16 @@ export class DevCommand extends Command {
       type: 'string',
     },
   })
-  options: DevOption;
+  args: DevOption;
 
   async run() {
-    console.info('port', this.options.port);
-    console.info('inspect', this.options.inspect);
-    console.info('nodeFlags', this.options.nodeFlags);
-    console.info('baseDir', this.options.baseDir);
+    console.info('port', this.args.port);
+    console.info('inspect', this.args.inspect);
+    console.info('nodeFlags', this.args.nodeFlags);
+    console.info('baseDir', this.args.baseDir);
     return {
       command: 'dev',
-      args: this.options,
+      args: this.args,
     };
   }
 }

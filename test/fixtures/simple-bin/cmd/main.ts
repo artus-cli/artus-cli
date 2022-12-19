@@ -19,9 +19,9 @@ export class MainCommand extends Command {
       description: 'port',
     },
   })
-  option: Option;
+  args: Option;
 
   async run() {
-    console.info('Run with port %s in %s', this.option.port, this.option.baseDir);
+    console.info('Run with port %s in %s', this.args.port, this.args.baseDir);
   }
 }

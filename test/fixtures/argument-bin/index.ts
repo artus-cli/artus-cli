@@ -20,10 +20,10 @@ export class ArgumentMainComand extends Command {
       description: 'Inspect',
     },
   })
-  opt: Option;
+  args: Option;
 
   async run() {
-    console.info('serv in port', this.opt.port);
-    if (this.opt.inspect) console.info('serv is inspecting...');
+    console.info('serv in port', this.args.port);
+    if (this.args.inspect) console.info('serv is inspecting...');
   }
 }

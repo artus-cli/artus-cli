@@ -16,13 +16,13 @@ export class CovCommand extends Command {
       default: true,
     },
   })
-  options: CovOption;
+  args: CovOption;
 
   @Inject()
   testCommand: TestCommand;
 
   async run() {
-    console.info('coverage c8', this.options.c8);
+    console.info('coverage c8', this.args.c8);
     return this.testCommand.run();
   }
 }
