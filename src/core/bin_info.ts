@@ -43,13 +43,10 @@ export class BinInfo {
     this.description = opt.pkgInfo.description || '';
     this.pkgInfo = opt.pkgInfo;
 
-    this.strict = typeof opt.strict === 'boolean' ? opt.strict : app.config.strict!;
-    this.strictCommands = typeof opt.strictCommands === 'boolean'
-      ? opt.strictCommands
-      : (typeof app.config.strictCommands === 'boolean' ? app.config.strictCommands : this.strict);
-    this.strictOptions = typeof opt.strictOptions === 'boolean'
-      ? opt.strictOptions
-      : (typeof app.config.strictOptions === 'boolean' ? app.config.strictOptions : this.strict);
+    const getBool = (...args: any[]) => args.find(a => typeof a === 'boolean');
+    this.strict = getBool(opt.strict, app.config.strict);
+    this.strictCommands = getBool(opt.strictCommands, app.config.strictCommands, this.strict);
+    this.strictOptions = getBool(opt.strictOptions, app.config.strictOptions, this.strict);
     delete app[BIN_OPTION_SYMBOL];
   }
 }

@@ -30,6 +30,13 @@ export interface MiddlewareMeta {
 }
 
 export type BasicType = 'string' | 'number' | 'boolean';
+
+/**
+ * convert type to literal string , used in DefineOption
+ * - string => 'string'
+ * - number => 'number'
+ * - boolean => 'boolean'
+ */
 export type ConvertTypeToBasicType<T> = (
   T extends string
     ? 'string' : (
