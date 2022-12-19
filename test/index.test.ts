@@ -166,4 +166,13 @@ describe('test/index.test.ts', () => {
       .notExpect('stdout', /--base-dir/)
       .end();
   });
+
+  it('deep-bin should work', async () => {
+    await fork('deep-bin', [ '--help' ])
+      .debug()
+      .expect('stdout', /Usage: deep-bin \[baseDir\]/)
+      .expect('stdout', /-p, --port number   port/)
+      .expect('stdout', /-h, --help          Show Help/)
+      .end();
+  });
 });

@@ -6,16 +6,12 @@ import { Inject, Injectable, ScopeEnum, Container } from '@artus/core';
 import { CommandTrigger } from './trigger';
 import { OptionProps, MiddlewareInput, MiddlewareConfig } from '../types';
 import { Command } from './command';
-import { Middleware, MiddlewareDecoratorOption } from './decorators';
 import { ParsedCommand, ParsedCommands } from './parsed_commands';
 
 type MaybeParsedCommand = (typeof Command) | ParsedCommand;
 
 @Injectable({ scope: ScopeEnum.SINGLETON })
 export class Program {
-  @Inject()
-  private readonly container: Container;
-
   @Inject()
   private readonly trigger: CommandTrigger;
 
