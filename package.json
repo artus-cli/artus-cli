@@ -1,6 +1,6 @@
 {
   "name": "@artus-cli/artus-cli",
-  "version": "0.0.2-beta.3",
+  "version": "0.0.2",
   "description": "common-bin base on artus",
   "homepage": "https://github.com/artus-cli/artus-cli",
   "author": "TZ <atian25@qq.com>",
