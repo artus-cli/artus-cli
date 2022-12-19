@@ -57,7 +57,7 @@ export function getCalleeFile(stackIndex: number): string | undefined {
   const prep = Error.prepareStackTrace;
 
   Error.prepareStackTrace = prepareObjectStackTrace;
-  Error.stackTraceLimit = 5;
+  Error.stackTraceLimit = stackIndex + 1;
 
   const obj: any = {};
   Error.captureStackTrace(obj);
