@@ -7,6 +7,7 @@ import { EXCUTION_SYMBOL } from '../constant';
 import { CommonBinConfig, CommonBinInfo } from '../types';
 import { CommandContext, CommandInput, CommandOutput } from './context';
 import { ParsedCommand } from './parsed_commands';
+import { readPkg } from '../utils';
 const BIN_INFO_SYMBOL = Symbol('Program#binInfoSymbol');
 const debug = Debug('artus-cli#trigger');
 
@@ -44,8 +45,7 @@ export class CommandTrigger extends Trigger {
     const config: CommonBinConfig = this.config;
     let pkgInfo;
     try {
-      const pkgPath = path.resolve(config.baseDir, './package.json');
-      pkgInfo = JSON.parse(await fs.readFile(pkgPath, 'utf-8'));
+      pkgInfo = (await readPkg(config.baseDir)).pkgInfo;
     } catch (e) {
       // nothing
     }

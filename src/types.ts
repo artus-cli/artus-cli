@@ -59,6 +59,7 @@ export interface ApplicationOptions {
   binName?: string;
   framework?: { package?: string; path?: string };
   baseDir?: string;
+  exclude?: string[];
 }
 
 export interface CommonBinConfig {

@@ -2,6 +2,8 @@ import 'reflect-metadata';
 import { ArtusApplication, Scanner } from '@artus/core';
 import { ApplicationOptions } from './types';
 import assert from 'node:assert';
+import { readPkg, getCalleeDir } from './utils';
+import path from 'node:path';
 
 export * from '@artus/core';
 export { Context } from '@artus/pipeline';
@@ -20,10 +22,15 @@ export async function start(options: ApplicationOptions = {}) {
     return null;
   }
 
-  const baseDir = options.baseDir || process.cwd();
+  // try to read baseDir by callee stack
+  const findPkgDir = options.baseDir || getCalleeDir(2);
+  assert(findPkgDir, 'Can not detect baseDir, failed to load package.json');
+
+  const { pkgInfo, pkgPath } = await readPkg(findPkgDir);
+  const baseDir = options.baseDir || path.dirname(pkgPath);
 
   // bin can be options.binName or pkg.name
-  process.env.ARTUS_CLI_BIN = options.binName || require(`${baseDir}/package.json`).name;
+  process.env.ARTUS_CLI_BIN = options.binName || pkgInfo.name;
   process.env.ARTUS_CLI_SCANNING = 'true';
   process.env.ARTUS_CLI_BASEDIR = baseDir;
 
@@ -33,7 +40,7 @@ export async function start(options: ApplicationOptions = {}) {
     configDir: 'config',
     extensions: [ '.ts' ],
     framework: options.framework || { path: __dirname },
-    // exclude: [ 'bin/' ],
+    exclude: options.exclude || [ 'bin', 'test', 'coverage' ],
   });
 
   const manifest = await scanner.scan(baseDir);

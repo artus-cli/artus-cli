@@ -32,7 +32,7 @@ export class ChairUserCommand extends Command {
       alias: 'u',
     },
   })
-  options: UserOption;
+  args: UserOption;
 
   @Inject()
   userService: UserService;

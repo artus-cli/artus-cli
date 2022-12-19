@@ -1,4 +1,7 @@
 import { ParsedCommand, Positional } from './core/parsed_commands';
+import pkgUp from 'pkg-up';
+import path from 'node:path';
+import assert from 'node:assert';
 
 export function isInheritFrom(clz, maybeParent) {
   if (clz === maybeParent) return true;
@@ -38,4 +41,38 @@ export function convertValue<T extends string | string[]>(val: T, type: string) 
     case 'boolean': return val === 'false' ? false : !!val;
     default: return val;
   }
+}
+
+export async function readPkg(baseDir: string) {
+  const pkgPath = await pkgUp({ cwd: baseDir });
+  assert(pkgPath, `Can not find package.json in ${baseDir}`);
+  return {
+    pkgPath,
+    pkgInfo: require(pkgPath),
+  };
+}
+
+export function getCalleeFile(stackIndex: number): string | undefined {
+  const limit = Error.stackTraceLimit;
+  const prep = Error.prepareStackTrace;
+
+  Error.prepareStackTrace = prepareObjectStackTrace;
+  Error.stackTraceLimit = stackIndex + 1;
+
+  const obj: any = {};
+  Error.captureStackTrace(obj);
+  const fileName = obj.stack[stackIndex]?.getFileName();
+
+  Error.prepareStackTrace = prep;
+  Error.stackTraceLimit = limit;
+  return fileName;
+}
+
+export function getCalleeDir(stackIndex: number): string | undefined {
+  const calleeFile = getCalleeFile(stackIndex + 1); // one more stack
+  return calleeFile ? path.dirname(calleeFile) : undefined;
+}
+
+function prepareObjectStackTrace(_obj, stack) {
+  return stack;
 }
