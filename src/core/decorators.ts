@@ -5,7 +5,7 @@ import { CommandContext, CommandOutput } from './context';
 import compose from 'koa-compose';
 import { Command } from './command';
 import { checkCommandCompatible } from '../utils';
-import { MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, CommandMeta, OptionConfig } from '../types';
+import { MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, CommandMeta, OptionConfig, BasicType, ConvertTypeToBasicType } from '../types';
 
 export interface CommonDecoratorOption {
   /** whether merge meta info of prototype */
@@ -35,7 +35,7 @@ export function DefineCommand(
 }
 
 export function DefineOption<T extends object = object>(
-  meta?: { [P in keyof Omit<T, '_' | '--'>]?: OptionProps; },
+  meta?: { [P in keyof Omit<T, '_' | '--'>]?: OptionProps<ConvertTypeToBasicType<T[P]>>; },
   option?: CommonDecoratorOption,
 ) {
   return <G extends Command>(target: G, key: string) => {

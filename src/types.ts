@@ -30,8 +30,21 @@ export interface MiddlewareMeta {
 }
 
 export type BasicType = 'string' | 'number' | 'boolean';
-export interface OptionProps extends Record<string, any> {
-  type?: BasicType;
+export type ConvertTypeToBasicType<T> = (
+  T extends string
+    ? 'string' : (
+      T extends number
+        ? 'number'
+        : (
+          T extends boolean
+            ? 'boolean'
+            : BasicType
+        )
+    )
+);
+
+export interface OptionProps<T extends BasicType = BasicType> extends Record<string, any> {
+  type?: T;
   alias?: string | string[];
   default?: any;
   required?: boolean;
