@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { ArtusApplication, Scanner } from '@artus/core';
 import { ApplicationOptions } from './types';
 import assert from 'node:assert';
-import fs from 'node:fs';
 import { readPkg, getCalleeDir } from './utils';
 import path from 'node:path';
 
