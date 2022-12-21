@@ -2,10 +2,15 @@ import { Command } from './core/command';
 import { Middleware, Middlewares } from '@artus/pipeline';
 
 export interface CommandConfig extends Record<string, any> {
+  /** a string representing the command */
   command?: string;
+  /** command description */
   description?: string;
+  /** command alias */
   alias?: string | string[];
+  /** whether override exists command */
   override?: boolean;
+  /** parent command */
   parent?: typeof Command;
 }
 
@@ -50,10 +55,10 @@ export type ConvertTypeToBasicType<T> = (
     )
 );
 
-export interface OptionProps<T extends BasicType = BasicType> extends Record<string, any> {
+export interface OptionProps<T extends BasicType = BasicType, G = any> extends Record<string, any> {
   type?: T;
   alias?: string | string[];
-  default?: any;
+  default?: G;
   required?: boolean;
   description?: string;
 }

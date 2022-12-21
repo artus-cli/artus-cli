@@ -20,12 +20,12 @@ export interface Positional {
 
 /** convert argv to camelCase key simpliy */
 export function parseArgvKeySimple(argv: string | string[]) {
-  let list = flatten((Array.isArray(argv) ? argv : [ argv ]).map(a => a.split(/\s+/)));
+  const list = flatten((Array.isArray(argv) ? argv : [ argv ]).map(arg => arg.split(/\s+/)));
   const newList: Array<{ raw: string; parsed: string }> = [];
-  for (let a of list) {
-    if (a === '--') break;
-    if (!a.match(/^\-+[^\-]/i)) continue;
-    const raw = a.split('=')[0];
+  for (const arg of list) {
+    if (arg === '--') break;
+    if (!arg.match(/^\-+[^\-]/i)) continue;
+    const raw = arg.split('=')[0];
     newList.push({ raw, parsed: parser.camelCase(raw.replace(/^\-{2}no\-/, '')) });
   }
   return newList;

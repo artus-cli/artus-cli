@@ -64,8 +64,13 @@ export class ParsedCommand implements ParsedCommandStruct {
   flagOptions: OptionConfig;
   argumentOptions: OptionConfig;
   optionsKey?: string;
+
+  /** child commands */
   childs: ParsedCommand[];
+  /** parent command */
   parent: ParsedCommand | null;
+  /** inherit command */
+  inherit: ParsedCommand | null;
 
   commandConfig: CommandConfig;
   commandMiddlewares: Middlewares;
@@ -88,6 +93,7 @@ export class ParsedCommand implements ParsedCommandStruct {
     this.optionsKey = optionConfig?.optionsKey;
     this.childs = [];
     this.parent = null;
+    this.inherit = null;
 
     // read from command config
     this.commandConfig = commandConfig;
@@ -216,6 +222,7 @@ export class ParsedCommandTree {
       optionConfig: { flagOptions, argumentOptions, optionsKey: optionMeta?.key },
     });
 
+    if (inheritCommand) parsedCommand.inherit = inheritCommand;
     if (this.commands.has(parsedCommandInfo.uid)) {
       const existsParsedCommand = this.commands.get(parsedCommandInfo.uid)!;
 

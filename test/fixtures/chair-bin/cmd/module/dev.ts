@@ -1,4 +1,4 @@
-import { DefineCommand, Command } from '@artus-cli/artus-cli';
+import { DefineCommand } from '@artus-cli/artus-cli';
 import { ModuleMainCommand } from './main';
 import { ChairDevCommand } from '../dev';
 

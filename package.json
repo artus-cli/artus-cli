@@ -7,6 +7,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "commonjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "lint": "eslint . --ext .ts",
     "postlint": "tsc --noEmit",
@@ -20,6 +27,8 @@
     "dist"
   ],
   "dependencies": {
+    "@artus-cli/plugin-help": "^0.0.1",
+    "@artus-cli/plugin-version": "^0.0.1",
     "@artus/core": "^1.0.0",
     "@artus/injection": "^0.5.1",
     "@artus/pipeline": "^0.2.2",

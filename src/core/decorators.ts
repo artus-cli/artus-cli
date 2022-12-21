@@ -35,7 +35,7 @@ export function DefineCommand(
 }
 
 export function DefineOption<T extends object = object>(
-  meta?: { [P in keyof Omit<T, '_' | '--'>]?: OptionProps<ConvertTypeToBasicType<T[P]>>; },
+  meta?: { [P in keyof Omit<T, '_' | '--'>]?: OptionProps<ConvertTypeToBasicType<T[P]>, T[P]>; },
   option?: CommonDecoratorOption,
 ) {
   return <G extends Command>(target: G, key: string) => {
@@ -111,7 +111,7 @@ function wrapWithMiddleware(clz) {
       const parsedCommand = ctx.container.get(ParsedCommands).getCommand(clz);
 
       // compose with middlewares in run method
-      return await compose([
+      return compose([
         ...parsedCommand?.executionMiddlewares || [],
         async (ctx: CommandContext) => {
           const result = await runMethod.apply(this, args);
@@ -129,7 +129,7 @@ function wrapWithMiddleware(clz) {
       const parsedCommand = ctx.container.get(ParsedCommands).getCommand(clz);
 
       // compose with middlewares in Command Class
-      return await compose([
+      return compose([
         ...parsedCommand?.commandMiddlewares || [],
         async () => this.run(...args),
       ])(ctx);
