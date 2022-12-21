@@ -35,7 +35,7 @@ export function DefineCommand(
 }
 
 export function DefineOption<T extends object = object>(
-  meta?: { [P in keyof Omit<T, '_' | '--'>]?: OptionProps<ConvertTypeToBasicType<T[P]>>; },
+  meta?: { [P in keyof Omit<T, '_' | '--'>]?: OptionProps<ConvertTypeToBasicType<T[P]>, T[P]>; },
   option?: CommonDecoratorOption,
 ) {
   return <G extends Command>(target: G, key: string) => {

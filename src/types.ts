@@ -50,10 +50,10 @@ export type ConvertTypeToBasicType<T> = (
     )
 );
 
-export interface OptionProps<T extends BasicType = BasicType> extends Record<string, any> {
+export interface OptionProps<T extends BasicType = BasicType, G = any> extends Record<string, any> {
   type?: T;
   alias?: string | string[];
-  default?: any;
+  default?: G;
   required?: boolean;
   description?: string;
 }
