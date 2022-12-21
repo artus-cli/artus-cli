@@ -1,7 +1,7 @@
 {
   "name": "@artus-cli/artus-cli",
   "version": "0.0.4",
-  "description": "common-bin base on artus",
+  "description": "CLI framework with modern features",
   "homepage": "https://github.com/artus-cli/artus-cli",
   "author": "TZ <atian25@qq.com>",
   "main": "dist/index.js",
