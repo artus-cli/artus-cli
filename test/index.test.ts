@@ -5,12 +5,6 @@ describe('test/index.test.ts', () => {
     await fork('egg-bin', [ '--help' ])
       .debug()
       .expect('stdout', /Usage: egg-bin/)
-      .expect('stdout', /Available Commands/)
-      .expect('stdout', /dev \[baseDir\]              Run the development server/)
-      .expect('stdout', /test <baseDir> \[file...\]/)
-      .expect('stdout', /Options/)
-      .expect('stdout', /-h, --help       Show Help/)
-      .expect('stdout', /-v, --version    Show Version/)
       .end();
 
     await fork('egg-bin', [ 'dev', '123', '-p=6000' ])
@@ -26,14 +20,6 @@ describe('test/index.test.ts', () => {
     await fork('egg-bin', [ '-v' ])
       .debug()
       .expect('stdout', /1.0.0/)
-      .end();
-
-    await fork('egg-bin', [ 'dev', '-h' ])
-      .debug()
-      .expect('stdout', /Run the development server/)
-      .expect('stdout', /dev \[baseDir\]   Run the development server/)
-      .expect('stdout', /-p, --port number     Start A Server/)
-      .expect('stdout', /--inspect             Debug with node-inspector/)
       .end();
 
     await fork('egg-bin', [ 'test', './', 'file1', 'file2' ])
@@ -65,19 +51,6 @@ describe('test/index.test.ts', () => {
     await fork('chair-bin', [ '--help' ])
       .debug()
       .expect('stdout', /Usage: chair-bin/)
-      .expect('stdout', /Available Commands/)
-      .expect('stdout', /dev \[baseDir\]              Run the development server with chair-bin/)
-      .expect('stdout', /test <baseDir> \[file...\]   Run the unitest/)
-      .expect('stdout', /codegen                    codegen plugin/)
-      .expect('stdout', /codegen extra              codegen extra plugin/)
-      .expect('stdout', /module                     Module Commands/)
-      .expect('stdout', /module debug \[baseDir\]     Module Debug Commands/)
-      .expect('stdout', /module dev \[baseDir\]       Module Dev Commands/)
-      .expect('stdout', /oneapi client \[appName\]    Run the oneapi client/)
-      .expect('stdout', /oneapi server \[appName\]    Run the oneapi server/)
-      .expect('stdout', /Options/)
-      .expect('stdout', /-h, --help       Show Help/)
-      .expect('stdout', /-v, --version    Show Version/)
       .end();
 
     await fork('chair-bin', [ 'dev', '123', '-p=6000' ])
@@ -131,8 +104,8 @@ describe('test/index.test.ts', () => {
     await fork('simple-bin', [ '--help' ])
       .debug()
       .expect('stdout', /Usage: simple-bin \[baseDir\]/)
-      .expect('stdout', /-p, --port number   port/)
-      .expect('stdout', /-h, --help          Show Help/)
+      .expect('stdout', /-p, --port/)
+      .expect('stdout', /-h, --help/)
       .end();
 
     await fork('simple-bin', [ './src', '--port', '7001' ])
@@ -157,7 +130,7 @@ describe('test/index.test.ts', () => {
 
     await fork('argument-bin', [ '-h' ])
       .debug()
-      .expect('stdout', /--inspect        Inspect/)
+      .expect('stdout', /--inspect/)
       .notExpect('stdout', /--port/)
       .end();
 
@@ -171,8 +144,7 @@ describe('test/index.test.ts', () => {
     await fork('deep-bin', [ '--help' ])
       .debug()
       .expect('stdout', /Usage: deep-bin \[baseDir\]/)
-      .expect('stdout', /-p, --port number   port/)
-      .expect('stdout', /-h, --help          Show Help/)
+      .expect('stdout', /-p, --port number/)
       .end();
   });
 });
