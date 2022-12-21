@@ -1,4 +1,4 @@
-import { DefineCommand, DefineOption, OptionProps } from '@artus-cli/artus-cli';
+import { DefineCommand, DefineOption } from '@artus-cli/artus-cli';
 
 @DefineCommand({
   command: 'oneapi client [appName]',

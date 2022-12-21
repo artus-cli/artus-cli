@@ -158,11 +158,11 @@ describe('test/core/parsed_commands.test.ts', () => {
   });
 
   it('should parsed tree works without error', async () => {
-    const beforeFn = async () => {};
-    const afterFn = async () => {};
+    const beforeFn = async () => 1;
+    const afterFn = async () => 1;
 
     @DefineCommand({ command: 'dev [baseDir]', description: '666' })
-    @Middleware(async () => {})
+    @Middleware(async () => 1)
     class MyCommand {
       @DefineOption({
         port: {},
@@ -171,16 +171,16 @@ describe('test/core/parsed_commands.test.ts', () => {
       })
       options: any;
     
-      @Middleware(async () => {})
-      @Middleware(async () => {})
-      @Middleware(async () => {})
+      @Middleware(async () => 1)
+      @Middleware(async () => 1)
+      @Middleware(async () => 1)
       async run() {
         // nothing
       }
     }
     
     @DefineCommand()
-    @Middleware([ async () => {}, afterFn ])
+    @Middleware([ async () => 1, afterFn ])
     @Middleware([ beforeFn ], { mergeType: 'before' })
     class NewMyCommand extends MyCommand {
       @DefineOption({
@@ -194,7 +194,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     }
     
     @DefineCommand({ command: 'aa' }, { override: true })
-    @Middleware([ async () => {}, async () => {} ], { override: true })
+    @Middleware([ async () => 1, async () => 1 ], { override: true })
     class OverrideMyCommand extends MyCommand {
       @DefineOption({}, { override: true })
       argv: any;

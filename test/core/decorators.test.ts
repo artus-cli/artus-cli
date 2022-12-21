@@ -1,31 +1,30 @@
 import { ArtusApplication } from '@artus/core';
 import { createApp } from '../test-utils';
-import { CommandMeta, DefineCommand, DefineOption, Middleware, MiddlewareConfig, MiddlewareMeta, OptionMeta } from '@artus-cli/artus-cli';
+import { CommandMeta, DefineCommand, DefineOption, Middleware, MiddlewareMeta, OptionMeta } from '@artus-cli/artus-cli';
 import { MetadataEnum } from '../../src/constant';
-import { ParsedCommandTree } from '../../src/core/parsed_commands';
 import assert from 'node:assert';
 
 describe('test/core/decorators.test.ts', () => {
   let app: ArtusApplication;
 
   @DefineCommand({ command: 'dev', description: '666' })
-  @Middleware(async () => {})
+  @Middleware(async () => 1)
   class MyCommand {
     @DefineOption({
       port: {},
     })
     options: any;
 
-    @Middleware(async () => {})
-    @Middleware(async () => {})
-    @Middleware(async () => {})
+    @Middleware(async () => 1)
+    @Middleware(async () => 1)
+    @Middleware(async () => 1)
     async run() {
       // nothing
     }
   }
 
   @DefineCommand()
-  @Middleware([ async () => {}, async () => {} ])
+  @Middleware([ async () => 1, async () => 1 ])
   class NewMyCommand extends MyCommand {
     @DefineOption()
     argv: any;
@@ -97,13 +96,13 @@ describe('test/core/decorators.test.ts', () => {
 
     // should throw with other method
     assert.throws(() => {
-      Middleware(async () => {})(new NewMyCommand(), 'other' as any);
+      Middleware(async () => 1)(new NewMyCommand(), 'other' as any);
     }, /Middleware can only be used in Command Class or run method/);
 
     // should throw with multiple override
     assert.throws(() => {
-      Middleware(async () => {}, { override: true })(NewMyCommand);
-      Middleware(async () => {}, { override: false })(NewMyCommand);
+      Middleware(async () => 1, { override: true })(NewMyCommand);
+      Middleware(async () => 1, { override: false })(NewMyCommand);
     }, /Can\'t use override in multiple @Middleware/);
   });
 });
