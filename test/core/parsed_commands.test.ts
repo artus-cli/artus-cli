@@ -90,6 +90,15 @@ describe('test/core/parsed_commands.test.ts', () => {
     });
   });
 
+  it('should get right location with extending command', async () => {
+    app = await createApp('chair-bin', { strict: false });
+    parsedCommands = app.container.get(ParsedCommands);
+
+    const devCommand = parsedCommands.commands.get('chair-bin dev');
+    assert(devCommand?.location === path.resolve(__dirname, '../fixtures/chair-bin/cmd/dev.ts'));
+    assert(devCommand?.inherit?.location === path.resolve(__dirname, '../fixtures/egg-bin/cmd/dev.ts'));
+  });
+
   it('match command with strict=false', async () => {
     app = await createApp('chair-bin', { strict: false });
     parsedCommands = app.container.get(ParsedCommands);
