@@ -57,7 +57,6 @@ export class ParsedCommand implements ParsedCommandStruct {
   /** user defined in options but remove bin name */
   command: string;
   alias: string[];
-  ignoreConflict?: boolean;
   demanded: Positional[];
   optional: Positional[];
   description: string;
@@ -101,7 +100,6 @@ export class ParsedCommand implements ParsedCommandStruct {
 
     // read from command config
     this.commandConfig = commandConfig;
-    this.ignoreConflict = commandConfig.ignoreConflict;
     this.description = commandConfig.description || '';
     this.alias = commandConfig.alias
       ? Array.isArray(commandConfig.alias)
@@ -181,7 +179,7 @@ export class ParsedCommandTree {
     let commandConfig = { ...commandMeta.config };
 
     // mege command config with inherit command
-    if (inheritCommand && !commandMeta?.override) {
+    if (inheritCommand && commandMeta.inheritMetadata !== false) {
       const inheritCommandConfig = inheritCommand.commandConfig;
       commandConfig = Object.assign({}, {
         alias: inheritCommandConfig.alias,
@@ -215,7 +213,7 @@ export class ParsedCommandTree {
     const argumentsKey = parsedCommandInfo.demanded.concat(parsedCommandInfo.optional).map(pos => pos.cmd);
     let flagOptions: OptionConfig = omit(optionMeta?.config || {}, argumentsKey);
     let argumentOptions: OptionConfig = pick(optionMeta?.config || {}, argumentsKey);
-    if (inheritCommand && !optionMeta?.override) {
+    if (inheritCommand && optionMeta?.inheritMetadata !== false) {
       flagOptions = Object.assign({}, inheritCommand.flagOptions, flagOptions);
       argumentOptions = Object.assign({}, inheritCommand.argumentOptions, argumentOptions);
     }
@@ -233,7 +231,7 @@ export class ParsedCommandTree {
 
       // override only allow in class inheritance or options.override=true
       const errorInfo = format('Command \'%s\' is conflict in %s(%s) and %s(%s)', existsParsedCommand.command, existsParsedCommand.clz.name, existsParsedCommand.location || '-', parsedCommand.clz.name, parsedCommand.location || '-');
-      if (!parsedCommand.ignoreConflict && !isInheritFrom(parsedCommand.clz, existsParsedCommand.clz)) {
+      if (!commandMeta.overrideCommand && !isInheritFrom(parsedCommand.clz, existsParsedCommand.clz)) {
         throw new Error(errorInfo);
       }
 
@@ -254,9 +252,9 @@ export class ParsedCommandTree {
     // trigger --> middleware2 --> middleware3 --> run --> middleware1 --> super.run
 
     // merge command middlewares with inherit command
-    const middlewareConfig = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, clz) as (MiddlewareMeta | undefined);
-    const commandMiddlewareConfigList = middlewareConfig?.configList || [];
-    if (inheritCommand && !optionMeta?.override) {
+    const middlewareMeta = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, clz) as (MiddlewareMeta | undefined);
+    const commandMiddlewareConfigList = middlewareMeta?.configList || [];
+    if (inheritCommand && middlewareMeta?.inheritMetadata !== false) {
       parsedCommand.addMiddlewares('command', { middleware: inheritCommand.commandMiddlewares });
     }
     commandMiddlewareConfigList.forEach(config => parsedCommand.addMiddlewares('command', config));

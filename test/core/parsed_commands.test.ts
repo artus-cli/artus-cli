@@ -208,10 +208,10 @@ describe('test/core/parsed_commands.test.ts', () => {
       return DefineCommand(...args);
     }
 
-    @NewDefineCommand({ command: 'aa' }, { override: true })
-    @Middleware([ async () => 1, async () => 1 ], { override: true })
+    @NewDefineCommand({ command: 'aa' }, { inheritMetadata: false })
+    @Middleware([ async () => 1, async () => 1 ], { inheritMetadata: false })
     class OverrideMyCommand extends MyCommand {
-      @DefineOption({}, { override: true })
+      @DefineOption({}, { inheritMetadata: false })
       argv: any;
     
       async run() {
@@ -226,7 +226,7 @@ describe('test/core/parsed_commands.test.ts', () => {
       }
     }
 
-    @DefineCommand({ command: 'aa', ignoreConflict: true })
+    @DefineCommand({ command: 'aa' }, { overrideCommand: true })
     class NotConflicMyCommand extends MyCommand {
       async run() {
         // nothing
