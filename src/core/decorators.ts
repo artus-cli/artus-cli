@@ -5,20 +5,15 @@ import { CommandContext, CommandOutput } from './context';
 import compose from 'koa-compose';
 import { Command } from './command';
 import { checkCommandCompatible, getCalleeList } from '../utils';
-import { MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, OptionConfig, ConvertTypeToBasicType, CommandMeta } from '../types';
+import { BaseMeta, MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, OptionConfig, ConvertTypeToBasicType, CommandMeta } from '../types';
 
-export interface CommonDecoratorOption {
-  /** whether merge meta info of prototype */
-  override?: boolean;
-}
-
-export interface MiddlewareDecoratorOption extends CommonDecoratorOption, Pick<MiddlewareConfig, 'mergeType'> {
-  // nothing
-}
+export interface CommonDecoratorOption extends Pick<BaseMeta, 'inheritMetadata'> {}
+export interface MiddlewareDecoratorOption extends CommonDecoratorOption, Pick<MiddlewareConfig, 'mergeType'> {}
+export interface CommandDecoratorOption extends CommonDecoratorOption, Pick<CommandMeta, 'overrideCommand'> {}
 
 export function DefineCommand(
   opt?: CommandConfig,
-  option?: CommonDecoratorOption,
+  option?: CommandDecoratorOption,
 ) {
   return <T extends typeof Command>(target: T) => {
     const calleeList = getCalleeList(15);
@@ -27,8 +22,9 @@ export function DefineCommand(
 
     Reflect.defineMetadata(MetadataEnum.COMMAND, {
       config: opt || {},
-      override: option?.override,
       location: commandLocation?.fileName,
+      overrideCommand: option?.overrideCommand,
+      inheritMetadata: option?.inheritMetadata,
     } satisfies CommandMeta, target);
 
     addTag(MetadataEnum.COMMAND, target);
@@ -70,11 +66,13 @@ export function DefineOption<T extends object = object>(
     });
 
     const config = (meta || {}) as OptionConfig;
-    Reflect.defineMetadata(
-      MetadataEnum.OPTION,
-      { key, config, override: option?.override } satisfies OptionMeta,
-      ctor,
-    );
+    const optionMeta = {
+      key,
+      config,
+      inheritMetadata: option?.inheritMetadata,
+    } satisfies OptionMeta;
+
+    Reflect.defineMetadata(MetadataEnum.OPTION, optionMeta, ctor);
   };
 }
 
@@ -92,11 +90,11 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
       mergeType: option?.mergeType || 'after',
     });
 
-    if (typeof option?.override === 'boolean' && typeof existsMeta.override === 'boolean' && existsMeta.override !== option.override) {
-      throw new Error(`Can\'t use override in multiple @Middleware`);
+    if (typeof option?.inheritMetadata === 'boolean' && typeof existsMeta.inheritMetadata === 'boolean' && existsMeta.inheritMetadata !== option.inheritMetadata) {
+      throw new Error(`Can\'t use inheritMetadata in multiple @Middleware`);
     }
 
-    existsMeta.override = option?.override;
+    existsMeta.inheritMetadata = option?.inheritMetadata;
     Reflect.defineMetadata(metaKey, existsMeta, ctor);
   };
 }

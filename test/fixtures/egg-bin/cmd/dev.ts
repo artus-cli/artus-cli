@@ -2,7 +2,7 @@ import { DefineCommand, DefineOption, Command, Middleware, Option } from '@artus
 
 export interface DevOption extends Option {
   port?: number;
-  inspect?: string;
+  inspect?: boolean;
   nodeFlags?: string;
   baseDir?: string;
 }

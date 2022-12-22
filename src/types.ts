@@ -10,9 +10,6 @@ export interface CommandConfig extends Record<string, any> {
   alias?: string | string[];
   /** parent command */
   parent?: typeof Command;
-
-  /** whether override exists command */
-  ignoreConflict?: boolean;
 }
 
 /** Base Option Interface */
@@ -30,8 +27,8 @@ export interface MiddlewareConfig {
 
 export type MiddlewareInput = Middleware | Middlewares;
 
-export interface MiddlewareMeta {
-  override?: boolean;
+export interface MiddlewareMeta extends BaseMeta {
+  /** middleware config list */
   configList: MiddlewareConfig[];
 }
 
@@ -66,17 +63,25 @@ export interface OptionProps<T extends BasicType = BasicType, G = any> extends R
 
 export type OptionConfig<T extends string = string> = Record<T, OptionProps>;
 
-export interface OptionMeta<T extends string = string> {
-  key: string;
-  config: OptionConfig<T>;
-  override?: boolean;
+export interface BaseMeta {
+  /** whether inherit meta data from prototype, default to true */
+  inheritMetadata?: boolean;
 }
 
-export interface CommandMeta {
-  // nothing
+export interface OptionMeta<T extends string = string> extends BaseMeta {
+  /** option prop key */
+  key: string;
+  /** option config */
+  config: OptionConfig<T>;
+}
+
+export interface CommandMeta extends BaseMeta {
+  /** command config */
   config: CommandConfig;
-  override?: boolean;
+  /** Command Class location */
   location?: string;
+  /** whether override exists conflict command */
+  overrideCommand?: boolean;
 }
 
 export interface ArtusCliOptions extends Partial<ArtusCliConfig> {

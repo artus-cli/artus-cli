@@ -34,9 +34,9 @@ describe('test/core/decorators.test.ts', () => {
     }
   }
 
-  @DefineCommand({ command: 'aa' }, { override: true })
+  @DefineCommand({ command: 'aa' }, { inheritMetadata: false })
   class OverrideMyCommand extends MyCommand {
-    @DefineOption({}, { override: true })
+    @DefineOption({}, { inheritMetadata: false })
     argv: any;
 
     async run() {
@@ -59,10 +59,10 @@ describe('test/core/decorators.test.ts', () => {
     assert(!metadata2.config.command);
     assert(!metadata2.config.description);
 
-    // override
+    // inheritMetadata
     const metadata3: CommandMeta = Reflect.getOwnMetadata(MetadataEnum.COMMAND, OverrideMyCommand);
     assert(metadata3.config.command === 'aa');
-    assert(metadata3.override);
+    assert(metadata3.inheritMetadata === false);
   });
 
   it('DefineOption', async () => {
@@ -76,9 +76,9 @@ describe('test/core/decorators.test.ts', () => {
     assert(metadata2.key === 'argv');
     assert('argv' in NewMyCommand.prototype);
 
-    // override
+    // inheritMetadata
     const metadata3: OptionMeta = Reflect.getOwnMetadata(MetadataEnum.OPTION, OverrideMyCommand);
-    assert(metadata3.override);
+    assert(metadata3.inheritMetadata === false);
   });
 
   it('Middlware', async () => {
@@ -102,8 +102,8 @@ describe('test/core/decorators.test.ts', () => {
 
     // should throw with multiple override
     assert.throws(() => {
-      Middleware(async () => 1, { override: true })(NewMyCommand);
-      Middleware(async () => 1, { override: false })(NewMyCommand);
-    }, /Can\'t use override in multiple @Middleware/);
+      Middleware(async () => 1, { inheritMetadata: true })(NewMyCommand);
+      Middleware(async () => 1, { inheritMetadata: false })(NewMyCommand);
+    }, /Can\'t use inheritMetadata in multiple @Middleware/);
   });
 });
