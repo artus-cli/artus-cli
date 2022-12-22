@@ -1,6 +1,6 @@
 {
   "name": "@artus-cli/artus-cli",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "CLI framework with modern features",
   "homepage": "https://github.com/artus-cli/artus-cli",
   "author": "TZ <atian25@qq.com>",
