@@ -3,7 +3,7 @@ import { DefineCommand, Command } from '@artus-cli/artus-cli';
 @DefineCommand({
   command: 'dev',
   description: 'Run simple dev',
-  override: true,
+  ignoreConflict: true,
 })
 export class ChairDevCommand extends Command {
   async run() {

@@ -1,5 +1,5 @@
 import { ArtusApplication } from '@artus/core';
-import { checkCommandCompatible, isInheritFrom, isNil, readPkg, getCalleeDir, getCalleeFile } from '../src/utils';
+import { checkCommandCompatible, isInheritFrom, isNil, readPkg, getCalleeList, getCalleeDir } from '../src/utils';
 import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
 import { ParsedCommands, Command } from '@artus-cli/artus-cli';
 import path from 'node:path';
@@ -40,10 +40,10 @@ describe('test/utils.test.ts', () => {
     assert(await readPkg(path.resolve(__dirname, './fixtures/egg-bin')));
   });
 
-  it('getCalleeFile/getCalleeDir', async () => {
-    assert(getCalleeFile(1) === __filename);
+  it('getCalleeList/getCalleeDir', async () => {
+    assert(getCalleeList(3).length === 3);
+    assert(getCalleeList(3)[0].fileName);
     assert(getCalleeDir(1) === __dirname);
-    assert(getCalleeFile(2)?.includes('mocha'));
     assert(getCalleeDir(2)?.includes('mocha'));
   });
 });

@@ -53,6 +53,7 @@ describe('test/core/decorators.test.ts', () => {
   it('DefineCommand', async () => {
     const metadata: CommandMeta = Reflect.getOwnMetadata(MetadataEnum.COMMAND, MyCommand);
     assert(metadata.config.command === 'dev');
+    assert(metadata.location === __filename);
 
     const metadata2: CommandMeta = Reflect.getOwnMetadata(MetadataEnum.COMMAND, NewMyCommand);
     assert(!metadata2.config.command);
