@@ -4,6 +4,7 @@ import { ArgumentMainComand } from 'argument-bin';
 import { ParsedCommandTree, DefineCommand, DefineOption, Middleware, ParsedCommands, Program } from '@artus-cli/artus-cli';
 import { createApp } from '../test-utils';
 import assert from 'node:assert';
+import path from 'node:path';
 
 describe('test/core/parsed_commands.test.ts', () => {
   let app: ArtusApplication;
@@ -28,6 +29,7 @@ describe('test/core/parsed_commands.test.ts', () => {
       assert(devParsedCommand.cmd === 'dev');
       assert(devParsedCommand.uid === 'egg-bin dev');
       assert(devParsedCommand.parent === parsedCommands.root);
+      assert(devParsedCommand.location === path.resolve(__dirname, '../fixtures/egg-bin/cmd/dev.ts'));
       assert.deepEqual(devParsedCommand.cmds, [ 'egg-bin', 'dev' ]);
       assert.deepEqual(devParsedCommand.alias, [ 'd' ]);
     });
@@ -86,6 +88,15 @@ describe('test/core/parsed_commands.test.ts', () => {
       const result7 = parsedCommands.matchCommand('dev ./ --required-info=123');
       assert(!result7.error);
     });
+  });
+
+  it('should get right location with extending command', async () => {
+    app = await createApp('chair-bin', { strict: false });
+    parsedCommands = app.container.get(ParsedCommands);
+
+    const devCommand = parsedCommands.commands.get('chair-bin dev');
+    assert(devCommand?.location === path.resolve(__dirname, '../fixtures/chair-bin/cmd/dev.ts'));
+    assert(devCommand?.inherit?.location === path.resolve(__dirname, '../fixtures/egg-bin/cmd/dev.ts'));
   });
 
   it('match command with strict=false', async () => {
@@ -192,8 +203,12 @@ describe('test/core/parsed_commands.test.ts', () => {
         // nothing
       }
     }
-    
-    @DefineCommand({ command: 'aa' }, { override: true })
+
+    function NewDefineCommand(...args: any[]) {
+      return DefineCommand(...args);
+    }
+
+    @NewDefineCommand({ command: 'aa' }, { override: true })
     @Middleware([ async () => 1, async () => 1 ], { override: true })
     class OverrideMyCommand extends MyCommand {
       @DefineOption({}, { override: true })
@@ -203,9 +218,24 @@ describe('test/core/parsed_commands.test.ts', () => {
         // nothing
       }
     }
+
+    @DefineCommand({ command: 'aa' })
+    class ConflicMyCommand extends MyCommand {
+      async run() {
+        // nothing
+      }
+    }
+
+    @DefineCommand({ command: 'aa', ignoreConflict: true })
+    class NotConflicMyCommand extends MyCommand {
+      async run() {
+        // nothing
+      }
+    }
   
     const tree = new ParsedCommandTree('my-bin', [ MyCommand, NewMyCommand, OverrideMyCommand ]);
     const parsedMyCommand = tree.get(MyCommand)!;
+    assert(parsedMyCommand.location === __filename);
     assert(parsedMyCommand.uid === 'my-bin dev');
     assert(parsedMyCommand.clz === MyCommand);
     assert(parsedMyCommand.cmd === 'dev');
@@ -218,6 +248,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     assert(parsedMyCommand.executionMiddlewares.length === 3);
 
     const parsedNewMyCommand = tree.get(NewMyCommand)!;
+    assert(parsedNewMyCommand.location === __filename);
     assert(parsedNewMyCommand.clz === NewMyCommand);
     assert(parsedNewMyCommand.uid === 'my-bin dev');
     assert(parsedNewMyCommand.description === '666');
@@ -230,10 +261,27 @@ describe('test/core/parsed_commands.test.ts', () => {
     assert(!parsedNewMyCommand.executionMiddlewares.length);
 
     const parsedOverrideMyCommand = tree.get(OverrideMyCommand)!;
+    assert(parsedOverrideMyCommand.location === __filename);
     assert(parsedOverrideMyCommand.clz === OverrideMyCommand);
     assert(parsedOverrideMyCommand.uid === 'my-bin aa');
     assert(!parsedOverrideMyCommand.description);
     assert(parsedOverrideMyCommand.commandMiddlewares.length === 2);
     assert(!parsedOverrideMyCommand.executionMiddlewares.length);
+
+    // should conflict
+    assert.throws(() => {
+      new ParsedCommandTree('my-bin', [ MyCommand, NewMyCommand, OverrideMyCommand, ConflicMyCommand ]);
+    }, (e: Error) => {
+      assert(e.message.includes('Command \'aa\' is conflict in OverrideMyCommand('));
+      assert(e.message.includes('parsed_commands.test.ts'));
+      assert(e.message.includes('ConflicMyCommand('));
+      return true;
+    });
+
+    // should not confict
+    const tree2 = new ParsedCommandTree('my-bin', [ MyCommand, NewMyCommand, OverrideMyCommand, NotConflicMyCommand ]);
+    const notConflictCommand = tree2.commands.get('my-bin aa');
+    assert(tree2.commands.size === 3);
+    assert(notConflictCommand?.clz === NotConflicMyCommand);
   });
 });

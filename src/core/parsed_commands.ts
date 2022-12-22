@@ -36,7 +36,8 @@ export interface MatchResult {
 }
 
 export interface ParsedCommandOption {
-  commandConfig: CommandConfig,
+  location?: string;
+  commandConfig: CommandConfig;
   parsedCommandInfo: ParsedCommandStruct;
   optionConfig?: {
     optionsKey?: string;
@@ -56,7 +57,7 @@ export class ParsedCommand implements ParsedCommandStruct {
   /** user defined in options but remove bin name */
   command: string;
   alias: string[];
-  override?: boolean;
+  ignoreConflict?: boolean;
   demanded: Positional[];
   optional: Positional[];
   description: string;
@@ -64,6 +65,8 @@ export class ParsedCommand implements ParsedCommandStruct {
   flagOptions: OptionConfig;
   argumentOptions: OptionConfig;
   optionsKey?: string;
+  /** Command class location */
+  location?: string;
 
   /** child commands */
   childs: ParsedCommand[];
@@ -77,7 +80,8 @@ export class ParsedCommand implements ParsedCommandStruct {
   executionMiddlewares: Middlewares;
 
   constructor(public clz: typeof Command, option: ParsedCommandOption) {
-    const { commandConfig, parsedCommandInfo, optionConfig } = option;
+    const { location, commandConfig, parsedCommandInfo, optionConfig } = option;
+    this.location = location;
 
     // read from parsed_command
     this.uid = parsedCommandInfo.uid;
@@ -97,7 +101,7 @@ export class ParsedCommand implements ParsedCommandStruct {
 
     // read from command config
     this.commandConfig = commandConfig;
-    this.override = commandConfig.override;
+    this.ignoreConflict = commandConfig.ignoreConflict;
     this.description = commandConfig.description || '';
     this.alias = commandConfig.alias
       ? Array.isArray(commandConfig.alias)
@@ -217,6 +221,7 @@ export class ParsedCommandTree {
     }
 
     const parsedCommand = new ParsedCommand(clz, {
+      location: commandMeta.location,
       commandConfig,
       parsedCommandInfo,
       optionConfig: { flagOptions, argumentOptions, optionsKey: optionMeta?.key },
@@ -227,8 +232,8 @@ export class ParsedCommandTree {
       const existsParsedCommand = this.commands.get(parsedCommandInfo.uid)!;
 
       // override only allow in class inheritance or options.override=true
-      const errorInfo = format('Command \'%s\' provide by %s is overrided by %s', existsParsedCommand.command, existsParsedCommand.clz.name, parsedCommand.clz.name);
-      if (!parsedCommand.override && !isInheritFrom(parsedCommand.clz, existsParsedCommand.clz)) {
+      const errorInfo = format('Command \'%s\' is conflict in %s(%s) and %s(%s)', existsParsedCommand.command, existsParsedCommand.clz.name, existsParsedCommand.location || '-', parsedCommand.clz.name, parsedCommand.location || '-');
+      if (!parsedCommand.ignoreConflict && !isInheritFrom(parsedCommand.clz, existsParsedCommand.clz)) {
         throw new Error(errorInfo);
       }
 

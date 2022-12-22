@@ -53,24 +53,29 @@ export async function readPkg(baseDir: string) {
   };
 }
 
-export function getCalleeFile(stackIndex: number): string | undefined {
+export function getCalleeList(traceLimit: number) {
   const limit = Error.stackTraceLimit;
   const prep = Error.prepareStackTrace;
 
   Error.prepareStackTrace = prepareObjectStackTrace;
-  Error.stackTraceLimit = stackIndex + 1;
+  Error.stackTraceLimit = traceLimit;
 
   const obj: any = {};
   Error.captureStackTrace(obj);
-  const fileName = obj.stack[stackIndex]?.getFileName();
+  const stack: any[] = obj.stack;
 
   Error.prepareStackTrace = prep;
   Error.stackTraceLimit = limit;
-  return fileName;
+  return stack.map(s => ({
+    methodName: s.getMethodName(),
+    fileName: s.getFileName(),
+  }));
 }
 
 export function getCalleeDir(stackIndex: number): string | undefined {
-  const calleeFile = getCalleeFile(stackIndex + 1); // one more stack
+  stackIndex++; // one more stack
+  const calleeList = getCalleeList(stackIndex + 1);
+  const calleeFile = calleeList[stackIndex]?.fileName;
   return calleeFile ? path.dirname(calleeFile) : undefined;
 }
 

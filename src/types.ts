@@ -8,10 +8,11 @@ export interface CommandConfig extends Record<string, any> {
   description?: string;
   /** command alias */
   alias?: string | string[];
-  /** whether override exists command */
-  override?: boolean;
   /** parent command */
   parent?: typeof Command;
+
+  /** whether override exists command */
+  ignoreConflict?: boolean;
 }
 
 /** Base Option Interface */
@@ -75,6 +76,7 @@ export interface CommandMeta {
   // nothing
   config: CommandConfig;
   override?: boolean;
+  location?: string;
 }
 
 export interface ArtusCliOptions extends Partial<ArtusCliConfig> {

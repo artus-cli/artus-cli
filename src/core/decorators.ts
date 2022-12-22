@@ -4,8 +4,8 @@ import { ParsedCommands } from '../core/parsed_commands';
 import { CommandContext, CommandOutput } from './context';
 import compose from 'koa-compose';
 import { Command } from './command';
-import { checkCommandCompatible } from '../utils';
-import { MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, OptionConfig, ConvertTypeToBasicType } from '../types';
+import { checkCommandCompatible, getCalleeList } from '../utils';
+import { MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, OptionConfig, ConvertTypeToBasicType, CommandMeta } from '../types';
 
 export interface CommonDecoratorOption {
   /** whether merge meta info of prototype */
@@ -21,10 +21,15 @@ export function DefineCommand(
   option?: CommonDecoratorOption,
 ) {
   return <T extends typeof Command>(target: T) => {
+    const calleeList = getCalleeList(15);
+    const tslibLocation = calleeList.findIndex(({ methodName, fileName }) => methodName === '__decorate' && fileName.includes('tslib'));
+    const commandLocation = tslibLocation < 0 ? null : calleeList[tslibLocation + 1];
+
     Reflect.defineMetadata(MetadataEnum.COMMAND, {
       config: opt || {},
       override: option?.override,
-    }, target);
+      location: commandLocation?.fileName,
+    } satisfies CommandMeta, target);
 
     addTag(MetadataEnum.COMMAND, target);
     Injectable({ scope: ScopeEnum.EXECUTION })(target);
