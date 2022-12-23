@@ -106,7 +106,7 @@ describe('test/core/parser.test.ts', () => {
   it('parseArgvWithPositional', () => {
     const parsed = parseCommand('dev <command> [baseDir]', 'my-bin');
     const r = parseArgvWithPositional([ 'module', './' ], parsed.demanded);
-    assert(r.matchAll);
+    assert(!r.unmatchPositionals.length);
     assert.deepEqual(r.unknownArgv, [ './' ]);
     assert(r.result.command === 'module');
 
@@ -124,12 +124,17 @@ describe('test/core/parser.test.ts', () => {
     const r4 = parseArgvWithPositional([ 'module', 'module2', 'module3' ], parsed3.optional);
     assert.deepEqual(r4.result.command, [ 'module', 'module2', 'module3' ]);
 
+    // varidic optional style 2
+    const parsed31 = parseCommand('dev [...command]', 'my-bin');
+    const r41 = parseArgvWithPositional([ 'module', 'module2', 'module3' ], parsed31.optional);
+    assert.deepEqual(r41.result.command, [ 'module', 'module2', 'module3' ]);
+
     // not enough arguments
     const parsed4 = parseCommand('dev <option1> <option2> <option3>', 'my-bin');
     const r5 = parseArgvWithPositional([ 'module', 'module2' ], parsed4.demanded);
     assert(r5.result.option1 == 'module');
     assert(r5.result.option2 == 'module2');
-    assert(!r5.matchAll);
+    assert(r5.unmatchPositionals.length);
 
     // convert type
     const parsed5 = parseCommand('dev <option1> <option2>', 'my-bin');

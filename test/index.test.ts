@@ -91,7 +91,7 @@ describe('test/index.test.ts', () => {
 
     await fork('chair-bin', [ 'oneapi' ])
       .debug()
-      .expect('stderr', /Command not found: 'chair-bin oneapi'/)
+      .expect('stderr', /Command is not implement: 'chair-bin oneapi'/)
       .end();
 
     await fork('chair-bin', [ 'user', '-u=123' ])

@@ -369,51 +369,52 @@ export class ParsedCommands {
       break;
     }
 
-    debug('Fuzzy match result is %s', result.fuzzyMatched?.clz.name);
+    debug('Fuzzy match result is %s', result.fuzzyMatched.clz.name);
 
     // 2. match demanded( <options> or <options...> ) and optional( [options] or [options...] ) info
     let extraArgs = wholeArgv.slice(index);
-    if (result.fuzzyMatched) {
-      const fuzzyMatched = result.fuzzyMatched;
-      if (fuzzyMatched.demanded.length) {
-        const parsedDemanded = parseArgvWithPositional(extraArgs, fuzzyMatched.demanded, fuzzyMatched.argumentOptions);
-        if (!parsedDemanded.matchAll) {
-          // demanded not match
-          debug('Demaned is not match with %s', extraArgs);
-          result.error = new Error('Not enough arguments');
-          return result;
-        }
-
-        // pick args from demanded info
-        Object.assign(result.positionalArgs, parsedDemanded.result);
-        extraArgs = parsedDemanded.unknownArgv;
-      }
-
-      if (fuzzyMatched.optional.length) {
-        const parsedOptional = parseArgvWithPositional(extraArgs, fuzzyMatched.optional, fuzzyMatched.argumentOptions);
-        Object.assign(result.positionalArgs, parsedOptional.result);
-        extraArgs = parsedOptional.unknownArgv;
-      }
-
-      // unknown commands, checking in strict mode
-      if (extraArgs.length && this.binInfo.strictCommands) {
-        debug('Unknown commands %s', extraArgs);
-        result.error = new Error(format('Unknown commands %s', extraArgs));
+    const fuzzyMatched = result.fuzzyMatched;
+    if (fuzzyMatched.demanded.length) {
+      const parsedDemanded = parseArgvWithPositional(extraArgs, fuzzyMatched.demanded, fuzzyMatched.argumentOptions);
+      if (parsedDemanded.unmatchPositionals.length && this.binInfo.strictOptions) {
+        // demanded not match
+        debug('Demaned positional is not match with extra argv %s', extraArgs);
+        result.error = new Error(`Not enough arguments, ${parsedDemanded.unmatchPositionals.map(p => p.cmd).join(', ')} is required`);
         return result;
       }
 
-      if (fuzzyMatched.isRunable) {
-        // all pass
-        result.matched = result.fuzzyMatched;
-
-        debug('Final match result is %s', result.matched.clz.name);
-        return result;
-      } else {
-        debug('Command is not implement');
-      }
+      // pick args from demanded info
+      Object.assign(result.positionalArgs, parsedDemanded.result);
+      extraArgs = parsedDemanded.unknownArgv;
     }
 
-    result.error = new Error('Command not found');
+    if (fuzzyMatched.optional.length) {
+      const parsedOptional = parseArgvWithPositional(extraArgs, fuzzyMatched.optional, fuzzyMatched.argumentOptions);
+      Object.assign(result.positionalArgs, parsedOptional.result);
+      extraArgs = parsedOptional.unknownArgv;
+    }
+
+    // argv info in error
+    const printArgv = Array.isArray(argv) ? argv.join(' ') : argv;
+
+    // unknown commands, checking in strict mode
+    if (extraArgs.length && this.binInfo.strictCommands) {
+      result.error = new Error(`Command is not found: '${this.binInfo.binName}${printArgv ? ` ${printArgv}` : ''}'`);
+      debug(result.error.message);
+      return result;
+    }
+
+    if (fuzzyMatched.isRunable) {
+      // all pass
+      result.matched = result.fuzzyMatched;
+
+      debug('Final match result is %s', result.matched.clz.name);
+      return result;
+    } else {
+      result.error = new Error(`Command is not implement: '${this.binInfo.binName}${printArgv ? ` ${printArgv}` : ''}'`);
+      debug(result.error.message);
+    }
+    
     return result;
   }
 

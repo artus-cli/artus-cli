@@ -27,8 +27,8 @@
     "dist"
   ],
   "dependencies": {
-    "@artus-cli/plugin-help": "^0.0.1",
-    "@artus-cli/plugin-version": "^0.0.1",
+    "@artus-cli/plugin-help": "^1.0.0",
+    "@artus-cli/plugin-version": "^1.0.0",
     "@artus/core": "^1.0.0",
     "@artus/injection": "^0.5.1",
     "@artus/pipeline": "^0.2.2",

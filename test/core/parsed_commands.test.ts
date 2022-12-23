@@ -5,6 +5,7 @@ import { ParsedCommandTree, DefineCommand, DefineOption, Middleware, ParsedComma
 import { createApp } from '../test-utils';
 import assert from 'node:assert';
 import path from 'node:path';
+import { TestCommand } from 'egg-bin/cmd/test';
 
 describe('test/core/parsed_commands.test.ts', () => {
   let app: ArtusApplication;
@@ -68,7 +69,7 @@ describe('test/core/parsed_commands.test.ts', () => {
       const result4 = parsedCommands.matchCommand('debug bbc ./');
       assert(!result4.matched);
       assert(result4.fuzzyMatched === parsedCommands.getCommand(DebugCommand));
-      assert(result4.error?.message.includes('Unknown commands'));
+      assert(result4.error?.message.includes('Command is not found'));
 
       const result5 = parsedCommands.matchCommand('bbc ./');
       assert(!result5.matched);
@@ -131,11 +132,15 @@ describe('test/core/parsed_commands.test.ts', () => {
 
     const result = parsedCommands.matchCommand('debug bbc ./');
     assert(!result.matched);
-    assert(result.error?.message.includes('Unknown commands'));
+    assert(result.error?.message.includes('Command is not found'));
 
     const result2 = parsedCommands.matchCommand('debug -c --aaa');
     assert(result2.matched === parsedCommands.getCommand(DebugCommand));
     assert(!result2.error);
+
+    const result3= parsedCommands.matchCommand('test');
+    assert(result3.matched === parsedCommands.getCommand(TestCommand));
+    assert(!result3.error);
   });
 
   it('should not match empty command', async () => {
@@ -143,7 +148,23 @@ describe('test/core/parsed_commands.test.ts', () => {
     parsedCommands = app.container.get(ParsedCommands);
 
     const result = parsedCommands.matchCommand('oneapi');
-    assert(result.error!.message === 'Command not found');
+    assert(result.error?.message.includes('Command is not implement: \'chair-bin oneapi\''));
+  });
+
+  it('should not match unknown command', async () => {
+    app = await createApp('chair-bin');
+    parsedCommands = app.container.get(ParsedCommands);
+
+    const result = parsedCommands.matchCommand('bbc');
+    assert(result.error?.message.includes('Command is not found: \'chair-bin bbc\''));
+  });
+
+  it('should not match unknown arguments', async () => {
+    app = await createApp('chair-bin');
+    parsedCommands = app.container.get(ParsedCommands);
+
+    const result = parsedCommands.matchCommand('test');
+    assert(result.error?.message.includes('Not enough arguments, baseDir is required'));
   });
 
   it('should parse argument options and match without error', async () => {
