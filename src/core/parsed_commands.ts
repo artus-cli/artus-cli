@@ -378,7 +378,7 @@ export class ParsedCommands {
       const parsedDemanded = parseArgvWithPositional(extraArgs, fuzzyMatched.demanded, fuzzyMatched.argumentOptions);
       if (parsedDemanded.unmatchPositionals.length && this.binInfo.strictOptions) {
         // demanded not match
-        debug('Demaned is not match with %s', extraArgs);
+        debug('Demaned positional is not match with extra argv %s', extraArgs);
         result.error = new Error(`Not enough arguments, ${parsedDemanded.unmatchPositionals.map(p => p.cmd).join(', ')} is required`);
         return result;
       }
@@ -399,8 +399,8 @@ export class ParsedCommands {
 
     // unknown commands, checking in strict mode
     if (extraArgs.length && this.binInfo.strictCommands) {
-      debug('Unknown commands %s or command(%s) is not runable', extraArgs, fuzzyMatched.clz.name);
       result.error = new Error(`Command is not found: '${this.binInfo.binName}${printArgv ? ` ${printArgv}` : ''}'`);
+      debug(result.error.message);
       return result;
     }
 
@@ -411,8 +411,8 @@ export class ParsedCommands {
       debug('Final match result is %s', result.matched.clz.name);
       return result;
     } else {
-      debug('Command is not implement');
       result.error = new Error(`Command is not implement: '${this.binInfo.binName}${printArgv ? ` ${printArgv}` : ''}'`);
+      debug(result.error.message);
     }
     
     return result;
