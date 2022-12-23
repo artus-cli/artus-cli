@@ -105,7 +105,7 @@ export function parseArgvToArgs(argv: string | string[], option: {
 export function parseArgvWithPositional(argv: string[], pos: Positional[], options?: OptionConfig) {
   let nextIndex = pos.length;
   const result: Record<string, any> = {};
-  const matchAll = pos.every((positional, index) => {
+  const unmatchPositionals = pos.filter((positional, index) => {
     // `bin <files..>` match `bin file1 file2 file3` => { files: [ "file1", "file2", "file3" ] }
     // `bin <file> [baseDir]` match `bin file1 ./` => { file: "file1", baseDir: "./" }
     let r;
@@ -124,13 +124,13 @@ export function parseArgvWithPositional(argv: string[], pos: Positional[], optio
     }
 
     result[positional.cmd] = r;
-    return !!r;
+    return isNil(r);
   });
 
   return {
     result,
-    matchAll,
     unknownArgv: argv.slice(nextIndex),
+    unmatchPositionals, 
   };
 }
 

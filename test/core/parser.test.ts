@@ -106,7 +106,7 @@ describe('test/core/parser.test.ts', () => {
   it('parseArgvWithPositional', () => {
     const parsed = parseCommand('dev <command> [baseDir]', 'my-bin');
     const r = parseArgvWithPositional([ 'module', './' ], parsed.demanded);
-    assert(r.matchAll);
+    assert(!r.unmatchPositionals.length);
     assert.deepEqual(r.unknownArgv, [ './' ]);
     assert(r.result.command === 'module');
 
@@ -129,7 +129,7 @@ describe('test/core/parser.test.ts', () => {
     const r5 = parseArgvWithPositional([ 'module', 'module2' ], parsed4.demanded);
     assert(r5.result.option1 == 'module');
     assert(r5.result.option2 == 'module2');
-    assert(!r5.matchAll);
+    assert(r5.unmatchPositionals.length);
 
     // convert type
     const parsed5 = parseCommand('dev <option1> <option2>', 'my-bin');
