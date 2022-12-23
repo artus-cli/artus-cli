@@ -138,7 +138,7 @@ export function parseArgvWithPositional(argv: string[], pos: Positional[], optio
 export function parseCommand(cmd: string, binName: string) {
   const extraSpacesStrippedCommand = cmd.replace(/\s{2,}/g, ' ');
   const splitCommand = extraSpacesStrippedCommand.split(/\s+(?![^[]*]|[^<]*>)/);
-  const bregex = /\.*[\][<>]/g;
+  const bregex = /\.*[\][<>]\.*/g;
   if (!splitCommand.length) throw new Error(`No command found in: ${cmd}`);
 
   // first cmd is binName or $0, remove it anyway
@@ -167,7 +167,7 @@ export function parseCommand(cmd: string, binName: string) {
     cmd = cmd.replace(/\s/g, '');
 
     // <file...> or [file...]
-    if (/\.+[\]>]/.test(cmd) && i === splitCommand.length - 1) variadic = true;
+    if (i === splitCommand.length - 1 && /(\.+[\]>])|([\[<]\.+)/.test(cmd)) variadic = true;
 
     const result = cmd.match(/^(\[|\<)/);
     if (result) {

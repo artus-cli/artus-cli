@@ -124,6 +124,11 @@ describe('test/core/parser.test.ts', () => {
     const r4 = parseArgvWithPositional([ 'module', 'module2', 'module3' ], parsed3.optional);
     assert.deepEqual(r4.result.command, [ 'module', 'module2', 'module3' ]);
 
+    // varidic optional style 2
+    const parsed31 = parseCommand('dev [...command]', 'my-bin');
+    const r41 = parseArgvWithPositional([ 'module', 'module2', 'module3' ], parsed31.optional);
+    assert.deepEqual(r41.result.command, [ 'module', 'module2', 'module3' ]);
+
     // not enough arguments
     const parsed4 = parseCommand('dev <option1> <option2> <option3>', 'my-bin');
     const r5 = parseArgvWithPositional([ 'module', 'module2' ], parsed4.demanded);
