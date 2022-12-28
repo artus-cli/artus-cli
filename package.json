@@ -17,8 +17,8 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "postlint": "tsc --noEmit",
-    "test": "cross-env TS_NODE_PROJECT=test/tsconfig.json mocha",
-    "cov": "c8 -n src/ npm test",
+    "test": "mocha",
+    "cov": "c8 -n src/ -r html -r text npm test",
     "ci": "npm run cov",
     "tsc": "rm -rf dist && tsc",
     "prepack": "npm run tsc"
@@ -38,6 +38,7 @@
     "pkg-up": "^3.1.0",
     "reflect-metadata": "^0.1.13",
     "type-fest": "^3.4.0",
+    "tslib": "^2.4.0",
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
@@ -50,19 +51,17 @@
     "@types/yargs-parser": "^21.0.0",
     "c8": "^7.12.0",
     "coffee": "^5.5.0",
-    "cross-env": "^7.0.3",
     "eslint": "^8.28.0",
     "inquirer": "^8.0.0",
     "mocha": "^10.0.0",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.1",
-    "tslib": "^2.4.0",
     "typescript": "^4.8.2"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/artus-cli/artus-cli.git"
+    "url": "git@github.com:artus-cli/artus-cli.git"
   },
   "keywords": [
     "artus",
