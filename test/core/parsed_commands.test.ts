@@ -1,7 +1,7 @@
 import { ArtusApplication } from '@artus/core';
 import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
 import { ArgumentMainComand } from 'argument-bin';
-import { ParsedCommandTree, DefineCommand, DefineOption, Middleware, ParsedCommands, Program } from '@artus-cli/artus-cli';
+import { ParsedCommandTree, DefineCommand, DefineOption, Middleware, ParsedCommands, Program, EmptyCommand } from '@artus-cli/artus-cli';
 import { createApp } from '../test-utils';
 import assert from 'node:assert';
 import path from 'node:path';
@@ -120,6 +120,10 @@ describe('test/core/parsed_commands.test.ts', () => {
     const result = parsedCommands.matchCommand('debug bbc ./');
     assert(result.matched === parsedCommands.getCommand(DebugCommand));
     assert(!result.error);
+
+    const result3 = parsedCommands.matchCommand('oneapi');
+    assert(result3.matched!.clz === EmptyCommand);
+    assert(!result3.error);
 
     const result2 = parsedCommands.matchCommand('debug -c --aaa');
     assert(result2.matched === parsedCommands.getCommand(DebugCommand));

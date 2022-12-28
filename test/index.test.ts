@@ -140,6 +140,28 @@ describe('test/index.test.ts', () => {
       .end();
   });
 
+  it('not-strict-bin should work', async () => {
+    await fork('not-strict-bin', [ '-h' ])
+      .debug()
+      .expect('stdout', /Usage: not-strict-bin/)
+      .end();
+
+    await fork('not-strict-bin', [ 'oneapi' ])
+      .debug()
+      .expect('code', 0)
+      .end();
+
+    await fork('not-strict-bin', [ 'dev', 'ccc', 'aaaa' ])
+      .debug()
+      .expect('stdout', /port 3000/)
+      .end();
+
+    await fork('not-strict-bin', [ 'dev', './', '--aaaa' ])
+      .debug()
+      .expect('stdout', /port 3000/)
+      .end();
+  });
+
   it('deep-bin should work', async () => {
     await fork('deep-bin', [ '--help' ])
       .debug()

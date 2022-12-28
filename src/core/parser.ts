@@ -2,7 +2,7 @@ import parser from 'yargs-parser';
 import { OptionConfig } from '../types';
 import { isNil, convertValue } from '../utils';
 import { flatten } from 'lodash';
-import { format } from 'node:util';
+import { errors } from '../errors';
 
 export interface ParsedCommandStruct {
   uid: string;
@@ -65,7 +65,7 @@ export function parseArgvToArgs(argv: string | string[], option: {
   const result = parser.detailed(argv, parserOption);
   const requiredNilOptions = requiredOptions.filter(k => isNil(result.argv[k]));
   if (requiredNilOptions.length) {
-    throw new Error(format('Required options: %s', requiredNilOptions.join(', ')));
+    throw errors.required_options(requiredNilOptions);
   }
 
   // checking for strict options
@@ -90,12 +90,12 @@ export function parseArgvToArgs(argv: string | string[], option: {
     });
 
     if (notSupportArgvs.size) {
-      throw new Error(format('Unknown options: %s', Array.from(notSupportArgvs).join(', ')));
+      throw errors.unknown_options(Array.from(notSupportArgvs));
     }
   }
 
   if (result.error) {
-    throw result.error;
+    throw errors.unknown(result.error.message);
   }
 
   return result;
