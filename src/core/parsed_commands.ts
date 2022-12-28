@@ -11,7 +11,7 @@ import { Command, EmptyCommand } from './command';
 import { MetadataEnum } from '../constant';
 import { BinInfo } from './bin_info';
 import { isInheritFrom } from '../utils';
-import { errors } from '../errors';
+import { errors, ArtusCliError } from '../errors';
 
 const OPTION_SYMBOL = Symbol('ParsedCommand#Option');
 const TREE_SYMBOL = Symbol('ParsedCommand#Tree');
@@ -29,7 +29,7 @@ export interface MatchResult {
   /**
    * match error
    */
-  error?: Error;
+  error?: ArtusCliError;
   /**
    * parsed args by argv
    */

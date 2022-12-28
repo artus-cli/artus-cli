@@ -27,7 +27,7 @@ export const errors = {
   },
 
   required_options(options: string[]) {
-    return c(ErrorCode.UNKNOWN_OPTIONS, 'Required options: %s', options.join(', '));
+    return c(ErrorCode.REQUIRED_OPTIONS, 'Required options: %s', options.join(', '));
   },
 
   not_enough_argumnents(requiredArgv: string[]) {
