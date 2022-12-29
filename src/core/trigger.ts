@@ -76,7 +76,7 @@ export class CommandTrigger extends Trigger {
   /** execute command in pipeline */
   async executeCommand(ctx: CommandContext, cmd: ParsedCommand) {
     const instance = ctx.container.get(cmd.clz);
-    await instance[EXCUTION_SYMBOL]();
+    if (instance[EXCUTION_SYMBOL]) await instance[EXCUTION_SYMBOL]();
     return ctx.output.data;
   }
 }

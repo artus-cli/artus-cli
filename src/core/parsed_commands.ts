@@ -1,4 +1,4 @@
-import { debuglog, format } from 'node:util';
+import { debuglog } from 'node:util';
 import { assert } from 'node:console';
 
 import { pick, omit } from 'lodash';
@@ -11,6 +11,7 @@ import { Command, EmptyCommand } from './command';
 import { MetadataEnum } from '../constant';
 import { BinInfo } from './bin_info';
 import { isInheritFrom } from '../utils';
+import { errors, ArtusCliError } from '../errors';
 
 const OPTION_SYMBOL = Symbol('ParsedCommand#Option');
 const TREE_SYMBOL = Symbol('ParsedCommand#Tree');
@@ -28,7 +29,7 @@ export interface MatchResult {
   /**
    * match error
    */
-  error?: Error;
+  error?: ArtusCliError;
   /**
    * parsed args by argv
    */
@@ -230,12 +231,12 @@ export class ParsedCommandTree {
       const existsParsedCommand = this.commands.get(parsedCommandInfo.uid)!;
 
       // override only allow in class inheritance or options.override=true
-      const errorInfo = format('Command \'%s\' is conflict in %s(%s) and %s(%s)', existsParsedCommand.command, existsParsedCommand.clz.name, existsParsedCommand.location || '-', parsedCommand.clz.name, parsedCommand.location || '-');
+      const err = errors.command_is_conflict(existsParsedCommand.command, existsParsedCommand.clz.name, existsParsedCommand.location, parsedCommand.clz.name, parsedCommand.location);
       if (!commandMeta.overrideCommand && !isInheritFrom(parsedCommand.clz, existsParsedCommand.clz)) {
-        throw new Error(errorInfo);
+        throw err;
       }
 
-      debug(errorInfo);
+      debug(err.message);
     }
 
     // handle middlewares
@@ -379,7 +380,7 @@ export class ParsedCommands {
       if (parsedDemanded.unmatchPositionals.length && this.binInfo.strictOptions) {
         // demanded not match
         debug('Demaned positional is not match with extra argv %s', extraArgs);
-        result.error = new Error(`Not enough arguments, ${parsedDemanded.unmatchPositionals.map(p => p.cmd).join(', ')} is required`);
+        result.error = errors.not_enough_argumnents(parsedDemanded.unmatchPositionals.map(p => p.cmd));
         return result;
       }
 
@@ -399,22 +400,21 @@ export class ParsedCommands {
 
     // unknown commands, checking in strict mode
     if (extraArgs.length && this.binInfo.strictCommands) {
-      result.error = new Error(`Command is not found: '${this.binInfo.binName}${printArgv ? ` ${printArgv}` : ''}'`);
+      result.error = errors.command_is_not_found(`${this.binInfo.binName}${printArgv ? ` ${printArgv}` : ''}`);
       debug(result.error.message);
       return result;
     }
 
-    if (fuzzyMatched.isRunable) {
-      // all pass
-      result.matched = result.fuzzyMatched;
+    // all pass
+    result.matched = result.fuzzyMatched;
+    debug('Final match result is %s', result.matched.clz.name);
 
-      debug('Final match result is %s', result.matched.clz.name);
-      return result;
-    } else {
-      result.error = new Error(`Command is not implement: '${this.binInfo.binName}${printArgv ? ` ${printArgv}` : ''}'`);
+    // match empty command
+    if (!result.matched.isRunable && this.binInfo.strictCommands) {
+      result.error = errors.command_is_not_implement(`${this.binInfo.binName}${printArgv ? ` ${printArgv}` : ''}`);
       debug(result.error.message);
     }
-    
+
     return result;
   }
 

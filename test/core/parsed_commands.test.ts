@@ -1,7 +1,7 @@
 import { ArtusApplication } from '@artus/core';
 import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
 import { ArgumentMainComand } from 'argument-bin';
-import { ParsedCommandTree, DefineCommand, DefineOption, Middleware, ParsedCommands, Program } from '@artus-cli/artus-cli';
+import { ErrorCode, ParsedCommandTree, DefineCommand, DefineOption, Middleware, ParsedCommands, Program, EmptyCommand } from '@artus-cli/artus-cli';
 import { createApp } from '../test-utils';
 import assert from 'node:assert';
 import path from 'node:path';
@@ -84,6 +84,7 @@ describe('test/core/parsed_commands.test.ts', () => {
         },
       });
       const result6 = parsedCommands.matchCommand('dev ./');
+      assert(result6.error?.code === ErrorCode.REQUIRED_OPTIONS);
       assert(result6.error?.message.includes('Required options: requiredInfo'));
 
       const result7 = parsedCommands.matchCommand('dev ./ --required-info=123');
@@ -121,8 +122,13 @@ describe('test/core/parsed_commands.test.ts', () => {
     assert(result.matched === parsedCommands.getCommand(DebugCommand));
     assert(!result.error);
 
+    const result3 = parsedCommands.matchCommand('oneapi');
+    assert(result3.matched!.clz === EmptyCommand);
+    assert(!result3.error);
+
     const result2 = parsedCommands.matchCommand('debug -c --aaa');
     assert(result2.matched === parsedCommands.getCommand(DebugCommand));
+    assert(result2.error?.code === ErrorCode.UNKNOWN_OPTIONS);
     assert(result2.error?.message.includes('Unknown options'));
   });
 
@@ -132,6 +138,7 @@ describe('test/core/parsed_commands.test.ts', () => {
 
     const result = parsedCommands.matchCommand('debug bbc ./');
     assert(!result.matched);
+    assert(result.error?.code === ErrorCode.COMMAND_IS_NOT_FOUND);
     assert(result.error?.message.includes('Command is not found'));
 
     const result2 = parsedCommands.matchCommand('debug -c --aaa');
@@ -148,6 +155,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     parsedCommands = app.container.get(ParsedCommands);
 
     const result = parsedCommands.matchCommand('oneapi');
+    assert(result.error?.code === ErrorCode.COMMAND_IS_NOT_IMPLEMENT);
     assert(result.error?.message.includes('Command is not implement: \'chair-bin oneapi\''));
   });
 
@@ -156,6 +164,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     parsedCommands = app.container.get(ParsedCommands);
 
     const result = parsedCommands.matchCommand('bbc');
+    assert(result.error?.code === ErrorCode.COMMAND_IS_NOT_FOUND);
     assert(result.error?.message.includes('Command is not found: \'chair-bin bbc\''));
   });
 
@@ -164,6 +173,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     parsedCommands = app.container.get(ParsedCommands);
 
     const result = parsedCommands.matchCommand('test');
+    assert(result.error?.code === ErrorCode.NOT_ENOUGH_ARGUMENTS);
     assert(result.error?.message.includes('Not enough arguments, baseDir is required'));
   });
 

@@ -13,6 +13,7 @@ export * from './core/decorators';
 export * from './core/program';
 export * from './core/utils';
 export * from './core/bin_info';
+export * from './errors';
 export * from './types';
 
 export * from './core/command';

@@ -1,0 +1,5 @@
+{
+  "name": "not-strict-bin",
+  "type": "commonjs",
+  "bin": "./bin/cli.js"
+}
