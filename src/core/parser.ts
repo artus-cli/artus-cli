@@ -59,6 +59,11 @@ export function parseArgvToArgs(argv: string | string[], option: {
         parserOption.default = parserOption.default || {};
         parserOption.default[key] = opt.default;
       }
+
+      if (!isNil(opt.array)) {
+        parserOption.array = parserOption.array || [];
+        parserOption.array!.push(key as any);
+      }
     }
   }
 

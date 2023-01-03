@@ -41,7 +41,6 @@ export interface ParsedCommandOption {
   commandConfig: CommandConfig;
   parsedCommandInfo: ParsedCommandStruct;
   optionConfig?: {
-    optionsKey?: string;
     flagOptions: OptionConfig;
     argumentOptions: OptionConfig;
   };
@@ -64,7 +63,6 @@ export class ParsedCommand implements ParsedCommandStruct {
   globalOptions?: OptionConfig;
   flagOptions: OptionConfig;
   argumentOptions: OptionConfig;
-  optionsKey?: string;
   /** Command class location */
   location?: string;
 
@@ -94,7 +92,6 @@ export class ParsedCommand implements ParsedCommandStruct {
     // read from option config
     this.flagOptions = optionConfig?.flagOptions || {};
     this.argumentOptions = optionConfig?.argumentOptions || {};
-    this.optionsKey = optionConfig?.optionsKey;
     this.childs = [];
     this.parent = null;
     this.inherit = null;
@@ -223,7 +220,7 @@ export class ParsedCommandTree {
       location: commandMeta.location,
       commandConfig,
       parsedCommandInfo,
-      optionConfig: { flagOptions, argumentOptions, optionsKey: optionMeta?.key },
+      optionConfig: { flagOptions, argumentOptions },
     });
 
     if (inheritCommand) parsedCommand.inherit = inheritCommand;

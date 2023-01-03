@@ -1,10 +1,6 @@
-import { Inject, DefineCommand, DefineOption, Command, CommandContext, Middleware } from '@artus-cli/artus-cli';
+import { Inject, DefineCommand, Option, Command, CommandContext, Middleware } from '@artus-cli/artus-cli';
 import { UserService } from '../service/user';
 import { AuthService } from '../service/auth';
-
-export interface UserOption {
-  authCode: string;
-}
 
 async function authMiddleware(ctx: CommandContext, next) {
   const authService = ctx.container.get(AuthService);
@@ -26,13 +22,8 @@ async function authMiddleware(ctx: CommandContext, next) {
 })
 @Middleware(authMiddleware)
 export class ChairUserCommand extends Command {
-  @DefineOption<UserOption>({
-    authCode: {
-      type: 'string',
-      alias: 'u',
-    },
-  })
-  args: UserOption;
+  @Option({ alias: 'u' })
+  authCode: string;
 
   @Inject()
   userService: UserService;

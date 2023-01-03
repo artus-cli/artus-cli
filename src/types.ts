@@ -13,12 +13,12 @@ export interface CommandConfig extends Record<string, any> {
 }
 
 /** Base Option Interface */
-export interface Option {
-  /** Non-option arguments */
-  _: Array<string | number>;
-  /** Arguments after the end-of-options flag `--` */
-  '--'?: Array<string | number>;
-}
+// export interface Option {
+//   /** Non-option arguments */
+//   _: Array<string | number>;
+//   /** Arguments after the end-of-options flag `--` */
+//   '--'?: Array<string | number>;
+// }
 
 export interface MiddlewareConfig {
   mergeType?: 'before' | 'after',
@@ -55,6 +55,7 @@ export type ConvertTypeToBasicType<T> = (
 
 export interface OptionProps<T extends BasicType = BasicType, G = any> extends Record<string, any> {
   type?: T;
+  array?: boolean;
   alias?: string | string[];
   default?: G;
   required?: boolean;
@@ -69,8 +70,6 @@ export interface BaseMeta {
 }
 
 export interface OptionMeta<T extends string = string> extends BaseMeta {
-  /** option prop key */
-  key: string;
   /** option config */
   config: OptionConfig<T>;
 }

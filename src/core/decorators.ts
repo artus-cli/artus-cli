@@ -1,11 +1,11 @@
 import { addTag, Injectable, ScopeEnum, Inject } from '@artus/core';
-import { MetadataEnum, CONTEXT_SYMBOL, EXCUTION_SYMBOL } from '../constant';
+import { MetadataEnum, CONTEXT_SYMBOL, EXCUTION_SYMBOL, COMMAND_OPTION_SYMBOL } from '../constant';
 import { ParsedCommands } from '../core/parsed_commands';
 import { CommandContext, CommandOutput } from './context';
 import compose from 'koa-compose';
 import { Command } from './command';
 import { checkCommandCompatible, getCalleeList } from '../utils';
-import { BaseMeta, MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, OptionConfig, ConvertTypeToBasicType, CommandMeta } from '../types';
+import { BaseMeta, MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, ConvertTypeToBasicType, CommandMeta } from '../types';
 
 export interface CommonDecoratorOption extends Pick<BaseMeta, 'inheritMetadata'> {}
 export interface MiddlewareDecoratorOption extends CommonDecoratorOption, Pick<MiddlewareConfig, 'mergeType'> {}
@@ -35,44 +35,60 @@ export function DefineCommand(
   };
 }
 
-export function DefineOption<T extends object = object>(
+export function Options<T extends Record<string, any> = Record<string, any>>(
   meta?: { [P in keyof Omit<T, '_' | '--'>]?: OptionProps<ConvertTypeToBasicType<T[P]>, T[P]>; },
-  option?: CommonDecoratorOption,
 ) {
   return <G extends Command>(target: G, key: string) => {
-    const ctor = target.constructor as typeof Command;
-
-    // define option key
-    const keySymbol = Symbol(`${ctor.name}#${key}`);
-    Object.defineProperty(ctor.prototype, key, {
+    const result = initOptionMeta(target);
+    Object.assign(result.config, meta);
+    Object.defineProperty(target, key, {
       get() {
-        if (this[keySymbol]) return this[keySymbol];
-        const ctx: CommandContext = this[CONTEXT_SYMBOL];
-        if (!ctx) return;
-
-        const { matched, args, raw: argv } = ctx;
-        const parsedCommands = ctx.container.get(ParsedCommands);
-        const targetCommand = parsedCommands.getCommand(ctor);
-        // check target command whether is compatible with matched
-        const isSameCommandOrCompatible = matched?.clz === ctor || (matched && targetCommand && checkCommandCompatible(targetCommand, matched));
-        this[keySymbol] = isSameCommandOrCompatible ? args : parsedCommands.parseArgs(argv, targetCommand);
-        return this[keySymbol];
+        return this[COMMAND_OPTION_SYMBOL];
       },
 
-      set(val: any) {
-        // allow developer to override options
-        this[keySymbol] = val;
+      set(val) {
+        this[COMMAND_OPTION_SYMBOL] = val;
       },
     });
+  };
+}
 
-    const config = (meta || {}) as OptionConfig;
-    const optionMeta = {
-      key,
-      config,
-      inheritMetadata: option?.inheritMetadata,
-    } satisfies OptionMeta;
+/** TODO: delete later */
+export const DefineOption = Options;
 
-    Reflect.defineMetadata(MetadataEnum.OPTION, optionMeta, ctor);
+export function Option(descOrOpt?: string | OptionProps) {
+  return <G extends Command>(target: G, key: string) => {
+    const result = initOptionMeta(target);
+    const config: OptionProps = typeof descOrOpt === 'string'
+      ? { description: descOrOpt }
+      : (descOrOpt || {});
+
+    const designType = Reflect.getOwnMetadata('design:type', target, key);
+    if (designType === String) {
+      config.type = 'string';  
+    } else if (designType === Number) {
+      config.type = 'number';
+    } else if (designType === Boolean) {
+      config.type = 'boolean';
+    } else if (designType === Array) {
+      config.array = true;
+    }
+
+    // merge with exists config
+    result.config[key] = {
+      ...result.config[key],
+      ...config,
+    };
+
+    Object.defineProperty(target, key, {
+      get() {
+        return this[COMMAND_OPTION_SYMBOL][key];
+      },
+
+      set(val) {
+        this[COMMAND_OPTION_SYMBOL][key] = val;
+      },
+    });
   };
 }
 
@@ -97,6 +113,42 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
     existsMeta.inheritMetadata = option?.inheritMetadata;
     Reflect.defineMetadata(metaKey, existsMeta, ctor);
   };
+}
+
+function initOptionMeta(target: Command): OptionMeta {
+  const ctor = target.constructor as typeof Command;
+  if (!Reflect.hasOwnMetadata(MetadataEnum.OPTION, ctor)) {
+    // define option key
+    const optionCacheSymbol = Symbol(`${ctor.name}#cache`);
+    Object.defineProperty(target, COMMAND_OPTION_SYMBOL, {
+      get() {
+        if (this[optionCacheSymbol]) return this[optionCacheSymbol];
+        const ctx: CommandContext = this[CONTEXT_SYMBOL];
+        if (!ctx) return;
+
+        const { matched, args, raw: argv } = ctx;
+        const parsedCommands = ctx.container.get(ParsedCommands);
+        const targetCommand = parsedCommands.getCommand(ctor);
+        // check target command whether is compatible with matched
+        const isSameCommandOrCompatible = matched?.clz === ctor || (matched && targetCommand && checkCommandCompatible(targetCommand, matched));
+        this[optionCacheSymbol] = isSameCommandOrCompatible ? args : parsedCommands.parseArgs(argv, targetCommand);
+        return this[optionCacheSymbol];
+      },
+
+      set(val: any) {
+        // allow developer to override options
+        this[optionCacheSymbol] = val;
+      },
+    });
+
+    const optionMeta = {
+      config: {},
+    } satisfies OptionMeta;
+
+    Reflect.defineMetadata(MetadataEnum.OPTION, optionMeta, ctor);
+  }
+
+  return Reflect.getOwnMetadata(MetadataEnum.OPTION, ctor);
 }
 
 /**

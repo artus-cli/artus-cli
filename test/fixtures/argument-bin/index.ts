@@ -1,4 +1,4 @@
-import { DefineCommand, DefineOption, Command } from '@artus-cli/artus-cli';
+import { DefineCommand, Option, Command } from '@artus-cli/artus-cli';
 
 interface Option {
   port?: number;
@@ -9,21 +9,14 @@ interface Option {
   command: '$0 [port]',
 })
 export class ArgumentMainComand extends Command {
-  @DefineOption<Option>({
-    port: {
-      type: 'number',
-      default: 3000,
-    },
+  @Option({ default: 3000 })
+  port: number;
 
-    inspect: {
-      type: 'boolean',
-      description: 'Inspect',
-    },
-  })
-  args: Option;
+  @Option('Inspect')
+  inspect: boolean;
 
   async run() {
-    console.info('serv in port', this.args.port);
-    if (this.args.inspect) console.info('serv is inspecting...');
+    console.info('serv in port', this.port);
+    if (this.inspect) console.info('serv is inspecting...');
   }
 }
