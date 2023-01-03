@@ -39,8 +39,7 @@ export function Options<T extends object = object>(
   meta?: { [P in keyof Omit<T, '_' | '--'>]?: OptionProps<ConvertTypeToBasicType<T[P]>, T[P]>; },
 ) {
   return <G extends Command>(target: G, key: string) => {
-    const ctor = target.constructor as typeof Command;
-    const result = initOptionMeta(ctor);
+    const result = initOptionMeta(target);
     Object.assign(result.config, meta);
     Object.defineProperty(target, key, {
       get() {
@@ -59,8 +58,7 @@ export const DefineOption = Options;
 
 export function Option(descOrOpt?: string | OptionProps) {
   return <G extends Command>(target: G, key: string) => {
-    const ctor = target.constructor as typeof Command;
-    const result = initOptionMeta(ctor);
+    const result = initOptionMeta(target);
     const config: OptionProps = typeof descOrOpt === 'string'
       ? { description: descOrOpt }
       : (descOrOpt || {});
@@ -117,11 +115,12 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
   };
 }
 
-function initOptionMeta(ctor: typeof Command): OptionMeta {
+function initOptionMeta(target: Command): OptionMeta {
+  const ctor = target.constructor as typeof Command;
   if (!Reflect.hasOwnMetadata(MetadataEnum.OPTION, ctor)) {
     // define option key
     const optionCacheSymbol = Symbol(`${ctor.name}#cache`);
-    Object.defineProperty(ctor.prototype, COMMAND_OPTION_SYMBOL, {
+    Object.defineProperty(target, COMMAND_OPTION_SYMBOL, {
       get() {
         if (this[optionCacheSymbol]) return this[optionCacheSymbol];
         const ctx: CommandContext = this[CONTEXT_SYMBOL];
