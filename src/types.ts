@@ -70,8 +70,6 @@ export interface BaseMeta {
 }
 
 export interface OptionMeta<T extends string = string> extends BaseMeta {
-  /** option prop key */
-  key: string | symbol;
   /** option config */
   config: OptionConfig<T>;
 }

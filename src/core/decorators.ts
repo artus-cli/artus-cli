@@ -57,13 +57,13 @@ export function Options<T extends object = object>(
 /** TODO: delete later */
 export const DefineOption = Options;
 
-export function Option(descOrOpt: string | OptionProps = {}) {
+export function Option(descOrOpt?: string | OptionProps) {
   return <G extends Command>(target: G, key: string) => {
     const ctor = target.constructor as typeof Command;
     const result = initOptionMeta(ctor);
     const config: OptionProps = typeof descOrOpt === 'string'
       ? { description: descOrOpt }
-      : descOrOpt;
+      : (descOrOpt || {});
 
     const designType = Reflect.getOwnMetadata('design:type', target, key);
     if (designType === String) {
@@ -143,7 +143,6 @@ function initOptionMeta(ctor: typeof Command): OptionMeta {
     });
 
     const optionMeta = {
-      key: COMMAND_OPTION_SYMBOL,
       config: {},
     } satisfies OptionMeta;
 
