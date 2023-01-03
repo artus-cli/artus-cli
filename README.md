@@ -20,32 +20,23 @@
 ## How it looks
 
 ```ts
-import { DefineCommand, DefineOption, Command } from '@artus-cli/artus-cli';
-
-export interface DevOptions {
-  port?: number;
-  baseDir?: string;
-}
+import { DefineCommand, Option, Command } from '@artus-cli/artus-cli';
 
 @DefineCommand({
-  command: 'dev [baseDir]',
+  command: 'dev',
   description: 'Run the development server',
   alias: [ 'd' ],
 })
 export class DevCommand extends Command {
-  @DefineOption<DevOptions>({
-    port: {
-      type: 'number',
-      alias: 'p',
-      default: 3000,
-      description: 'server port',
-    },
+  @Option({
+    alias: 'p',
+    default: 3000,
+    description: 'server port',
   })
-  args: DevOptions;
+  port: number;
 
   async run() {
-    console.info('port: %s', this.args.port);
-    console.info('baseDir: %s', this.args.baseDir);
+    console.info('port: %s', this.port);
   }
 }
 ```
