@@ -35,7 +35,7 @@ export function DefineCommand(
   };
 }
 
-export function Options<T extends object = object>(
+export function Options<T extends Record<string, any> = Record<string, any>>(
   meta?: { [P in keyof Omit<T, '_' | '--'>]?: OptionProps<ConvertTypeToBasicType<T[P]>, T[P]>; },
 ) {
   return <G extends Command>(target: G, key: string) => {
