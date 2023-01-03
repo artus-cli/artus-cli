@@ -1,6 +1,6 @@
 import { ArtusApplication } from '@artus/core';
 import { createApp } from '../test-utils';
-import { CommandMeta, DefineCommand, DefineOption, Middleware, MiddlewareMeta, OptionMeta } from '@artus-cli/artus-cli';
+import { CommandMeta, DefineCommand, Command, Option, Options, Middleware, MiddlewareMeta, OptionMeta } from '@artus-cli/artus-cli';
 import { MetadataEnum } from '../../src/constant';
 import assert from 'node:assert';
 
@@ -9,11 +9,12 @@ describe('test/core/decorators.test.ts', () => {
 
   @DefineCommand({ command: 'dev', description: '666' })
   @Middleware(async () => 1)
-  class MyCommand {
-    @DefineOption({
-      port: {},
-    })
-    options: any;
+  class MyCommand extends Command {
+    @Option()
+    port: number;
+
+    @Options()
+    args: any;
 
     @Middleware(async () => 1)
     @Middleware(async () => 1)
@@ -26,7 +27,7 @@ describe('test/core/decorators.test.ts', () => {
   @DefineCommand()
   @Middleware([ async () => 1, async () => 1 ])
   class NewMyCommand extends MyCommand {
-    @DefineOption()
+    @Options()
     argv: any;
 
     async run() {
@@ -36,9 +37,6 @@ describe('test/core/decorators.test.ts', () => {
 
   @DefineCommand({ command: 'aa' }, { inheritMetadata: false })
   class OverrideMyCommand extends MyCommand {
-    @DefineOption({}, { inheritMetadata: false })
-    argv: any;
-
     async run() {
       // nothing
     }
@@ -65,20 +63,15 @@ describe('test/core/decorators.test.ts', () => {
     assert(metadata3.inheritMetadata === false);
   });
 
-  it('DefineOption', async () => {
+  it('Option/Options', async () => {
     const metadata: OptionMeta = Reflect.getOwnMetadata(MetadataEnum.OPTION, MyCommand);
-    assert(metadata.key === 'options');
     assert(metadata.config.port);
-    assert('options' in MyCommand.prototype);
+    assert('args' in MyCommand.prototype);
 
     // extend
     const metadata2: OptionMeta = Reflect.getOwnMetadata(MetadataEnum.OPTION, NewMyCommand);
-    assert(metadata2.key === 'argv');
+    assert(metadata2.config);
     assert('argv' in NewMyCommand.prototype);
-
-    // inheritMetadata
-    const metadata3: OptionMeta = Reflect.getOwnMetadata(MetadataEnum.OPTION, OverrideMyCommand);
-    assert(metadata3.inheritMetadata === false);
   });
 
   it('Middlware', async () => {

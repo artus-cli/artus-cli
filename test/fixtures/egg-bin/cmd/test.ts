@@ -1,9 +1,4 @@
-import { DefineCommand, DefineOption, Command, Middleware, Option } from '@artus-cli/artus-cli';
-
-export interface TestOption extends Option {
-  baseDir: string;
-  file: string[]
-}
+import { DefineCommand, Option, Command, Middleware } from '@artus-cli/artus-cli';
 
 @DefineCommand({
   command: 'test <baseDir> [file...]',
@@ -11,8 +6,11 @@ export interface TestOption extends Option {
   alias: [ 't' ],
 })
 export class TestCommand extends Command {
-  @DefineOption()
-  options: TestOption;
+  @Option()
+  baseDir: string;
+
+  @Option()
+  file: string[];
 
   @Middleware([
     async (_ctx, next) => {
@@ -29,7 +27,7 @@ export class TestCommand extends Command {
     await next();
   })
   async run() {
-    console.info('test baseDir', this.options.baseDir);
-    console.info('test files', this.options.file);
+    console.info('test baseDir', this.baseDir);
+    console.info('test files', this.file);
   }
 }

@@ -1,11 +1,4 @@
-import { DefineCommand, DefineOption, Command, Middleware, Option } from '@artus-cli/artus-cli';
-
-export interface DevOption extends Option {
-  port?: number;
-  inspect?: boolean;
-  nodeFlags?: string;
-  baseDir?: string;
-}
+import { DefineCommand, Option, Options, Command, Middleware } from '@artus-cli/artus-cli';
 
 @DefineCommand({
   command: 'dev [baseDir]',
@@ -18,31 +11,33 @@ export interface DevOption extends Option {
   console.info('egg-bin dev command postrun');
 })
 export class DevCommand extends Command {
-  @DefineOption<DevOption>({
-    port: {
-      type: 'number',
-      alias: 'p',
-      default: 3000,
-      description: 'Start A Server',
-    },
-
-    inspect: {
-      type: 'boolean',
-      default: false,
-      description: 'Debug with node-inspector',
-    },
-
-    nodeFlags: {
-      type: 'string',
-    },
+  @Option({
+    alias: 'p',
+    default: 3000,
+    description: 'Start A Server',
   })
-  args: DevOption;
+  port: number;
+
+  @Option({
+    default: false,
+    description: 'Debug with node-inspector',
+  })
+  inspect: boolean;
+
+  @Option('Built-in flags in node')
+  nodeFlags: string;
+
+  @Option()
+  baseDir: string;
+
+  @Options()
+  args: any;
 
   async run() {
-    console.info('port', this.args.port);
-    console.info('inspect', this.args.inspect);
-    console.info('nodeFlags', this.args.nodeFlags);
-    console.info('baseDir', this.args.baseDir);
+    console.info('port', this.port);
+    console.info('inspect', this.inspect);
+    console.info('nodeFlags', this.nodeFlags);
+    console.info('baseDir', this.baseDir);
     return {
       command: 'dev',
       args: this.args,

@@ -1,7 +1,7 @@
 import { ArtusApplication } from '@artus/core';
 import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
 import { ArgumentMainComand } from 'argument-bin';
-import { ErrorCode, ParsedCommandTree, DefineCommand, DefineOption, Middleware, ParsedCommands, Program, EmptyCommand } from '@artus-cli/artus-cli';
+import { ErrorCode, ParsedCommandTree, DefineCommand, Options, Middleware, ParsedCommands, Program, EmptyCommand, Command } from '@artus-cli/artus-cli';
 import { createApp } from '../test-utils';
 import assert from 'node:assert';
 import path from 'node:path';
@@ -205,8 +205,8 @@ describe('test/core/parsed_commands.test.ts', () => {
 
     @DefineCommand({ command: 'dev [baseDir]', description: '666' })
     @Middleware(async () => 1)
-    class MyCommand {
-      @DefineOption({
+    class MyCommand extends Command {
+      @Options({
         port: {},
         inspectPort: { default: 8080 },
         baseDir: {},
@@ -225,7 +225,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     @Middleware([ async () => 1, afterFn ])
     @Middleware([ beforeFn ], { mergeType: 'before' })
     class NewMyCommand extends MyCommand {
-      @DefineOption({
+      @Options({
         inspectPort: { default: 6666 },
       })
       argv: any;
@@ -242,9 +242,6 @@ describe('test/core/parsed_commands.test.ts', () => {
     @NewDefineCommand({ command: 'aa' }, { inheritMetadata: false })
     @Middleware([ async () => 1, async () => 1 ], { inheritMetadata: false })
     class OverrideMyCommand extends MyCommand {
-      @DefineOption({}, { inheritMetadata: false })
-      argv: any;
-    
       async run() {
         // nothing
       }

@@ -1,6 +1,7 @@
 import { Inject, Injectable, ScopeEnum } from '@artus/core';
 import { ParsedCommand, ParsedCommands } from './parsed_commands';
 import { Command } from './command';
+import { COMMAND_OPTION_SYMBOL } from '../constant';
 import { CommandContext } from './context';
 import { CommandTrigger } from './trigger';
 import assert from 'node:assert';
@@ -22,7 +23,7 @@ export class Utils {
     const cmd = clz instanceof ParsedCommand ? clz : this.commands.getCommand(clz);
     assert(cmd, format('Can not forward to command %s', cmd?.clz.name));
     const instance = this.ctx.container.get(cmd.clz);
-    if (args && cmd.optionsKey) instance[cmd.optionsKey] = args;
+    if (args) instance[COMMAND_OPTION_SYMBOL] = args;
     return this.trigger.executeCommand(this.ctx, cmd);
   }
 

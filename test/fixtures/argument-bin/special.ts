@@ -1,4 +1,4 @@
-import { DefineCommand, DefineOption, Command } from '@artus-cli/artus-cli';
+import { DefineCommand, Option, Command } from '@artus-cli/artus-cli';
 
 interface Option {
   baseDir: string;
@@ -8,7 +8,7 @@ interface Option {
   command: 'dev [baseDir]',
 })
 export class ArgumentDevComand extends Command {
-  @DefineOption<Option>({
+  @Option<Option>({
     baseDir: { type: 'string' },
   })
   opt: Option;
@@ -26,7 +26,7 @@ interface DebugOption {
   command: 'debug',
 })
 export class ArgumentDebugComand extends ArgumentDevComand {
-  @DefineOption<DebugOption>({
+  @Option<DebugOption>({
     port: { type: 'number' },
   })
   argv: DebugOption;

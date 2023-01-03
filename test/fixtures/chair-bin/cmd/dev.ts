@@ -1,10 +1,5 @@
-import { DefineCommand, DefineOption, Middleware } from '@artus-cli/artus-cli';
-import { DevCommand as BaseDevCommand, DevOption as BaseDevOption } from 'egg-bin';
-
-export interface DevOption extends BaseDevOption {
-  other?: string;
-  daemon?: boolean;
-}
+import { DefineCommand, Option, Middleware } from '@artus-cli/artus-cli';
+import { DevCommand as BaseDevCommand } from 'egg-bin';
 
 @DefineCommand({
   description: 'Run the development server with chair-bin',
@@ -15,23 +10,16 @@ export interface DevOption extends BaseDevOption {
   console.info('chair-bin dev command postrun');
 })
 export class ChairDevCommand extends BaseDevCommand {
-  @DefineOption<DevOption>({
-    other: {
-      type: 'string',
-      alias: 'o',
-    },
+  @Option({ alias: 'o' })
+  other: string;
 
-    daemon: {
-      type: 'boolean',
-      default: false,
-    },
-  })
-  args: DevOption;
+  @Option()
+  daemon: boolean;
 
   async run() {
     const r = await super.run();
-    console.info('other', this.args.other);
-    console.info('daemon', this.args.daemon);
+    console.info('other', this.other);
+    console.info('daemon', this.daemon);
     return r;
   }
 }
