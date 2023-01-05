@@ -53,9 +53,6 @@ export function Options<T extends Record<string, any> = Record<string, any>>(
   };
 }
 
-/** TODO: delete later */
-export const DefineOption = Options;
-
 export function Option(descOrOpt?: string | OptionProps) {
   return <G extends Command>(target: G, key: string) => {
     const result = initOptionMeta(target);
