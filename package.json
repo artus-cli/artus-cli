@@ -1,6 +1,6 @@
 {
   "name": "@artus-cli/artus-cli",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "CLI framework with modern features",
   "homepage": "https://github.com/artus-cli/artus-cli",
   "author": "TZ <atian25@qq.com>",
@@ -37,8 +37,8 @@
     "lodash": "^4.17.21",
     "pkg-up": "^3.1.0",
     "reflect-metadata": "^0.1.13",
-    "type-fest": "^3.4.0",
     "tslib": "^2.4.0",
+    "type-fest": "^3.4.0",
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
