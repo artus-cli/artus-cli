@@ -38,11 +38,13 @@ export async function start(options: ArtusCliOptions = {}) {
   process.env.ARTUS_CLI_SCANNING = 'true';
 
   const exclude = options.exclude || [ 'bin', 'test', 'coverage' ];
-  const isBuildJavascriptFile = calleeFile && calleeFile.endsWith('.js');
-  if (isBuildJavascriptFile) {
-    exclude.push('*.ts');
-  } else {
-    exclude.push('dist');
+  if (calleeFile) {
+    const isBuildJavascriptFile = calleeFile.endsWith('.js');
+    if (isBuildJavascriptFile) {
+      exclude.push('*.ts');
+    } else {
+      exclude.push('dist');
+    }
   }
 
   // scan app files
