@@ -36,13 +36,21 @@ export async function start(options: ArtusCliOptions = {}) {
   // record scanning state
   process.env.ARTUS_CLI_SCANNING = 'true';
 
+  const exclude = options.exclude || [ 'bin', 'test', 'coverage' ];
+  const isBuildJavascriptFile = __filename.endsWith('.js');
+  if (isBuildJavascriptFile) {
+    exclude.push('*.ts');
+  } else {
+    exclude.push('dist');
+  }
+
   // scan app files
   const scanner = new Scanner({
     needWriteFile: false,
     configDir: 'config',
     extensions: [ '.ts' ],
     framework: options.framework || { path: __dirname },
-    exclude: options.exclude || [ 'bin', 'test', 'coverage' ],
+    exclude,
   });
 
   const manifest = await scanner.scan(baseDir);
