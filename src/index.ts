@@ -3,7 +3,7 @@ import { ArtusApplication, Scanner } from '@artus/core';
 import { ArtusCliOptions } from './types';
 import assert from 'node:assert';
 import { BIN_OPTION_SYMBOL } from './constant';
-import { readPkg, getCalleeDir } from './utils';
+import { readPkg, getCalleeFile } from './utils';
 import { BinInfoOption } from './core/bin_info';
 import path from 'node:path';
 
@@ -27,7 +27,8 @@ export async function start(options: ArtusCliOptions = {}) {
   }
 
   // try to read baseDir by callee stack
-  const findPkgDir = options.baseDir || getCalleeDir(2);
+  const calleeFile = getCalleeFile(2);
+  const findPkgDir = options.baseDir || (calleeFile && path.dirname(calleeFile));
   assert(findPkgDir, 'Can not detect baseDir, failed to load package.json');
 
   const { pkgInfo, pkgPath } = await readPkg(findPkgDir);
@@ -37,7 +38,7 @@ export async function start(options: ArtusCliOptions = {}) {
   process.env.ARTUS_CLI_SCANNING = 'true';
 
   const exclude = options.exclude || [ 'bin', 'test', 'coverage' ];
-  const isBuildJavascriptFile = __filename.endsWith('.js');
+  const isBuildJavascriptFile = calleeFile && calleeFile.endsWith('.js');
   if (isBuildJavascriptFile) {
     exclude.push('*.ts');
   } else {
