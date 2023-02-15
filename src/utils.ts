@@ -80,7 +80,7 @@ export function getCalleeFile(stackIndex: number): string | undefined {
 }
 
 export function getCalleeDir(stackIndex: number): string | undefined {
-  const calleeFile = getCalleeFile(stackIndex);
+  const calleeFile = getCalleeFile(stackIndex + 1);
   return calleeFile ? path.dirname(calleeFile) : undefined;
 }
 

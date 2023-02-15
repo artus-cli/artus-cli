@@ -43,7 +43,7 @@ describe('test/utils.test.ts', () => {
   it('getCalleeList/getCalleeDir', async () => {
     assert(getCalleeList(3).length === 3);
     assert(getCalleeList(3)[0].fileName);
-    assert(getCalleeDir(1) === __dirname);
+    assert.equal(getCalleeDir(1), __dirname);
     assert(getCalleeDir(2)?.includes('mocha'));
   });
 });
