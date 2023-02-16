@@ -29,6 +29,18 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /test files \[ 'file1', 'file2' \]/)
       .end();
 
+    await fork('egg-bin', [ 'test', './' ])
+      .debug()
+      .expect('stderr', /not match test files/)
+      .expect('code', 2)
+      .end();
+
+    await fork('egg-bin', [ 'test', 'mock-error', 'file1' ])
+      .debug()
+      .expect('stderr', /mock baseDir error/)
+      .expect('code', 1)
+      .end();
+
     await fork('egg-bin', [ 'cov', './', 'file1', 'file2', '--c8=true' ])
       .debug()
       .expect('stdout', /coverage c8 true/)
