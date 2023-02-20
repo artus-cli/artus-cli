@@ -70,6 +70,7 @@ export class CommandTrigger extends Trigger {
       await this.startPipeline(ctx);
     } catch (err) {
       console.error(err);
+      process.exit(typeof err.code === 'number' ? err.code : 1);
     }
   }
 
