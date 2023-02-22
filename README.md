@@ -50,9 +50,5 @@ $ my-cli dev --port 8080
 
 ## Document
 
-Still in progress, but you can check the following links:
-
-- QuickStart: https://www.yuque.com/atian25/blog/artus-cli
-- RFC: https://github.com/artus-cli/artus-cli/issues/18
-
+https://artus-cli.github.io
 
