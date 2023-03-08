@@ -4,11 +4,6 @@ import { isNil, convertValue } from '../utils';
 import { flatten } from 'lodash';
 import { ArtusCliError, errors } from '../errors';
 
-export interface ParseResult {
-  args: any;
-  error?: ArtusCliError;
-}
-
 export interface ParsedCommandStruct {
   uid: string;
   cmd: string;
@@ -21,11 +16,6 @@ export interface ParsedCommandStruct {
 export interface Positional {
   cmd: string;
   variadic: boolean;
-}
-
-export interface ParseArgvOptions {
-  strictOptions?: boolean;
-  optionConfig?: OptionConfig;
 }
 
 /** convert argv to camelCase key simpliy */
@@ -42,7 +32,10 @@ export function parseArgvKeySimple(argv: string | string[]) {
 }
 
 /** parse argv to args, base on yargs-parser */
-export function parseArgvToArgs(argv: string | string[], option: ParseArgvOptions = {}): ParseResult {
+export function parseArgvToArgs(argv: string | string[], option: {
+  strictOptions?: boolean;
+  optionConfig?: OptionConfig;
+} = {}) {
   const requiredOptions: string[] = [];
   const parserOption: parser.Options = {
     configuration: { "populate--": true },
