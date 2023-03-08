@@ -431,9 +431,7 @@ export class ParsedCommands {
 
     // parse again with parserOption and validation
     const parseResult = this.parseArgs(argv, result.fuzzyMatched);
-    if (parseResult.error) {
-      result.error = parseResult.error;
-    }
+    result.error = result.error || parseResult.error;
 
     // merge args and positional args
     result.args = Object.assign(parseResult.args || result.args, result.positionalArgs);

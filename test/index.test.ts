@@ -37,7 +37,7 @@ describe('test/index.test.ts', () => {
     await fork('egg-bin', [ 'test', './' ])
       .debug()
       .expect('stderr', /not match test files/)
-      .expect('code', 1)
+      .expect('code', 2)
       .end();
 
     await fork('egg-bin', [ 'test', 'mock-error', 'file1' ])
