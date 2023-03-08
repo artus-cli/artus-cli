@@ -434,7 +434,7 @@ export class ParsedCommands {
     result.error = result.error || parseResult.error;
 
     // merge args and positional args
-    result.args = Object.assign(parseResult.args || result.args, result.positionalArgs);
+    result.args = Object.assign(parseResult.args, result.positionalArgs);
     return result;
   }
 
