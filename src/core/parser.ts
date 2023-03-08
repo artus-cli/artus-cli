@@ -18,6 +18,12 @@ export interface Positional {
   variadic: boolean;
 }
 
+export interface ParseArgvOptions {
+  validateArgv?: boolean;
+  strictOptions?: boolean;
+  optionConfig?: OptionConfig;
+}
+
 /** convert argv to camelCase key simpliy */
 export function parseArgvKeySimple(argv: string | string[]) {
   const list = flatten((Array.isArray(argv) ? argv : [ argv ]).map(arg => arg.split(/\s+/)));
@@ -32,10 +38,7 @@ export function parseArgvKeySimple(argv: string | string[]) {
 }
 
 /** parse argv to args, base on yargs-parser */
-export function parseArgvToArgs(argv: string | string[], option: {
-  strictOptions?: boolean;
-  optionConfig?: OptionConfig;
-} = {}) {
+export function parseArgvToArgs(argv: string | string[], option: ParseArgvOptions = {}) {
   const requiredOptions: string[] = [];
   const parserOption: parser.Options = {
     configuration: { "populate--": true },
@@ -68,6 +71,12 @@ export function parseArgvToArgs(argv: string | string[], option: {
   }
 
   const result = parser.detailed(argv, parserOption);
+
+  /** skip validation */
+  if (option.validateArgv === false) {
+    return result;
+  }
+
   const requiredNilOptions = requiredOptions.filter(k => isNil(result.argv[k]));
   if (requiredNilOptions.length) {
     throw errors.required_options(requiredNilOptions);

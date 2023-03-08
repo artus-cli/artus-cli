@@ -6,7 +6,7 @@ import { Injectable, Container, Inject, ScopeEnum } from '@artus/core';
 import { Middlewares } from '@artus/pipeline';
 
 import { CommandMeta, CommandConfig, OptionMeta, OptionConfig, MiddlewareConfig, MiddlewareMeta } from '../types';
-import { parseArgvToArgs, parseArgvWithPositional, parseCommand, ParsedCommandStruct, Positional } from './parser';
+import { ParseArgvOptions, parseArgvToArgs, parseArgvWithPositional, parseCommand, ParsedCommandStruct, Positional } from './parser';
 import { Command, EmptyCommand } from './command';
 import { MetadataEnum } from '../constant';
 import { BinInfo } from './bin_info';
@@ -341,7 +341,7 @@ export class ParsedCommands {
   private _matchCommand(argv: string | string[]) {
     const result: MatchResult & { positionalArgs: Record<string, any> } = {
       fuzzyMatched: this.root,
-      args: this.parseArgs(argv),
+      args: this.parseArgs(argv, this.root, { validateArgv: false }),
 
       // parsed positional result;
       positionalArgs: {},
@@ -416,10 +416,11 @@ export class ParsedCommands {
   }
 
   /** parse argv with yargs-parser */
-  parseArgs(argv: string | string[], parseCommand?: ParsedCommand) {
+  parseArgs(argv: string | string[], parseCommand?: ParsedCommand, parseOption?: ParseArgvOptions) {
     const result = parseArgvToArgs(argv, {
       optionConfig: parseCommand?.options,
       strictOptions: this.binInfo.strictOptions,
+      ...parseOption,
     });
 
     return result.argv;

@@ -7,6 +7,11 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /Usage: egg-bin/)
       .end();
 
+    await fork('egg-bin', [ '-h' ])
+      .debug()
+      .expect('stdout', /Usage: egg-bin/)
+      .end();
+
     await fork('egg-bin', [ 'dev', '123', '-p=6000' ])
       .debug()
       .expect('stdout', /port 6000/)
@@ -32,7 +37,7 @@ describe('test/index.test.ts', () => {
     await fork('egg-bin', [ 'test', './' ])
       .debug()
       .expect('stderr', /not match test files/)
-      .expect('code', 2)
+      .expect('code', 1)
       .end();
 
     await fork('egg-bin', [ 'test', 'mock-error', 'file1' ])
@@ -47,6 +52,18 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /test command middleware 1\ntest command middleware 2\ntest command middleware 3/)
       .expect('stdout', /test baseDir .\//)
       .expect('stdout', /test files \[ 'file1', 'file2' \]/)
+      .end();
+  });
+
+  it('egg-bin should work with root flags', async () => {
+    await fork('egg-bin', [ '--cwd', './' ])
+      .debug()
+      .expect('stdout', /main in .\//)
+      .end();
+
+    await fork('egg-bin', [ '-c', 'foo' ])
+      .debug()
+      .expect('stdout', /main in foo/)
       .end();
   });
 
