@@ -341,6 +341,8 @@ export class ParsedCommands {
   private _matchCommand(argv: string | string[]) {
     const result: MatchResult & { positionalArgs: Record<string, any> } = {
       fuzzyMatched: this.root,
+
+      // parse with root command without validation
       args: this.parseArgs(argv, this.root, { validateArgv: false }),
 
       // parsed positional result;
@@ -431,13 +433,11 @@ export class ParsedCommands {
     let newArgs;
 
     const result = this._matchCommand(argv);
-    if (result.matched) {
-      try {
-        // parse again with parserOption
-        newArgs = this.parseArgs(argv, result.matched);
-      } catch (e) {
-        result.error = e;
-      }
+    try {
+      // parse again with parserOption and validation
+      newArgs = this.parseArgs(argv, result.fuzzyMatched);
+    } catch (e) {
+      result.error = e;
     }
 
     // merge args and positional args
