@@ -341,9 +341,7 @@ export class ParsedCommands {
   private _matchCommand(argv: string | string[]) {
     const result: MatchResult & { positionalArgs: Record<string, any> } = {
       fuzzyMatched: this.root,
-
-      // parse with root command
-      args: this.parseArgs(argv, this.root).args,
+      args: this.parseArgs(argv).args,
 
       // parsed positional result;
       positionalArgs: {},
