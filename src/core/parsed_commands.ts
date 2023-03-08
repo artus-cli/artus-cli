@@ -6,7 +6,7 @@ import { Injectable, Container, Inject, ScopeEnum } from '@artus/core';
 import { Middlewares } from '@artus/pipeline';
 
 import { CommandMeta, CommandConfig, OptionMeta, OptionConfig, MiddlewareConfig, MiddlewareMeta } from '../types';
-import { ParseArgvOptions, parseArgvToArgs, parseArgvWithPositional, parseCommand, ParsedCommandStruct, Positional } from './parser';
+import { parseArgvToArgs, parseArgvWithPositional, parseCommand, ParsedCommandStruct, Positional } from './parser';
 import { Command, EmptyCommand } from './command';
 import { MetadataEnum } from '../constant';
 import { BinInfo } from './bin_info';
@@ -342,8 +342,8 @@ export class ParsedCommands {
     const result: MatchResult & { positionalArgs: Record<string, any> } = {
       fuzzyMatched: this.root,
 
-      // parse with root command without validation
-      args: this.parseArgs(argv, this.root, { validateArgv: false }),
+      // parse with root command
+      args: this.parseArgs(argv, this.root).args,
 
       // parsed positional result;
       positionalArgs: {},
@@ -418,30 +418,27 @@ export class ParsedCommands {
   }
 
   /** parse argv with yargs-parser */
-  parseArgs(argv: string | string[], parseCommand?: ParsedCommand, parseOption?: ParseArgvOptions) {
+  parseArgs(argv: string | string[], parseCommand?: ParsedCommand) {
     const result = parseArgvToArgs(argv, {
       optionConfig: parseCommand?.options,
       strictOptions: this.binInfo.strictOptions,
-      ...parseOption,
     });
 
-    return result.argv;
+    return result;
   }
 
   /** match command by argv */
   matchCommand(argv: string | string[]): MatchResult {
-    let newArgs;
-
     const result = this._matchCommand(argv);
-    try {
-      // parse again with parserOption and validation
-      newArgs = this.parseArgs(argv, result.fuzzyMatched);
-    } catch (e) {
-      result.error = e;
+
+    // parse again with parserOption and validation
+    const parseResult = this.parseArgs(argv, result.fuzzyMatched);
+    if (parseResult.error) {
+      result.error = parseResult.error;
     }
 
     // merge args and positional args
-    result.args = Object.assign(newArgs || result.args, result.positionalArgs);
+    result.args = Object.assign(parseResult.args || result.args, result.positionalArgs);
     return result;
   }
 

@@ -37,11 +37,11 @@ describe('test/core/parsed_commands.test.ts', () => {
 
     it('parse argv', async () => {
       const devParsedCommand = parsedCommands.getCommand(DevCommand);
-      const result = parsedCommands.parseArgs('dev -p 1234 --inspect', devParsedCommand);
+      const { args: result } = parsedCommands.parseArgs('dev -p 1234 --inspect', devParsedCommand);
       assert(result.port === 1234);
       assert(result.inspect === true);
 
-      const result2 = parsedCommands.parseArgs([ 'dev' ], devParsedCommand);
+      const { args: result2 } = parsedCommands.parseArgs([ 'dev' ], devParsedCommand);
       assert(result2.port === 3000);
       assert(result2.inspect === false);
     });
