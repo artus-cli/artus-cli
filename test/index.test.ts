@@ -198,4 +198,11 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /-p, --port number/)
       .end();
   });
+
+  it('required-args should work', async () => {
+    await fork('required-args', [ '-h' ])
+      .debug()
+      .expect('stdout', /Usage: required-args \<port\>/)
+      .end();
+  });
 });
