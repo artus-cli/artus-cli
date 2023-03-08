@@ -2,7 +2,7 @@ import parser from 'yargs-parser';
 import { OptionConfig } from '../types';
 import { isNil, convertValue } from '../utils';
 import { flatten } from 'lodash';
-import { errors } from '../errors';
+import { ArtusCliError, errors } from '../errors';
 
 export interface ParsedCommandStruct {
   uid: string;
@@ -67,22 +67,23 @@ export function parseArgvToArgs(argv: string | string[], option: {
     }
   }
 
-  const result = parser.detailed(argv, parserOption);
-  const requiredNilOptions = requiredOptions.filter(k => isNil(result.argv[k]));
-  if (requiredNilOptions.length) {
-    throw errors.required_options(requiredNilOptions);
-  }
+  const parseResult = parser.detailed(argv, parserOption);
 
-  // checking for strict options
-  if (option.optionConfig && option.strictOptions) {
+  let error: ArtusCliError | undefined;
+  const requiredNilOptions = requiredOptions.filter(k => isNil(parseResult.argv[k]));
+  if (requiredNilOptions.length) {
+    // check required option
+    error = errors.required_options(requiredNilOptions);
+  } else if (option.optionConfig && option.strictOptions) {
+    // checking for strict options
     const argvs = parseArgvKeySimple(argv);
     const notSupportArgvs: Set<string> = new Set();
-    Object.keys(result.argv).forEach(key => {
+    Object.keys(parseResult.argv).forEach(key => {
       // _ and -- is built-in key
       if (key === '_' || key === '--') return;
 
       // checking with alias list
-      const alias = (result.aliases[key] || []).concat(key);
+      const alias = (parseResult.aliases[key] || []).concat(key);
       if (alias.every(n => !notSupportArgvs.has(n) && !option.optionConfig![n])) {
         const flag = argvs.find(a => a.parsed === key || a.raw === key)?.raw;
         if (flag) notSupportArgvs.add(flag);
@@ -91,19 +92,20 @@ export function parseArgvToArgs(argv: string | string[], option: {
 
     // check unknown by yargs-parser
     argvs.forEach(a => {
-      if (result.argv[a.parsed] === undefined) notSupportArgvs.add(a.raw);
+      if (parseResult.argv[a.parsed] === undefined) notSupportArgvs.add(a.raw);
     });
 
     if (notSupportArgvs.size) {
-      throw errors.unknown_options(Array.from(notSupportArgvs));
+      error = errors.unknown_options(Array.from(notSupportArgvs));
     }
+  } else if (parseResult.error) {
+    error = errors.unknown(parseResult.error.message);
   }
 
-  if (result.error) {
-    throw errors.unknown(result.error.message);
-  }
-
-  return result;
+  return {
+    args: parseResult.argv,
+    error,
+  };
 }
 
 /** parse `<options>` or `[option]` and collect args */

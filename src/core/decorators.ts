@@ -128,7 +128,7 @@ function initOptionMeta(target: Command): OptionMeta {
         const targetCommand = parsedCommands.getCommand(ctor);
         // check target command whether is compatible with matched
         const isSameCommandOrCompatible = matched?.clz === ctor || (matched && targetCommand && checkCommandCompatible(targetCommand, matched));
-        this[optionCacheSymbol] = isSameCommandOrCompatible ? args : parsedCommands.parseArgs(argv, targetCommand);
+        this[optionCacheSymbol] = isSameCommandOrCompatible ? args : parsedCommands.parseArgs(argv, targetCommand).args;
         return this[optionCacheSymbol];
       },
 

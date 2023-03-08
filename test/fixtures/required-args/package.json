@@ -1,0 +1,5 @@
+{
+  "name": "required-args",
+  "type": "commonjs",
+  "bin": "./index.js"
+}

@@ -5,7 +5,7 @@ describe('test/core/parser.test.ts', () => {
   it('parseCommand', async () => {
     const r = parseCommand('dev <command> [baseDir]', 'my-bin');
     assert(r.cmd === 'dev');
-    assert.deepEqual(r.cmds, [ 'my-bin', 'dev' ]);
+    assert.deepEqual(r.cmds, ['my-bin', 'dev']);
     assert(r.demanded.length === 1);
     assert(r.demanded[0].cmd === 'command');
     assert(r.optional.length === 1);
@@ -21,7 +21,7 @@ describe('test/core/parser.test.ts', () => {
     assert(r3.demanded.length === 0);
 
     const r4 = parseCommand('$0 dev', 'my-bin');
-    assert.deepEqual(r4.cmds, [ 'my-bin', 'dev' ]);
+    assert.deepEqual(r4.cmds, ['my-bin', 'dev']);
   });
 
   it('parseArgvKeySimple', async () => {
@@ -41,104 +41,101 @@ describe('test/core/parser.test.ts', () => {
         daemon: { type: 'boolean' },
       },
     });
-    assert(r.argv.port === 123);
-    assert(r.argv.inspect === true);
-    assert(r.argv.daemon === true);
-    assert(r.argv.debug === false);
+    assert(r.args.port === 123);
+    assert(r.args.inspect === true);
+    assert(r.args.daemon === true);
+    assert(r.args.debug === false);
 
     const r2 = parseArgvToArgs('dev -c 666 -i', {
       optionConfig: {
-        port: { type: 'number', alias: [ 'p', 'c' ] },
-        inspect: { type: 'boolean', alias: [ 'i' ] },
+        port: { type: 'number', alias: ['p', 'c'] },
+        inspect: { type: 'boolean', alias: ['i'] },
         daemon: { type: 'boolean', default: true },
       },
     });
-    assert(r2.argv.port === 666);
-    assert(r2.argv.inspect === true);
-    assert(r2.argv.daemon === true);
+    assert(r2.args.port === 666);
+    assert(r2.args.inspect === true);
+    assert(r2.args.daemon === true);
 
     const r3 = parseArgvToArgs('dev -c 666 -i -- --bcd --efg', {
       optionConfig: {
-        port: { type: 'number', alias: [ 'p', 'c' ] },
-        inspect: { type: 'boolean', alias: [ 'i' ] },
+        port: { type: 'number', alias: ['p', 'c'] },
+        inspect: { type: 'boolean', alias: ['i'] },
         daemon: { type: 'boolean', default: true },
       },
     });
-    assert(r3.argv.port === 666);
-    assert.deepEqual(r3.argv['--'], [ '--bcd', '--efg' ]);
+    assert(r3.args.port === 666);
+    assert.deepEqual(r3.args['--'], ['--bcd', '--efg']);
   });
 
   it('parseArgvToArgs with unknown option', () => {
-    assert.throws(() => {
-      parseArgvToArgs('dev --port 123 --inspect --daemon --no-debug -c 666 --bbb=123', {
-        strictOptions: true,
-        optionConfig: {
-          port: { type: 'number' },
-          inspect: { type: 'boolean' },
-          daemon: { type: 'boolean' },
-        },
-      });
-    }, /Unknown options: --no-debug, -c, --bbb/);
+    const result = parseArgvToArgs('dev --port 123 --inspect --daemon --no-debug -c 666 --bbb=123', {
+      strictOptions: true,
+      optionConfig: {
+        port: { type: 'number' },
+        inspect: { type: 'boolean' },
+        daemon: { type: 'boolean' },
+      },
+    });
+    assert(result.error?.message.includes('Unknown options: --no-debug, -c, --bbb'));
 
-    assert.throws(() => {
-      parseArgvToArgs('dev --port 123 --inspect --daemon --no-debug -c 666 -bbb=123', {
-        strictOptions: true,
-        optionConfig: {
-          port: { type: 'number' },
-          inspect: { type: 'boolean' },
-          daemon: { type: 'boolean' },
-        },
-      });
-    }, /Unknown options: --no-debug, -c, -bbb/);
+    const result2 = parseArgvToArgs('dev --port 123 --inspect --daemon --no-debug -c 666 -bbb=123', {
+      strictOptions: true,
+      optionConfig: {
+        port: { type: 'number' },
+        inspect: { type: 'boolean' },
+        daemon: { type: 'boolean' },
+      },
+    });
+    assert(result2.error?.message.includes('Unknown options: --no-debug, -c, -bbb'));
 
-    assert.throws(() => {
-      parseArgvToArgs('dev --port 123 -c - -bbb=123 -- --aaa --bbb --ccc', {
-        strictOptions: true,
-        optionConfig: {
-          port: { type: 'number' },
-          inspect: { type: 'boolean' },
-          daemon: { type: 'boolean' },
-        },
-      });
-    }, /Unknown options: -c, -bbb/);
+    const result3 = parseArgvToArgs('dev --port 123 -c - -bbb=123 -- --aaa --bbb --ccc', {
+      strictOptions: true,
+      optionConfig: {
+        port: { type: 'number' },
+        inspect: { type: 'boolean' },
+        daemon: { type: 'boolean' },
+      },
+    });
+    assert(result3.error?.message.includes('Unknown options: -c, -bbb'));
   });
 
   it('parseArgvWithPositional', () => {
     const parsed = parseCommand('dev <command> [baseDir]', 'my-bin');
-    const r = parseArgvWithPositional([ 'module', './' ], parsed.demanded);
+    const r = parseArgvWithPositional(['module', './'], parsed.demanded);
     assert(!r.unmatchPositionals.length);
-    assert.deepEqual(r.unknownArgv, [ './' ]);
+    assert.deepEqual(r.unknownArgv, ['./']);
     assert(r.result.command === 'module');
 
-    const r2 = parseArgvWithPositional([ './' ], parsed.optional);
+    const r2 = parseArgvWithPositional(['./'], parsed.optional);
     assert.deepEqual(r2.unknownArgv, []);
     assert(r2.result.baseDir === './');
 
     // variadic demanded
     const parsed2 = parseCommand('dev <command..>', 'my-bin');
-    const r3 = parseArgvWithPositional([ 'module', 'module2', 'module3' ], parsed2.demanded);
-    assert.deepEqual(r3.result.command, [ 'module', 'module2', 'module3' ]);
+    const r3 = parseArgvWithPositional(['module', 'module2', 'module3'], parsed2.demanded);
+    assert.deepEqual(r3.result.command, ['module', 'module2', 'module3']);
 
     // varidic optional
     const parsed3 = parseCommand('dev [command..]', 'my-bin');
-    const r4 = parseArgvWithPositional([ 'module', 'module2', 'module3' ], parsed3.optional);
-    assert.deepEqual(r4.result.command, [ 'module', 'module2', 'module3' ]);
+    const r4 = parseArgvWithPositional(['module', 'module2', 'module3'], parsed3.optional);
+    assert.deepEqual(r4.result.command, ['module', 'module2', 'module3']);
 
     // varidic optional style 2
     const parsed31 = parseCommand('dev [...command]', 'my-bin');
-    const r41 = parseArgvWithPositional([ 'module', 'module2', 'module3' ], parsed31.optional);
-    assert.deepEqual(r41.result.command, [ 'module', 'module2', 'module3' ]);
+    const r41 = parseArgvWithPositional(['module', 'module2', 'module3'], parsed31.optional);
+    assert.deepEqual(r41.result.command, ['module', 'module2', 'module3']);
 
     // not enough arguments
     const parsed4 = parseCommand('dev <option1> <option2> <option3>', 'my-bin');
-    const r5 = parseArgvWithPositional([ 'module', 'module2' ], parsed4.demanded);
+    const r5 = parseArgvWithPositional(['module', 'module2'], parsed4.demanded);
     assert(r5.result.option1 == 'module');
     assert(r5.result.option2 == 'module2');
     assert(r5.unmatchPositionals.length);
 
     // convert type
     const parsed5 = parseCommand('dev <option1> <option2>', 'my-bin');
-    const r6 = parseArgvWithPositional([ '11', '22' ], parsed5.demanded, {
+    const r6 = parseArgvWithPositional(['11', '22'], parsed5.demanded, {
       option1: { type: 'number' },
       option2: { type: 'string' },
     });

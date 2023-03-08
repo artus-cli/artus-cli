@@ -341,7 +341,7 @@ export class ParsedCommands {
   private _matchCommand(argv: string | string[]) {
     const result: MatchResult & { positionalArgs: Record<string, any> } = {
       fuzzyMatched: this.root,
-      args: this.parseArgs(argv),
+      args: this.parseArgs(argv).args,
 
       // parsed positional result;
       positionalArgs: {},
@@ -422,25 +422,19 @@ export class ParsedCommands {
       strictOptions: this.binInfo.strictOptions,
     });
 
-    return result.argv;
+    return result;
   }
 
   /** match command by argv */
   matchCommand(argv: string | string[]): MatchResult {
-    let newArgs;
-
     const result = this._matchCommand(argv);
-    if (result.matched) {
-      try {
-        // parse again with parserOption
-        newArgs = this.parseArgs(argv, result.matched);
-      } catch (e) {
-        result.error = e;
-      }
-    }
+
+    // parse again with parserOption and validation
+    const parseResult = this.parseArgs(argv, result.fuzzyMatched);
+    result.error = result.error || parseResult.error;
 
     // merge args and positional args
-    result.args = Object.assign(newArgs || result.args, result.positionalArgs);
+    result.args = Object.assign(parseResult.args, result.positionalArgs);
     return result;
   }
 

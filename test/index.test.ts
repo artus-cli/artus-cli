@@ -7,6 +7,11 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /Usage: egg-bin/)
       .end();
 
+    await fork('egg-bin', [ '-h' ])
+      .debug()
+      .expect('stdout', /Usage: egg-bin/)
+      .end();
+
     await fork('egg-bin', [ 'dev', '123', '-p=6000' ])
       .debug()
       .expect('stdout', /port 6000/)
@@ -47,6 +52,18 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /test command middleware 1\ntest command middleware 2\ntest command middleware 3/)
       .expect('stdout', /test baseDir .\//)
       .expect('stdout', /test files \[ 'file1', 'file2' \]/)
+      .end();
+  });
+
+  it('egg-bin should work with root flags', async () => {
+    await fork('egg-bin', [ '--cwd', './' ])
+      .debug()
+      .expect('stdout', /main in .\//)
+      .end();
+
+    await fork('egg-bin', [ '-c', 'foo' ])
+      .debug()
+      .expect('stdout', /main in foo/)
       .end();
   });
 
@@ -179,6 +196,13 @@ describe('test/index.test.ts', () => {
       .debug()
       .expect('stdout', /Usage: deep-bin \[baseDir\]/)
       .expect('stdout', /-p, --port number/)
+      .end();
+  });
+
+  it('required-args should work', async () => {
+    await fork('required-args', [ '-h' ])
+      .debug()
+      .expect('stdout', /Usage: required-args \<port\>/)
       .end();
   });
 });
