@@ -124,7 +124,7 @@ export class ParsedCommand implements ParsedCommandStruct {
   }
 
   get isRunable() {
-    return this.clz !== EmptyCommand;
+    return this.clz !== EmptyCommand && this.enable;
   }
 
   get depth() {
@@ -408,7 +408,7 @@ export class ParsedCommands {
     result.matched = result.fuzzyMatched;
     debug('Final match result is %s', result.matched.clz.name);
 
-    // match empty command
+    // match empty command or not enable command
     if (!result.matched.isRunable && this.binInfo.strictCommands) {
       result.error = errors.command_is_not_implement(`${this.binInfo.binName}${printArgv ? ` ${printArgv}` : ''}`);
       debug(result.error.message);

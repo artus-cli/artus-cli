@@ -18,6 +18,6 @@ export abstract class Command {
 @Injectable()
 export class EmptyCommand extends Command {
   async run() {
-    // nothing
+    throw new Error('should not call empty command');
   }
 }
