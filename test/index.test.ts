@@ -205,4 +205,34 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /Usage: required-args \<port\>/)
       .end();
   });
+
+  it('dynamic should work', async () => {
+    // dev should not work
+    await fork('dynamic', [ 'dev' ])
+      .debug()
+      .expect('stderr', /Command is not found: 'dynamic dev'/)
+      .end();
+
+    // enable dev
+    await fork('dynamic', [ 'dev' ], {
+      env: { ...process.env, ENABLE_DEV: 'true' },
+    })
+      .debug()
+      .expect('stdout', /dev command/)
+      .end();
+
+    // debug should work
+    await fork('dynamic', [ 'debug' ])
+      .debug()
+      .expect('stdout', /debug command/)
+      .end();
+    
+    // disable debug
+    await fork('dynamic', [ 'debug' ], {
+      env: { ...process.env, DISABLE_DEBUG: 'true' },
+    })
+      .debug()
+      .expect('stderr', /Command is not found: 'dynamic debug'/)
+      .end();
+  });
 });

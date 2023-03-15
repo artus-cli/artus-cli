@@ -57,6 +57,7 @@ export class ParsedCommand implements ParsedCommandStruct {
   /** user defined in options but remove bin name */
   command: string;
   alias: string[];
+  enable: boolean;
   demanded: Positional[];
   optional: Positional[];
   description: string;
@@ -99,6 +100,7 @@ export class ParsedCommand implements ParsedCommandStruct {
     // read from command config
     this.commandConfig = commandConfig;
     this.description = commandConfig.description || '';
+    this.enable = typeof commandConfig.enable === 'boolean' ? commandConfig.enable : true;
     this.alias = commandConfig.alias
       ? Array.isArray(commandConfig.alias)
         ? commandConfig.alias
@@ -356,7 +358,7 @@ export class ParsedCommands {
     for (; index < wholeArgv.length; index++) {
       const el = wholeArgv[index];
       const nextMatch = result.fuzzyMatched.childs.find(c => (
-        c.cmd === el || c.alias.includes(el)
+        c.enable && (c.cmd === el || c.alias.includes(el))
       ));
 
       if (nextMatch) {
