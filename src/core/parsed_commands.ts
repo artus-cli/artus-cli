@@ -57,6 +57,7 @@ export class ParsedCommand implements ParsedCommandStruct {
   /** user defined in options but remove bin name */
   command: string;
   alias: string[];
+  enable: boolean;
   demanded: Positional[];
   optional: Positional[];
   description: string;
@@ -99,6 +100,7 @@ export class ParsedCommand implements ParsedCommandStruct {
     // read from command config
     this.commandConfig = commandConfig;
     this.description = commandConfig.description || '';
+    this.enable = typeof commandConfig.enable === 'boolean' ? commandConfig.enable : true;
     this.alias = commandConfig.alias
       ? Array.isArray(commandConfig.alias)
         ? commandConfig.alias
@@ -122,7 +124,7 @@ export class ParsedCommand implements ParsedCommandStruct {
   }
 
   get isRunable() {
-    return this.clz !== EmptyCommand;
+    return this.clz !== EmptyCommand && this.enable;
   }
 
   get depth() {
@@ -356,7 +358,7 @@ export class ParsedCommands {
     for (; index < wholeArgv.length; index++) {
       const el = wholeArgv[index];
       const nextMatch = result.fuzzyMatched.childs.find(c => (
-        c.cmd === el || c.alias.includes(el)
+        c.enable && (c.cmd === el || c.alias.includes(el))
       ));
 
       if (nextMatch) {
@@ -406,7 +408,7 @@ export class ParsedCommands {
     result.matched = result.fuzzyMatched;
     debug('Final match result is %s', result.matched.clz.name);
 
-    // match empty command
+    // match empty command or not enable command
     if (!result.matched.isRunable && this.binInfo.strictCommands) {
       result.error = errors.command_is_not_implement(`${this.binInfo.binName}${printArgv ? ` ${printArgv}` : ''}`);
       debug(result.error.message);

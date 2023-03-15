@@ -2,6 +2,8 @@ import { Command } from './core/command';
 import { Middleware, Middlewares } from '@artus/pipeline';
 
 export interface CommandConfig extends Record<string, any> {
+  /** whether enable command, default to true */
+  enable?: boolean;
   /** a string representing the command */
   command?: string;
   /** command description */

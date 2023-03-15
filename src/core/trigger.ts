@@ -20,7 +20,7 @@ export class CommandTrigger extends Trigger {
 
       // match error, throw
       if (error) throw error;
-      if (!matched) {
+      if (!matched || !matched.isRunable) {
         debug('Can not match any command, exit...');
         return;
       }

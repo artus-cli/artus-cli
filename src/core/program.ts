@@ -63,6 +63,18 @@ export class Program {
     effectCommands.forEach(c => this.getParsedCommand(c)?.updateGlobalOptions(opt));
   }
 
+  /** disable command dynamically */
+  disableCommand(clz: MaybeParsedCommand) {
+    const parsedCommand = this.getParsedCommand(clz);
+    if (parsedCommand) parsedCommand.enable = false;
+  }
+
+  /** enable command dynamically */
+  enableCommand(clz: MaybeParsedCommand) {
+    const parsedCommand = this.getParsedCommand(clz);
+    if (parsedCommand) parsedCommand.enable = true;
+  }
+
   /** register pipeline middleware */
   use(fn: MiddlewareInput) {
     return this.trigger.use(fn);
