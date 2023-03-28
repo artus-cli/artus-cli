@@ -2,7 +2,7 @@
 import { DefineCommand, Option, Command } from '@artus-cli/artus-cli';
 
 @DefineCommand({
-  command: 'simple-bin [baseDir]',
+  command: '$0 [baseDir]',
   description: 'My Simple Bin',
 })
 export class MainCommand extends Command {

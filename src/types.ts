@@ -8,6 +8,8 @@ export interface CommandConfig extends Record<string, any> {
   command?: string;
   /** command description */
   description?: string;
+  /** command usage examples */
+  examples?: string | string[];
   /** command alias */
   alias?: string | string[];
   /** parent command */

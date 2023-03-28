@@ -203,7 +203,13 @@ describe('test/core/parsed_commands.test.ts', () => {
     const beforeFn = async () => 1;
     const afterFn = async () => 1;
 
-    @DefineCommand({ command: 'dev [baseDir]', description: '666' })
+    @DefineCommand({
+      command: 'dev [baseDir]',
+      description: '666',
+      examples: [
+        'my-bin dev ./',
+      ],
+    })
     @Middleware(async () => 1)
     class MyCommand extends Command {
       @Options({
@@ -264,6 +270,7 @@ describe('test/core/parsed_commands.test.ts', () => {
     const tree = new ParsedCommandTree('my-bin', [ MyCommand, NewMyCommand, OverrideMyCommand ]);
     const parsedMyCommand = tree.get(MyCommand)!;
     assert(parsedMyCommand.location === __filename);
+    assert(parsedMyCommand.examples[0] === 'my-bin dev ./');
     assert(parsedMyCommand.uid === 'my-bin dev');
     assert(parsedMyCommand.clz === MyCommand);
     assert(parsedMyCommand.cmd === 'dev');

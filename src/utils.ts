@@ -87,3 +87,11 @@ export function getCalleeDir(stackIndex: number): string | undefined {
 function prepareObjectStackTrace(_obj, stack) {
   return stack;
 }
+
+export function formatToArray<T>(input?: T | T[]): T[] {
+  return input
+    ? Array.isArray(input)
+      ? input
+      : [ input ]
+    : [];
+}

@@ -1,5 +1,7 @@
 {
   "name": "simple-bin",
   "type": "commonjs",
-  "bin": "./bin/cli.js"
+  "bin": {
+    "simple": "./bin/cli.js"
+  }
 }

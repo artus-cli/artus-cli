@@ -34,6 +34,11 @@ export async function start(options: ArtusCliOptions = {}) {
   const { pkgInfo, pkgPath } = await readPkg(findPkgDir);
   const baseDir = options.baseDir || path.dirname(pkgPath);
 
+  // auto use package.json bin
+  if (!options.binName && typeof pkgInfo.bin === 'object') {
+    options.binName = Object.keys(pkgInfo.bin)[0];
+  }
+
   // record scanning state
   process.env.ARTUS_CLI_SCANNING = 'true';
 

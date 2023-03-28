@@ -132,7 +132,7 @@ describe('test/index.test.ts', () => {
   it('simple-bin should work', async () => {
     await fork('simple-bin', [ '--help' ])
       .debug()
-      .expect('stdout', /Usage: simple-bin \[baseDir\]/)
+      .expect('stdout', /Usage: simple \[baseDir\]/)
       .expect('stdout', /-p, --port/)
       .expect('stdout', /-h, --help/)
       .end();
