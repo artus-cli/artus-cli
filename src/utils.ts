@@ -1,4 +1,4 @@
-import { ParsedCommand } from './core/parsed_commands';
+import { ParsedCommand } from './core/parsed_command';
 import { Positional } from './core/parser';
 import pkgUp from 'pkg-up';
 import path from 'node:path';
@@ -94,4 +94,29 @@ export function formatToArray<T>(input?: T | T[]): T[] {
       ? input
       : [ input ]
     : [];
+}
+
+export function formatCmd(
+  cmd: string,
+  obj: Record<string, any> & { $0: string },
+  prefix?: string,
+) {
+  cmd = formatDesc(
+    cmd.trim().replace(/^\$0( |$)/, `${obj.$0}$1`),
+    obj,
+  );
+
+  if (prefix) {
+    if (cmd.startsWith(obj.$0)) {
+      return `${prefix} ${cmd.substring(obj.$0.length).trim()}`;
+    } else {
+      return `${prefix} ${cmd}`;
+    }
+  }
+
+  return cmd || obj.$0;
+}
+
+export function formatDesc(info: string, obj: Record<string, any>) {
+  return info.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => obj[key]);
 }

@@ -19,6 +19,8 @@ export * from './types';
 export * from './core/command';
 export * from './core/context';
 export * from './core/parsed_commands';
+export * from './core/parsed_command';
+export * from './core/parsed_command_tree';
 
 export async function start(options: ArtusCliOptions = {}) {
   if (process.env.ARTUS_CLI_SCANNING) {

@@ -1,5 +1,6 @@
 import { Inject, Injectable, ScopeEnum } from '@artus/core';
-import { ParsedCommand, ParsedCommands } from './parsed_commands';
+import { ParsedCommands } from './parsed_commands';
+import { ParsedCommand } from './parsed_command';
 import { Command } from './command';
 import { COMMAND_OPTION_SYMBOL } from '../constant';
 import { CommandContext } from './context';

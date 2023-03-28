@@ -9,7 +9,7 @@ export interface CommandConfig extends Record<string, any> {
   /** command description */
   description?: string;
   /** command usage examples */
-  examples?: string | string[];
+  examples?: Array<string | [ string ] | [ string, string ]>;
   /** command alias */
   alias?: string | string[];
   /** parent command */
@@ -113,4 +113,9 @@ export interface ArtusCliConfig {
 
   /** strict mode in checking arguments, default is `options.strict` */
   strictCommands?: boolean;
+}
+
+export interface ExampleItem {
+  command: string;
+  description?: string;
 }

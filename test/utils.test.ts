@@ -1,5 +1,5 @@
 import { ArtusApplication } from '@artus/core';
-import { checkCommandCompatible, isInheritFrom, isNil, readPkg, getCalleeList, getCalleeDir } from '../src/utils';
+import { checkCommandCompatible, isInheritFrom, isNil, readPkg, getCalleeList, getCalleeDir, formatCmd, formatDesc } from '../src/utils';
 import { DevCommand, DebugCommand, MainCommand } from 'egg-bin';
 import { ParsedCommands, Command } from '@artus-cli/artus-cli';
 import path from 'node:path';
@@ -45,5 +45,29 @@ describe('test/utils.test.ts', () => {
     assert(getCalleeList(3)[0].fileName);
     assert.equal(getCalleeDir(1), __dirname);
     assert(getCalleeDir(2)?.includes('mocha'));
+  });
+
+  it('formatCommand', async () => {
+    const obj = {
+      $0: 'my-bin',
+      bin: 'my-bin',
+    };
+
+    assert(formatCmd('$0 dev', obj), 'my-bin dev');
+    assert(formatCmd(' $0 dev', obj), 'my-bin dev');
+    assert(formatCmd(' $0', obj), 'my-bin');
+    assert(formatCmd('other-bin', obj), 'other-bin');
+    assert(formatCmd('{{ bin }}', obj), 'my-bin');
+    assert(formatCmd('test {{ bin }}', obj), 'test my-bin');
+  });
+
+  it('formatDesc', async () => {
+    const obj = {
+      $0: 'my-bin',
+      bin: 'my-bin',
+    };
+
+    assert(formatDesc('dev {{ $0 }}', obj), 'dev my-bin');
+    assert(formatDesc('{{ bin }} dev', obj), 'my-bin dev');
   });
 });

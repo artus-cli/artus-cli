@@ -147,11 +147,7 @@ export function parseCommand(cmd: string, binName: string) {
   const splitCommand = extraSpacesStrippedCommand.split(/\s+(?![^[]*]|[^<]*>)/);
   const bregex = /\.*[\][<>]\.*/g;
   if (!splitCommand.length) throw new Error(`No command found in: ${cmd}`);
-
-  // first cmd is binName or $0, remove it anyway
-  if ([ binName, '$0' ].includes(splitCommand[0])) {
-    splitCommand.shift();
-  }
+  if (splitCommand[0] === binName) splitCommand.shift();
 
   let command: string;
   if (!splitCommand[0] || splitCommand[0].match(bregex)) {
