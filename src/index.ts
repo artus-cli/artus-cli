@@ -35,7 +35,7 @@ export async function start(options: ArtusCliOptions = {}) {
   const baseDir = options.baseDir || path.dirname(pkgPath);
 
   // auto use package.json bin
-  if (!options.binName && typeof pkgInfo.bin === 'object') {
+  if (!options.binName && pkgInfo.bin && typeof pkgInfo.bin === 'object') {
     options.binName = Object.keys(pkgInfo.bin)[0];
   }
 
