@@ -10,7 +10,7 @@ import { parseArgvToArgs, parseArgvWithPositional, parseCommand, ParsedCommandSt
 import { Command, EmptyCommand } from './command';
 import { MetadataEnum } from '../constant';
 import { BinInfo } from './bin_info';
-import { isInheritFrom } from '../utils';
+import { isInheritFrom, formatToArray } from '../utils';
 import { errors, ArtusCliError } from '../errors';
 
 const OPTION_SYMBOL = Symbol('ParsedCommand#Option');
@@ -61,6 +61,7 @@ export class ParsedCommand implements ParsedCommandStruct {
   demanded: Positional[];
   optional: Positional[];
   description: string;
+  examples: string[];
   globalOptions?: OptionConfig;
   flagOptions: OptionConfig;
   argumentOptions: OptionConfig;
@@ -100,12 +101,9 @@ export class ParsedCommand implements ParsedCommandStruct {
     // read from command config
     this.commandConfig = commandConfig;
     this.description = commandConfig.description || '';
+    this.examples = formatToArray(commandConfig.examples);
     this.enable = typeof commandConfig.enable === 'boolean' ? commandConfig.enable : true;
-    this.alias = commandConfig.alias
-      ? Array.isArray(commandConfig.alias)
-        ? commandConfig.alias
-        : [ commandConfig.alias ]
-      : [];
+    this.alias = formatToArray(commandConfig.alias);
 
     // middleware config
     this.commandMiddlewares = [];
