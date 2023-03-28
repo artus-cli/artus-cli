@@ -14,11 +14,11 @@ describe('test/core/parsed_command_tree.test.ts', () => {
 
     @DefineCommand({
       command: 'dev [baseDir]',
-      description: '666',
+      description: '666 {{ name }} {{ version }}',
       examples: [
         'my-bin dev ./',
         [ '$0 dev ./' ],
-        [ '$0 dev ./', 'this is desc' ],
+        [ '$0 dev ./', 'show version {{ version }}' ],
       ],
     })
     @Middleware(async () => 1)
@@ -88,7 +88,7 @@ describe('test/core/parsed_command_tree.test.ts', () => {
     assert(parsedMyCommand.examples[0].command === 'my-bin dev ./');
     assert(parsedMyCommand.examples[1].command === 'argument-bin dev ./');
     assert(parsedMyCommand.examples[2].command === 'argument-bin dev ./');
-    assert(parsedMyCommand.examples[2].description === 'this is desc');
+    assert(parsedMyCommand.examples[2].description === 'show version 1.0.0');
     assert(parsedMyCommand.uid === 'argument-bin dev');
     assert(parsedMyCommand.clz === MyCommand);
     assert(parsedMyCommand.cmd === 'dev');
@@ -97,7 +97,7 @@ describe('test/core/parsed_command_tree.test.ts', () => {
     assert(parsedMyCommand.flagOptions.inspectPort.default === 8080);
     assert(!parsedMyCommand.flagOptions.baseDir);
     assert(parsedMyCommand.argumentOptions.baseDir);
-    assert(parsedMyCommand.description === '666');
+    assert(parsedMyCommand.description === '666 argument-bin 1.0.0');
     assert(parsedMyCommand.commandMiddlewares.length === 1);
     assert(parsedMyCommand.executionMiddlewares.length === 3);
 
@@ -105,7 +105,7 @@ describe('test/core/parsed_command_tree.test.ts', () => {
     assert(parsedNewMyCommand.location === __filename);
     assert(parsedNewMyCommand.clz === NewMyCommand);
     assert(parsedNewMyCommand.uid === 'argument-bin dev');
-    assert(parsedNewMyCommand.description === '666');
+    assert(parsedNewMyCommand.description === '666 argument-bin 1.0.0');
     assert(parsedNewMyCommand.flagOptions.port);
     assert(parsedNewMyCommand.flagOptions.inspectPort.default === 6666);
     assert(parsedNewMyCommand.argumentOptions.baseDir);

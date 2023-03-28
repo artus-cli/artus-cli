@@ -53,15 +53,14 @@ export class ParsedCommandTree {
 
   private formatCommandConfig(config: CommandConfig, parent?: ParsedCommand): FormattedCommandConfig {
     const binName = this.binInfo.binName;
-    const obj = this.descObj;
-
+    const descObj = this.descObj;
     const prefix = parent?.cmds.join(' ');
-    const command = formatCmd(config.command || '', obj, prefix);
+    const command = formatCmd(config.command || '', descObj, prefix);
     const examples = formatToArray(config.examples).map(info => {
       const items = typeof info === 'string' ? [ info ] : info;
       return {
-        command: formatCmd(items[0], obj, prefix),
-        description: items[1] ? formatDesc(items[1], obj) : undefined,
+        command: formatCmd(items[0], descObj, prefix),
+        description: items[1] ? formatDesc(items[1], descObj) : undefined,
       };
     });
 
@@ -71,7 +70,7 @@ export class ParsedCommandTree {
       enable: typeof config.enable === 'boolean' ? config.enable : true,
       examples,
       alias: formatToArray(config.alias),
-      description: formatDesc(config.description || '', obj),
+      description: formatDesc(config.description || '', descObj),
       originalCommandConfig: config,
       parsedCommandInfo,
     };
