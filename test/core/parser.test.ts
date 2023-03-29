@@ -20,7 +20,7 @@ describe('test/core/parser.test.ts', () => {
     assert(r3.optional.length === 0);
     assert(r3.demanded.length === 0);
 
-    const r4 = parseCommand('$0 dev', 'my-bin');
+    const r4 = parseCommand('my-bin dev', 'my-bin');
     assert.deepEqual(r4.cmds, ['my-bin', 'dev']);
   });
 

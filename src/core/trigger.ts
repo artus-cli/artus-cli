@@ -5,7 +5,7 @@ import { Trigger, Injectable, ScopeEnum } from '@artus/core';
 import { Context, Output } from '@artus/pipeline';
 import { EXCUTION_SYMBOL } from '../constant';
 import { CommandContext, CommandInput, CommandOutput } from './context';
-import { ParsedCommand } from './parsed_commands';
+import { ParsedCommand } from './parsed_command';
 
 const debug = debuglog('artus-cli#trigger');
 

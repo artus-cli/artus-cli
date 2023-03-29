@@ -7,7 +7,8 @@ import { CommandTrigger } from './trigger';
 import { OptionProps, MiddlewareInput, MiddlewareConfig } from '../types';
 import { Command } from './command';
 import { BinInfo } from './bin_info';
-import { ParsedCommand, ParsedCommands } from './parsed_commands';
+import { ParsedCommands } from './parsed_commands';
+import { ParsedCommand } from './parsed_command';
 
 type MaybeParsedCommand = (typeof Command) | ParsedCommand;
 
