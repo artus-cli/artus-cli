@@ -2,7 +2,6 @@ import { Middlewares } from '@artus/pipeline';
 import { CommandConfig, OptionConfig, MiddlewareConfig, ExampleItem, OptionInjectMeta, OptionMeta } from '../types';
 import { ParsedCommandStruct, Positional } from './parser';
 import { Command, EmptyCommand } from './command';
-import { OptionInjectType } from '../constant';
 const OPTION_SYMBOL = Symbol('ParsedCommand#Option');
 
 export interface ParsedCommandOption {
@@ -72,11 +71,7 @@ export class ParsedCommand implements ParsedCommandStruct {
     this.optional = parsedCommandInfo.optional;
 
     // read from option config
-    this.injections = (optionConfig?.injections || []).concat([
-      // default option in args
-      { propName: '_', type: OptionInjectType.KEY_OPTION },
-      { propName: '--', type: OptionInjectType.KEY_OPTION },
-    ]);
+    this.injections = optionConfig?.injections || [];
     this.flagOptions = optionConfig?.flagOptions || {};
     this.argumentOptions = optionConfig?.argumentOptions || {};
     this.childs = [];

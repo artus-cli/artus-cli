@@ -4,7 +4,7 @@ import { Injectable, Inject, ScopeEnum } from '@artus/core';
 import { CommandMeta, CommandConfig, OptionMeta, OptionConfig, MiddlewareMeta } from '../types';
 import { parseCommand } from './parser';
 import { Command, EmptyCommand } from './command';
-import { MetadataEnum } from '../constant';
+import { MetadataEnum, OptionInjectType } from '../constant';
 import { isInheritFrom, formatToArray, formatCmd, formatDesc } from '../utils';
 import { errors } from '../errors';
 import { ParsedCommand, FormattedCommandConfig } from './parsed_command';
@@ -48,8 +48,16 @@ export class ParsedCommandTree {
       }
     });
 
+    const injections = optionMeta?.injections || [];
+    injections.push(
+      // default option in args
+      { propName: '_', type: OptionInjectType.KEY_OPTION },
+      { propName: '--', type: OptionInjectType.KEY_OPTION },
+    );
+
     return {
       ...optionMeta,
+      injections,
       flagOptions,
       argumentOptions,
     };

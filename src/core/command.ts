@@ -5,7 +5,7 @@ export abstract class Command {
   '_': string[];
 
   /** Arguments after the end-of-options flag `--` */
-  '--': string[];
+  '--'?: string[];
 
   abstract run(...args: any[]): Promise<any>;
 }

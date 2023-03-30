@@ -20,6 +20,13 @@ describe('test/index.test.ts', () => {
       .expect('stdout', /inspect false/)
       .expect('stdout', /nodeFlags undefined/)
       .expect('stdout', /baseDir 123/)
+      .expect('stdout', /_ \[ 'dev', 123 \]/)
+      .expect('stdout', /-- undefined/)
+      .end();
+
+    await fork('egg-bin', [ 'dev', '123', '-p=6000', '--', '--other' ])
+      .debug()
+      .expect('stdout', /-- \[ '--other' \]/)
       .end();
 
     await fork('egg-bin', [ '-v' ])
