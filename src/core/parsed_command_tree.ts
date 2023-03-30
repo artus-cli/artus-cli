@@ -1,6 +1,6 @@
 import { debuglog } from 'node:util';
 import assert from 'node:assert';
-import { Injectable, Inject, ScopeEnum, Container } from '@artus/core';
+import { Injectable, Inject, ScopeEnum } from '@artus/core';
 import { CommandMeta, CommandConfig, OptionMeta, OptionConfig, MiddlewareMeta } from '../types';
 import { parseCommand } from './parser';
 import { Command, EmptyCommand } from './command';
@@ -16,9 +16,6 @@ const debug = debuglog('artus-cli#ParsedCommands');
 export class ParsedCommandTree {
   @Inject()
   private readonly binInfo: BinInfo;
-
-  @Inject()
-  private container: Container;
 
   /** root of command tree */
   root: ParsedCommand | undefined;
