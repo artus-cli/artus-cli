@@ -2,7 +2,6 @@ import { Inject, Injectable, ScopeEnum } from '@artus/core';
 import { ParsedCommands } from './parsed_commands';
 import { ParsedCommand } from './parsed_command';
 import { Command } from './command';
-import { COMMAND_OPTION_SYMBOL } from '../constant';
 import { CommandContext } from './context';
 import { CommandTrigger } from './trigger';
 import assert from 'node:assert';
@@ -19,12 +18,11 @@ export class Utils {
   @Inject()
   private readonly commands: ParsedCommands;
 
-  /** executing other command in same pipeline */
+  /** forward to other command in same pipeline */
   async forward<T extends Record<string, any> = Record<string, any>>(clz: typeof Command | ParsedCommand, args?: T) {
     const cmd = clz instanceof ParsedCommand ? clz : this.commands.getCommand(clz);
     assert(cmd, format('Can not forward to command %s', cmd?.clz.name));
-    const instance = this.ctx.container.get(cmd.clz);
-    if (args) instance[COMMAND_OPTION_SYMBOL] = args;
+    Object.assign(this.ctx.args, this.commands.parseArgs(this.ctx.raw, cmd).args, args);
     return this.trigger.executeCommand(this.ctx, cmd);
   }
 

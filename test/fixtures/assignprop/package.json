@@ -1,0 +1,7 @@
+{
+  "name": "assignprop",
+  "type": "commonjs",
+  "bin": {
+    "simple": "./bin/cli.js"
+  }
+}

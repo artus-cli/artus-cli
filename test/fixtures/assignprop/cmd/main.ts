@@ -1,0 +1,21 @@
+// index.ts
+import { DefineCommand, Option, Command } from '@artus-cli/artus-cli';
+
+@DefineCommand({
+  command: '$0 [baseDir]',
+  description: 'My Simple Bin',
+})
+export class MainCommand extends Command {
+  @Option({
+    alias: 'p',
+    description: 'port',
+  })
+  port = 3000;
+
+  @Option()
+  baseDir = './';
+
+  async run() {
+    console.info('Run with port %s in %s', this.port, this.baseDir);
+  }
+}

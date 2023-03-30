@@ -66,12 +66,12 @@ describe('test/core/decorators.test.ts', () => {
   it('Option/Options', async () => {
     const metadata: OptionMeta = Reflect.getOwnMetadata(MetadataEnum.OPTION, MyCommand);
     assert(metadata.config.port);
-    assert('args' in MyCommand.prototype);
+    assert(metadata.injections.find(info => info.propName === 'args'));
 
     // extend
     const metadata2: OptionMeta = Reflect.getOwnMetadata(MetadataEnum.OPTION, NewMyCommand);
     assert(metadata2.config);
-    assert('argv' in NewMyCommand.prototype);
+    assert(metadata2.injections.find(info => info.propName === 'argv'));
   });
 
   it('Middlware', async () => {

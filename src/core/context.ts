@@ -33,8 +33,8 @@ export class CommandContext<
 
   env: Record<string, string | undefined>;
   cwd: string;
-  input: CommandInput;
-  output: CommandOutput<OutputResult>;
+  declare input: CommandInput;
+  declare output: CommandOutput<OutputResult>;
 
   init() {
     const params = this.input.params;

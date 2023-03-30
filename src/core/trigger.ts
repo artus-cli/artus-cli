@@ -3,7 +3,7 @@ import { debuglog } from 'node:util';
 import { Trigger, Injectable, ScopeEnum } from '@artus/core';
 
 import { Context, Output } from '@artus/pipeline';
-import { EXCUTION_SYMBOL } from '../constant';
+import { EXCUTION_SYMBOL, OptionInjectType } from '../constant';
 import { CommandContext, CommandInput, CommandOutput } from './context';
 import { ParsedCommand } from './parsed_command';
 
@@ -77,6 +77,14 @@ export class CommandTrigger extends Trigger {
   /** execute command in pipeline */
   async executeCommand(ctx: CommandContext, cmd: ParsedCommand) {
     const instance = ctx.container.get(cmd.clz);
+    cmd.injections.forEach(info => {
+      if (info.type === OptionInjectType.FULL_OPTION) {
+        instance[info.propName] = ctx.args;
+      } else {
+        const assignValue = ctx.args[info.propName];
+        if (assignValue !== undefined) instance[info.propName] = assignValue;
+      }
+    });
     if (instance[EXCUTION_SYMBOL]) await instance[EXCUTION_SYMBOL]();
     return ctx.output.data;
   }

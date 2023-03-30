@@ -25,6 +25,7 @@ describe('test/core/utils.test.ts', () => {
     });
 
     const { result } = await utils.forward(DebugCommand);
+    console.info(result);
     assert(result);
     assert(result.command === 'debug');
     assert(result.args.port === 3000);

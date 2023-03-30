@@ -1,10 +1,10 @@
 import { addTag, Injectable, ScopeEnum, Inject } from '@artus/core';
-import { MetadataEnum, CONTEXT_SYMBOL, EXCUTION_SYMBOL, COMMAND_OPTION_SYMBOL } from '../constant';
+import { MetadataEnum, CONTEXT_SYMBOL, EXCUTION_SYMBOL, OptionInjectType } from '../constant';
 import { ParsedCommands } from '../core/parsed_commands';
 import { CommandContext, CommandOutput } from './context';
 import compose from 'koa-compose';
 import { Command } from './command';
-import { checkCommandCompatible, getCalleeList } from '../utils';
+import { getCalleeList } from '../utils';
 import { BaseMeta, MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, ConvertTypeToBasicType, CommandMeta } from '../types';
 
 export interface CommonDecoratorOption extends Pick<BaseMeta, 'inheritMetadata'> {}
@@ -30,6 +30,8 @@ export function DefineCommand(
     addTag(MetadataEnum.COMMAND, target);
     Injectable({ scope: ScopeEnum.EXECUTION })(target);
 
+    // inject ctx to proto
+    Inject(CommandContext)(target, CONTEXT_SYMBOL);
     wrapWithMiddleware(target);
     return target;
   };
@@ -41,14 +43,9 @@ export function Options<T extends Record<string, any> = Record<string, any>>(
   return <G extends Command>(target: G, key: string) => {
     const result = initOptionMeta(target);
     Object.assign(result.config, meta);
-    Object.defineProperty(target, key, {
-      get() {
-        return this[COMMAND_OPTION_SYMBOL];
-      },
-
-      set(val) {
-        this[COMMAND_OPTION_SYMBOL] = val;
-      },
+    result.injections.push({
+      propName: key,
+      type: OptionInjectType.FULL_OPTION,
     });
   };
 }
@@ -77,14 +74,9 @@ export function Option(descOrOpt?: string | OptionProps) {
       ...config,
     };
 
-    Object.defineProperty(target, key, {
-      get() {
-        return this[COMMAND_OPTION_SYMBOL][key];
-      },
-
-      set(val) {
-        this[COMMAND_OPTION_SYMBOL][key] = val;
-      },
+    result.injections.push({
+      propName: key,
+      type: OptionInjectType.KEY_OPTION,
     });
   };
 }
@@ -115,31 +107,9 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
 function initOptionMeta(target: Command): OptionMeta {
   const ctor = target.constructor as typeof Command;
   if (!Reflect.hasOwnMetadata(MetadataEnum.OPTION, ctor)) {
-    // define option key
-    const optionCacheSymbol = Symbol(`${ctor.name}#cache`);
-    Object.defineProperty(target, COMMAND_OPTION_SYMBOL, {
-      get() {
-        if (this[optionCacheSymbol]) return this[optionCacheSymbol];
-        const ctx: CommandContext = this[CONTEXT_SYMBOL];
-        if (!ctx) return;
-
-        const { matched, args, raw: argv } = ctx;
-        const parsedCommands = ctx.container.get(ParsedCommands);
-        const targetCommand = parsedCommands.getCommand(ctor);
-        // check target command whether is compatible with matched
-        const isSameCommandOrCompatible = matched?.clz === ctor || (matched && targetCommand && checkCommandCompatible(targetCommand, matched));
-        this[optionCacheSymbol] = isSameCommandOrCompatible ? args : parsedCommands.parseArgs(argv, targetCommand).args;
-        return this[optionCacheSymbol];
-      },
-
-      set(val: any) {
-        // allow developer to override options
-        this[optionCacheSymbol] = val;
-      },
-    });
-
     const optionMeta = {
       config: {},
+      injections: [],
     } satisfies OptionMeta;
 
     Reflect.defineMetadata(MetadataEnum.OPTION, optionMeta, ctor);
@@ -152,10 +122,6 @@ function initOptionMeta(target: Command): OptionMeta {
  * wrap middleware logic in command class
  */
 function wrapWithMiddleware(clz) {
-  // inject ctx to proto
-  Inject(CommandContext)(clz, CONTEXT_SYMBOL);
-
-  // override run method
   const runMethod = clz.prototype.run;
   Object.defineProperty(clz.prototype, 'run', {
     async value(...args: any[]) {

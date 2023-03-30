@@ -235,4 +235,21 @@ describe('test/index.test.ts', () => {
       .expect('stderr', /Command is not found: 'dynamic debug'/)
       .end();
   });
+
+  it('should assign prop in option', async () => {
+    await fork('assignprop')
+      // .debug()
+      .expect('stdout', /Run with port 3000 in \.\//)
+      .end();
+
+    await fork('assignprop', [ '--port', '8080' ])
+      // .debug()
+      .expect('stdout', /Run with port 8080 in \.\//)
+      .end();
+
+    await fork('assignprop', [ './test', '--port', '8080' ])
+      // .debug()
+      .expect('stdout', /Run with port 8080 in \.\/test/)
+      .end();
+  });
 });
