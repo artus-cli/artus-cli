@@ -1,5 +1,6 @@
 import { Command } from './core/command';
 import { Middleware, Middlewares } from '@artus/pipeline';
+import { OptionInjectType } from './constant';
 
 export interface CommandConfig extends Record<string, any> {
   /** whether enable command, default to true */
@@ -73,9 +74,15 @@ export interface BaseMeta {
   inheritMetadata?: boolean;
 }
 
+export interface OptionInjectMeta {
+  type: OptionInjectType;
+  propName: string;
+}
+
 export interface OptionMeta<T extends string = string> extends BaseMeta {
   /** option config */
   config: OptionConfig<T>;
+  injections: OptionInjectMeta[];
 }
 
 export interface CommandMeta extends BaseMeta {

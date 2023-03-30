@@ -38,6 +38,8 @@ export class DevCommand extends Command {
     console.info('inspect', this.inspect);
     console.info('nodeFlags', this.nodeFlags);
     console.info('baseDir', this.baseDir);
+    console.info('_', this._);
+    console.info('--', this['--']);
     return {
       command: 'dev',
       args: this.args,

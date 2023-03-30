@@ -4,7 +4,7 @@ import { Injectable, Inject, ScopeEnum } from '@artus/core';
 import { CommandMeta, CommandConfig, OptionMeta, OptionConfig, MiddlewareMeta } from '../types';
 import { parseCommand } from './parser';
 import { Command, EmptyCommand } from './command';
-import { MetadataEnum } from '../constant';
+import { MetadataEnum, OptionInjectType } from '../constant';
 import { isInheritFrom, formatToArray, formatCmd, formatDesc } from '../utils';
 import { errors } from '../errors';
 import { ParsedCommand, FormattedCommandConfig } from './parsed_command';
@@ -34,7 +34,9 @@ export class ParsedCommandTree {
     };
   }
 
-  private formatOptions(option: OptionConfig, argumentsKey: string[]) {
+  private resolveOptions(clz: typeof Command, argumentsKey: string[]) {
+    const optionMeta: OptionMeta | undefined = Reflect.getOwnMetadata(MetadataEnum.OPTION, clz);
+    const option = optionMeta?.config || {};
     const descObj = this.descObj;
     const flagOptions: OptionConfig = {};
     const argumentOptions: OptionConfig = {};
@@ -46,8 +48,18 @@ export class ParsedCommandTree {
       }
     });
 
+    const injections = optionMeta?.injections || [];
+    injections.push(
+      // default option in args
+      { propName: '_', type: OptionInjectType.KEY_OPTION },
+      { propName: '--', type: OptionInjectType.KEY_OPTION },
+    );
+
     return {
-      flagOptions, argumentOptions,
+      ...optionMeta,
+      injections,
+      flagOptions,
+      argumentOptions,
     };
   }
 
@@ -114,18 +126,18 @@ export class ParsedCommandTree {
     const parsedCommandInfo = formattedCommandConfig.parsedCommandInfo;
 
     // split options with argument key and merge option info with inherit command
-    const optionMeta: OptionMeta | undefined = Reflect.getOwnMetadata(MetadataEnum.OPTION, clz);
     const argumentsKey = parsedCommandInfo.demanded.concat(parsedCommandInfo.optional).map(pos => pos.cmd);
-    let { flagOptions, argumentOptions } = this.formatOptions(optionMeta?.config || {}, argumentsKey);
-    if (inheritCommand && optionMeta?.inheritMetadata !== false) {
-      flagOptions = Object.assign({}, inheritCommand.flagOptions, flagOptions);
-      argumentOptions = Object.assign({}, inheritCommand.argumentOptions, argumentOptions);
+    const optionConfig = this.resolveOptions(clz, argumentsKey);
+    if (inheritCommand && optionConfig.inheritMetadata !== false) {
+      optionConfig.injections = inheritCommand.injections.concat(optionConfig.injections || []);
+      optionConfig.flagOptions = Object.assign({}, inheritCommand.flagOptions, optionConfig.flagOptions);
+      optionConfig.argumentOptions = Object.assign({}, inheritCommand.argumentOptions, optionConfig.argumentOptions);
     }
 
     const parsedCommand = new ParsedCommand(clz, {
       location: commandMeta.location,
       commandConfig: formattedCommandConfig,
-      optionConfig: { flagOptions, argumentOptions },
+      optionConfig,
     });
 
     if (inheritCommand) parsedCommand.inherit = inheritCommand;
