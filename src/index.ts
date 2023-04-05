@@ -97,4 +97,6 @@ export async function start(options: ArtusCliOptions = {}) {
     await app.run();
     return app;
   }
+
+  return null;
 }
