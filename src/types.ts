@@ -106,6 +106,9 @@ export interface ArtusCliOptions extends Partial<ArtusCliConfig> {
 
   /** exclude scan dir */
   exclude?: string[];
+
+  /** read/write cache manifest file in local */
+  useManifestCache?: boolean;
 }
 
 export interface ArtusCliConfig {

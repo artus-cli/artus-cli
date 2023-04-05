@@ -6,6 +6,7 @@ import { BIN_OPTION_SYMBOL } from './constant';
 import { readPkg, getCalleeFile } from './utils';
 import { BinInfoOption } from './core/bin_info';
 import path from 'node:path';
+import fs from 'fs';
 
 export * from '@artus/core';
 export { Context } from '@artus/pipeline';
@@ -41,39 +42,61 @@ export async function start(options: ArtusCliOptions = {}) {
     options.binName = Object.keys(pkgInfo.bin)[0];
   }
 
-  // record scanning state
-  process.env.ARTUS_CLI_SCANNING = 'true';
-
-  const exclude = options.exclude || [ 'bin', 'test', 'coverage' ];
-  if (calleeFile) {
-    const isBuildJavascriptFile = calleeFile.endsWith('.js');
-    if (isBuildJavascriptFile) {
-      exclude.push('*.ts');
-    } else {
-      exclude.push('dist');
+  let manifest: Record<string, any> | undefined;
+  const manifestCachePath = path.resolve(baseDir, 'manifest.json');
+  if (options.useManifestCache && fs.existsSync(manifestCachePath)) {
+    try {
+      manifest = require(manifestCachePath);
+    } catch(e) {
+      // do nothing
     }
   }
 
-  // scan app files
-  const scanner = new Scanner({
-    needWriteFile: false,
-    configDir: 'config',
-    extensions: [ '.ts' ],
-    framework: options.framework || { path: __dirname },
-    exclude,
-  });
+  if (!manifest) {
+    // record scanning state
+    process.env.ARTUS_CLI_SCANNING = 'true';
 
-  const manifest = await scanner.scan(baseDir);
-  delete process.env.ARTUS_CLI_SCANNING;
+    const exclude = options.exclude || [ 'bin', 'test', 'coverage' ];
+    if (calleeFile) {
+      const isBuildJavascriptFile = calleeFile.endsWith('.js');
+      if (isBuildJavascriptFile) {
+        exclude.push('*.ts');
+      } else {
+        exclude.push('dist');
+      }
+    }
 
-  // start app
-  const artusEnv = options.artusEnv || process.env.ARTUS_CLI_ENV || 'default';
-  const app = new ArtusApplication();
-  assert(manifest[artusEnv], `Unknown env "${artusEnv}"`);
+    // scan app files
+    const scanner = new Scanner({
+      needWriteFile: false,
+      configDir: 'config',
+      extensions: [ '.ts' ],
+      framework: options.framework || { path: __dirname },
+      exclude,
+    });
 
-  // bin opt store in app
-  app[BIN_OPTION_SYMBOL] = { ...options, pkgInfo, artusEnv, baseDir } satisfies BinInfoOption;
-  await app.load(manifest[artusEnv], baseDir);
-  await app.run();
-  return app;
+    manifest = await scanner.scan(baseDir);
+
+    // save manifest to local
+    if (options.useManifestCache) {
+      fs.writeFileSync(manifestCachePath, JSON.stringify(manifest));
+    }
+
+    delete process.env.ARTUS_CLI_SCANNING;
+  }
+
+  if (process.env.ARTUS_CLI_PRELOAD !== 'true') {
+    // start app
+    const artusEnv = options.artusEnv || process.env.ARTUS_CLI_ENV || 'default';
+    const app = new ArtusApplication();
+    assert(manifest[artusEnv], `Unknown env "${artusEnv}"`);
+
+    // bin opt store in app
+    app[BIN_OPTION_SYMBOL] = { ...options, pkgInfo, artusEnv, baseDir } satisfies BinInfoOption;
+    await app.load(manifest[artusEnv], baseDir);
+    await app.run();
+    return app;
+  }
+
+  return null;
 }
