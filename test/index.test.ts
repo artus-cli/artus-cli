@@ -1,4 +1,7 @@
 import { fork } from './test-utils';
+import fs from 'fs';
+import path from 'path';
+import assert from 'assert';
 
 describe('test/index.test.ts', () => {
   it('egg-bin should work', async () => {
@@ -258,5 +261,57 @@ describe('test/index.test.ts', () => {
       // .debug()
       .expect('stdout', /Run with port 8080 in \.\/test/)
       .end();
+  });
+
+  describe('useManifestCache', () => {
+    const cacheManifestPath = path.resolve(__dirname, './fixtures/cacheManifest/manifest.json');
+    const clearManifest = () => fs.existsSync(cacheManifestPath) && fs.unlinkSync(cacheManifestPath);
+
+    beforeEach(clearManifest);
+    afterEach(clearManifest);
+    
+    it('should useManifestCache without error', async () => {
+      await fork('cacheManifest', [ '-h' ])
+        // .debug()
+        .expect('stdout', /Usage: cache-manifest-bin/)
+        .expect('stdout', /cov <baseDir>/)
+        .expect('stdout', /dev/)
+        .expect('stdout', /debug/)
+        .end();
+
+      assert(fs.existsSync(cacheManifestPath));
+
+      // has cache
+      await fork('cacheManifest', [ '-h' ])
+        // .debug()
+        .expect('stdout', /Usage: cache-manifest-bin/)
+        .expect('stdout', /cov <baseDir>/)
+        .expect('stdout', /dev/)
+        .expect('stdout', /debug/)
+        .end();
+    });
+
+    it('should useManifestCache with preload without error', async () => {
+      await fork('cacheManifest', [ '-h' ], {
+        env: {
+          ...process.env,
+          ARTUS_CLI_PRELOAD: 'true',
+        },
+      })
+        // .debug()
+        .notExpect('stdout', /Usage: cache-manifest-bin/)
+        .notExpect('stdout', /cov <baseDir>/)
+        .notExpect('stdout', /dev/)
+        .notExpect('stdout', /debug/)
+        .end();
+
+      await fork('cacheManifest', [ '-h' ])
+        // .debug()
+        .expect('stdout', /Usage: cache-manifest-bin/)
+        .expect('stdout', /cov <baseDir>/)
+        .expect('stdout', /dev/)
+        .expect('stdout', /debug/)
+        .end();
+    });
   });
 });
