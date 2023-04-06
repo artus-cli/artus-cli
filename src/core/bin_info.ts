@@ -27,6 +27,7 @@ export class BinInfo {
   strict: boolean;
   strictCommands: boolean;
   strictOptions: boolean;
+  inheritMetadata: boolean;
 
   constructor(
     @Inject(ArtusInjectEnum.Application) app: ArtusApplication,
@@ -42,10 +43,13 @@ export class BinInfo {
     this.description = opt.pkgInfo.description || '';
     this.pkgInfo = opt.pkgInfo;
 
+    const config: ArtusCliConfig = app.config;
+    this.inheritMetadata = !!config.inheritMetadata;
+
     const getBool = (...args: any[]) => args.find(a => typeof a === 'boolean');
-    this.strict = getBool(opt.strict, app.config.strict);
-    this.strictCommands = getBool(opt.strictCommands, app.config.strictCommands, this.strict);
-    this.strictOptions = getBool(opt.strictOptions, app.config.strictOptions, this.strict);
+    this.strict = getBool(opt.strict, config.strict);
+    this.strictCommands = getBool(opt.strictCommands, config.strictCommands, this.strict);
+    this.strictOptions = getBool(opt.strictOptions, config.strictOptions, this.strict);
     delete app[BIN_OPTION_SYMBOL];
   }
 }

@@ -57,7 +57,7 @@ describe('test/core/parsed_command_tree.test.ts', () => {
     }
 
     @NewDefineCommand({ command: 'aa' }, { inheritMetadata: false })
-    @Middleware([ async () => 1, async () => 1 ], { inheritMetadata: false })
+    @Middleware([ async () => 1, async () => 1 ])
     class OverrideMyCommand extends MyCommand {
       async run() {
         // nothing
@@ -120,6 +120,7 @@ describe('test/core/parsed_command_tree.test.ts', () => {
     assert(parsedOverrideMyCommand.uid === 'argument-bin aa');
     assert(!parsedOverrideMyCommand.description);
     assert(parsedOverrideMyCommand.commandMiddlewares.length === 2);
+    assert(Object.keys(parsedOverrideMyCommand.flagOptions).length === 0);
     assert(!parsedOverrideMyCommand.executionMiddlewares.length);
 
     // should conflict

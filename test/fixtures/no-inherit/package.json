@@ -1,0 +1,6 @@
+{
+  "name": "noinherit-bin",
+  "version": "0.0.1",
+  "type": "commonjs",
+  "bin": "./bin/cli.js"
+}

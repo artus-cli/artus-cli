@@ -263,6 +263,22 @@ describe('test/index.test.ts', () => {
       .end();
   });
 
+  it('should not inherit metadata', async () => {
+    await fork('no-inherit', [ 'dev', '-h' ])
+      // .debug()
+      .notExpect('stdout', /--port/)
+      .notExpect('stdout', /--inspect/)
+      .notExpect('stdout', /--node-flags/)
+      .end();
+
+    await fork('no-inherit', [ 'dev' ])
+      // .debug()
+      .expect('stdout', /port undefined/)
+      .expect('stdout', /inspect undefined/)
+      .expect('stdout', /nodeFlags undefined/)
+      .end();
+  });
+
   describe('useManifestCache', () => {
     const cacheManifestPath = path.resolve(__dirname, './fixtures/cacheManifest/manifest.json');
     const clearManifest = () => fs.existsSync(cacheManifestPath) && fs.unlinkSync(cacheManifestPath);

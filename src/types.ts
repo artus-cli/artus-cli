@@ -32,7 +32,7 @@ export interface MiddlewareConfig {
 
 export type MiddlewareInput = Middleware | Middlewares;
 
-export interface MiddlewareMeta extends BaseMeta {
+export interface MiddlewareMeta {
   /** middleware config list */
   configList: MiddlewareConfig[];
 }
@@ -69,29 +69,26 @@ export interface OptionProps<T extends BasicType = BasicType, G = any> extends R
 
 export type OptionConfig<T extends string = string> = Record<T, OptionProps>;
 
-export interface BaseMeta {
-  /** whether inherit meta data from prototype, default to true */
-  inheritMetadata?: boolean;
-}
-
 export interface OptionInjectMeta {
   type: OptionInjectType;
   propName: string;
 }
 
-export interface OptionMeta<T extends string = string> extends BaseMeta {
+export interface OptionMeta<T extends string = string> {
   /** option config */
   config: OptionConfig<T>;
   injections: OptionInjectMeta[];
 }
 
-export interface CommandMeta extends BaseMeta {
+export interface CommandMeta {
   /** command config */
   config: CommandConfig;
   /** Command Class location */
   location?: string;
   /** whether override exists conflict command */
   overrideCommand?: boolean;
+  /** whether inherit metadata from parent class( includes middleware, options ), default is true */
+  inheritMetadata?: boolean;
 }
 
 export interface ArtusCliOptions extends Partial<ArtusCliConfig> {
@@ -114,6 +111,9 @@ export interface ArtusCliOptions extends Partial<ArtusCliConfig> {
 export interface ArtusCliConfig {
   /** your bin name, default is name in package.json */
   binName?: string;
+
+  /** whether inherit command metadata */
+  inheritMetadata?: boolean;
 
   /** strict mode in checking arguments and options, default is true */
   strict?: boolean;
