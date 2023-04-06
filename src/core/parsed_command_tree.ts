@@ -101,15 +101,20 @@ export class ParsedCommandTree {
     const commandMeta = metadata;
     const inheritClass = Object.getPrototypeOf(clz);
     const inheritCommand = this.initParsedCommand(inheritClass);
+    const shouldInheritMetadata = typeof commandMeta.inheritMetadata === 'boolean'
+      ? commandMeta.inheritMetadata
+      : this.binInfo.inheritMetadata;
+
     let commandConfig = { ...commandMeta.config };
 
     // mege command config with inherit command
-    if (inheritCommand && commandMeta.inheritMetadata !== false) {
+    if (inheritCommand && shouldInheritMetadata) {
       const inheritCommandConfig = inheritCommand.commandConfig;
       commandConfig = Object.assign({}, {
         alias: inheritCommandConfig.alias,
         command: inheritCommandConfig.command,
         description: inheritCommandConfig.description,
+        examples: inheritCommandConfig.examples,
         parent: inheritCommandConfig.parent,
       } satisfies CommandConfig, commandConfig);
     }
@@ -128,7 +133,7 @@ export class ParsedCommandTree {
     // split options with argument key and merge option info with inherit command
     const argumentsKey = parsedCommandInfo.demanded.concat(parsedCommandInfo.optional).map(pos => pos.cmd);
     const optionConfig = this.resolveOptions(clz, argumentsKey);
-    if (inheritCommand && optionConfig.inheritMetadata !== false) {
+    if (inheritCommand && shouldInheritMetadata) {
       optionConfig.injections = inheritCommand.injections.concat(optionConfig.injections || []);
       optionConfig.flagOptions = Object.assign({}, inheritCommand.flagOptions, optionConfig.flagOptions);
       optionConfig.argumentOptions = Object.assign({}, inheritCommand.argumentOptions, optionConfig.argumentOptions);
@@ -169,7 +174,7 @@ export class ParsedCommandTree {
     // merge command middlewares with inherit command
     const middlewareMeta = Reflect.getOwnMetadata(MetadataEnum.MIDDLEWARE, clz) as (MiddlewareMeta | undefined);
     const commandMiddlewareConfigList = middlewareMeta?.configList || [];
-    if (inheritCommand && middlewareMeta?.inheritMetadata !== false) {
+    if (inheritCommand && shouldInheritMetadata) {
       parsedCommand.addMiddlewares('command', { middleware: inheritCommand.commandMiddlewares });
     }
     commandMiddlewareConfigList.forEach(config => parsedCommand.addMiddlewares('command', config));

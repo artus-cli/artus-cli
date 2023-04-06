@@ -5,11 +5,10 @@ import { CommandContext, CommandOutput } from './context';
 import compose from 'koa-compose';
 import { Command } from './command';
 import { getCalleeList } from '../utils';
-import { BaseMeta, MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, ConvertTypeToBasicType, CommandMeta } from '../types';
+import { MiddlewareMeta, MiddlewareInput, MiddlewareConfig, CommandConfig, OptionProps, OptionMeta, ConvertTypeToBasicType, CommandMeta } from '../types';
 
-export interface CommonDecoratorOption extends Pick<BaseMeta, 'inheritMetadata'> {}
-export interface MiddlewareDecoratorOption extends CommonDecoratorOption, Pick<MiddlewareConfig, 'mergeType'> {}
-export interface CommandDecoratorOption extends CommonDecoratorOption, Pick<CommandMeta, 'overrideCommand'> {}
+export interface MiddlewareDecoratorOption extends Pick<MiddlewareConfig, 'mergeType'> {}
+export interface CommandDecoratorOption extends Pick<CommandMeta, 'overrideCommand' | 'inheritMetadata'> {}
 
 export function DefineCommand(
   opt?: CommandConfig,
@@ -95,11 +94,6 @@ export function Middleware(fn: MiddlewareInput, option?: MiddlewareDecoratorOpti
       mergeType: option?.mergeType || 'after',
     });
 
-    if (typeof option?.inheritMetadata === 'boolean' && typeof existsMeta.inheritMetadata === 'boolean' && existsMeta.inheritMetadata !== option.inheritMetadata) {
-      throw new Error(`Can\'t use inheritMetadata in multiple @Middleware`);
-    }
-
-    existsMeta.inheritMetadata = option?.inheritMetadata;
     Reflect.defineMetadata(metaKey, existsMeta, ctor);
   };
 }

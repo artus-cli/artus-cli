@@ -92,11 +92,5 @@ describe('test/core/decorators.test.ts', () => {
     assert.throws(() => {
       Middleware(async () => 1)(new NewMyCommand(), 'other' as any);
     }, /Middleware can only be used in Command Class or run method/);
-
-    // should throw with multiple override
-    assert.throws(() => {
-      Middleware(async () => 1, { inheritMetadata: true })(NewMyCommand);
-      Middleware(async () => 1, { inheritMetadata: false })(NewMyCommand);
-    }, /Can\'t use inheritMetadata in multiple @Middleware/);
   });
 });
