@@ -4,7 +4,7 @@ import fs from 'fs';
 import assert from 'node:assert';
 import { ArtusApplication } from '@artus/core';
 import { start, ArtusCliOptions } from '@artus-cli/artus-cli';
-import { CommandTrigger } from '../src/core/trigger';
+import CommandPipeline from '../src/core/pipeline';
 import { ForkOptions } from 'child_process';
 
 export function fork(target: string, args: string[] = [], options: ForkOptions = {}) {
@@ -32,8 +32,8 @@ export async function createApp(fixtureName: string, opt?: ArtusCliOptions) {
 }
 
 export async function createCtx(app: ArtusApplication, argv: string[]) {
-  const trigger = app.container.get(CommandTrigger);
-  return trigger.initContext({
+  const pipeline = app.container.get(CommandPipeline);
+  return pipeline.initContext({
     params: {
       argv,
       env: { ...process.env },

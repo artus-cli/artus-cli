@@ -40,7 +40,7 @@ export class CommandContext<
     const params = this.input.params;
     this.env = params.env;
     this.cwd = params.cwd;
-    this.raw = params.argv;
+    this.raw = params.argv;    
     return this;
   }
 

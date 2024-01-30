@@ -1,7 +1,7 @@
 import { ArtusApplication } from '@artus/core';
 import { DebugCommand, DevCommand, MainCommand } from 'egg-bin';
 import { Program } from '@artus-cli/artus-cli';
-import { CommandTrigger } from '../../src/core/trigger';
+import CommandPipeline from '../../src/core/pipeline';
 import { createApp } from '../test-utils';
 import assert from 'node:assert';
 
@@ -51,16 +51,16 @@ describe('test/core/program.test.ts', () => {
       await next();
     });
 
-    const trigger = app.container.get(CommandTrigger);
-    await trigger.executePipeline({ argv: [ 'dev' ] });
+    const pipeline = app.container.get(CommandPipeline);
+    await pipeline.executePipeline({ argv: [ 'dev' ] });
     assert.deepEqual(callStack, [ 'pipeline', 'command', 'dev', 'execution' ]);
 
     callStack.length = 0;
-    await trigger.executePipeline({ argv: [ 'debug' ] });
+    await pipeline.executePipeline({ argv: [ 'debug' ] });
     assert.deepEqual(callStack, [ 'pipeline', 'debug' ]);
 
     callStack.length = 0;
-    await trigger.executePipeline({ argv: [] });
+    await pipeline.executePipeline({ argv: [] });
     assert.deepEqual(callStack, [ 'pipeline' ]);
   });
 });

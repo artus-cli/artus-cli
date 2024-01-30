@@ -3,7 +3,7 @@
  **/
 
 import { Inject, Injectable, ScopeEnum } from '@artus/core';
-import { CommandTrigger } from './trigger';
+import CommandPipeline from './pipeline';
 import { OptionProps, MiddlewareInput, MiddlewareConfig } from '../types';
 import { Command } from './command';
 import { BinInfo } from './bin_info';
@@ -15,7 +15,7 @@ type MaybeParsedCommand = (typeof Command) | ParsedCommand;
 @Injectable({ scope: ScopeEnum.SINGLETON })
 export class Program {
   @Inject()
-  private readonly trigger: CommandTrigger;
+  private readonly pipeline: CommandPipeline;
 
   @Inject()
   private readonly parsedCommands: ParsedCommands;
@@ -78,7 +78,7 @@ export class Program {
 
   /** register pipeline middleware */
   use(fn: MiddlewareInput) {
-    return this.trigger.use(fn);
+    return this.pipeline.use(fn);
   }
 
   /** register middleware in command */

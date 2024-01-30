@@ -1,3 +1,5 @@
+import path from 'path';
+
 export default {
   codegen: {
     enable: true,
@@ -8,4 +10,9 @@ export default {
     enable: true,
     package: 'plugin-codegen-extra',
   },
+
+  'egg-bin': {
+    enable: true,
+    path: path.dirname(require.resolve('egg-bin')),
+  },    
 };

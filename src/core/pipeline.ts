@@ -1,22 +1,32 @@
 import { debuglog } from 'node:util';
-
-import { Trigger, Injectable, ScopeEnum } from '@artus/core';
-
-import { Context, Output } from '@artus/pipeline';
+import { Pipeline, Context ,Output } from '@artus/pipeline';
+import { ExecutionContainer } from '@artus/injection';
+import { Application, ArtusInjectEnum, Inject, Injectable, ScopeEnum } from '@artus/core';
 import { EXCUTION_SYMBOL, OptionInjectType } from '../constant';
 import { CommandContext, CommandInput, CommandOutput } from './context';
 import { ParsedCommand } from './parsed_command';
 
-const debug = debuglog('artus-cli#trigger');
+const debug = debuglog('artus-cli#pipeline');
 
-@Injectable({ scope: ScopeEnum.SINGLETON })
-export class CommandTrigger extends Trigger {
+@Injectable({ 
+  id: 'ARTUS_PIPELINE',
+  scope: ScopeEnum.SINGLETON,
+})
+export default class CommandPipeline extends Pipeline {
+
+  @Inject(ArtusInjectEnum.Application)
+  app: Application;
+
+  get container() {
+    return this.app.container;
+  }
+
   async start() {
     // core middleware
     this.use(async (ctx: CommandContext, next) => {
       await next();
 
-      const { matched, error } = ctx.container.get(CommandContext);
+      const { matched, error } = this.container.get(CommandContext);
 
       // match error, throw
       if (error) throw error;
@@ -33,19 +43,14 @@ export class CommandTrigger extends Trigger {
     await this.executePipeline();
   }
 
-  async init() {
-    this.use(async (ctx: CommandContext, next) => {
-      // parse argv and match command
-      ctx.init();
-      await next();
-    });
-  }
-
   /** override artus context */
-  async initContext(input?: CommandInput, output?: Output): Promise<CommandContext> {
-    const baseCtx = await super.initContext(input, output);
-    const cmdCtx = baseCtx.container.get(CommandContext);
-    cmdCtx.container = baseCtx.container;
+  async initContext(input?: CommandInput, output?: Output): Promise<CommandContext> {    
+    const baseCtx = new Context(input, output);    
+    const container = this.container;
+    const execContainer = new ExecutionContainer(baseCtx, container);
+    
+    const cmdCtx = this.container.get(CommandContext);
+    cmdCtx.container = execContainer;
     cmdCtx.container.set({ id: CommandContext, value: cmdCtx });
     cmdCtx.input = baseCtx.input as CommandInput;
     cmdCtx.output = baseCtx.output as CommandOutput;
@@ -66,8 +71,9 @@ export class CommandTrigger extends Trigger {
       });
 
       ctx.container.set({ id: Context, value: ctx });
+      ctx.init();
 
-      await this.startPipeline(ctx);
+      await this.run(ctx);
     } catch (err) {
       console.error(err);
       process.exit(typeof err.code === 'number' ? err.code : 1);
