@@ -1,5 +1,7 @@
 import 'reflect-metadata';
-import { ArtusApplication, Scanner } from '@artus/core';
+import { ArtusApplication, ArtusScanner } from '@artus/core';
+import type { Manifest } from '@artus/core';
+
 import { ArtusCliOptions } from './types';
 import assert from 'node:assert';
 import { BIN_OPTION_SYMBOL } from './constant';
@@ -42,7 +44,7 @@ export async function start(options: ArtusCliOptions = {}) {
     options.binName = Object.keys(pkgInfo.bin)[0];
   }
 
-  let manifest: Record<string, any> | undefined;
+  let manifest: Manifest | undefined = undefined;
   const manifestCachePath = path.resolve(baseDir, 'manifest.json');
   if (options.useManifestCache && fs.existsSync(manifestCachePath)) {
     try {
@@ -67,11 +69,10 @@ export async function start(options: ArtusCliOptions = {}) {
     }
 
     // scan app files
-    const scanner = new Scanner({
+    const scanner = new ArtusScanner({
       needWriteFile: false,
       configDir: 'config',
       extensions: [ '.ts' ],
-      framework: options.framework || { path: __dirname },
       exclude,
     });
 
@@ -88,13 +89,15 @@ export async function start(options: ArtusCliOptions = {}) {
   if (process.env.ARTUS_CLI_PRELOAD !== 'true') {
     // start app
     const artusEnv = options.artusEnv || process.env.ARTUS_CLI_ENV || 'default';
-    const app = new ArtusApplication();
-    assert(manifest[artusEnv], `Unknown env "${artusEnv}"`);
+    const app = new ArtusApplication({
+      env: artusEnv,
+    });
+
 
     // bin opt store in app
     app[BIN_OPTION_SYMBOL] = { ...options, pkgInfo, artusEnv, baseDir } satisfies BinInfoOption;
-    await app.load(manifest[artusEnv], baseDir);
-    await app.run();
+    await app.load(manifest, baseDir);
+    await app.run();    
     return app;
   }
 

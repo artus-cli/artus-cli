@@ -3,7 +3,7 @@ import { ParsedCommands } from './parsed_commands';
 import { ParsedCommand } from './parsed_command';
 import { Command } from './command';
 import { CommandContext } from './context';
-import { CommandTrigger } from './trigger';
+import CommandPipeline from './pipeline';
 import assert from 'node:assert';
 import { format } from 'node:util';
 
@@ -13,7 +13,7 @@ export class Utils {
   private readonly ctx: CommandContext;
 
   @Inject()
-  private readonly trigger: CommandTrigger;
+  private readonly pipeline: CommandPipeline;
 
   @Inject()
   private readonly commands: ParsedCommands;
@@ -23,11 +23,11 @@ export class Utils {
     const cmd = clz instanceof ParsedCommand ? clz : this.commands.getCommand(clz);
     assert(cmd, format('Can not forward to command %s', cmd?.clz.name));
     Object.assign(this.ctx.args, this.commands.parseArgs(this.ctx.raw, cmd).args, args);
-    return this.trigger.executeCommand(this.ctx, cmd);
+    return this.pipeline.executeCommand(this.ctx, cmd);
   }
 
   /** create new pipeline to execute */
   async redirect(argv: string[]) {
-    await this.trigger.executePipeline({ argv });
+    await this.pipeline.executePipeline({ argv });
   }
 }
