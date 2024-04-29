@@ -74,6 +74,12 @@ export async function start(options: ArtusCliOptions = {}) {
       configDir: 'config',
       extensions: [ '.ts' ],
       exclude,
+      plugin: {
+        artusCli: {
+          enable: true,
+          path: path.resolve(__dirname, './'),
+        },
+      },
     });
 
     manifest = await scanner.scan(baseDir);
